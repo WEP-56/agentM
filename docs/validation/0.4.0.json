@@ -1,0 +1,48 @@
+{
+  "version": "0.4.0-dev",
+  "date": "2026-10-08",
+  "baselineCommit": "0c9d3ca",
+  "device": {
+    "serial": "emulator-5554",
+    "androidApi": 35,
+    "abi": "x86_64"
+  },
+  "apk": "android/app/build/outputs/apk/debug/app-debug.apk",
+  "apkSha256": "ea0a28ac7bf856761c2a0ce8f608f0671cadbc657d106e74b32bf0eaa3e8050c",
+  "frontend": "TypeScript strict and Vite production build passed",
+  "unitTests": {
+    "passed": 10,
+    "failed": 0
+  },
+  "instrumentation": {
+    "passed": 1,
+    "failed": 0,
+    "test": "ClaudeConfigIntegrationTest.preservesUnknownFieldsEncryptsBackupAndRejectsConflicts",
+    "isolatedFixtureHome": true
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 23
+  },
+  "visualCheck": {
+    "screenshots": [
+      "output/android/claude-config.png",
+      "output/android/claude-config-preview.png"
+    ],
+    "previewRedacted": true,
+    "credentialAbsentFromLocalStorage": true,
+    "liveSettingsSha256UnchangedAfterPreviewAndCancel": true
+  },
+  "newCrashEntries": 0,
+  "localEvidence": [
+    "output/android/config-validation.log",
+    "output/android/config-crash.log",
+    "android/app/build/reports/lint-results-debug.txt"
+  ],
+  "limitations": [
+    "One current Claude user-level configuration; provider profile library and other Agent adapters remain pending.",
+    "Native settings contain credentials needed by Claude; backups use Android Keystore AES-GCM encryption.",
+    "External writers do not participate in the application lock; pre/post revision checks are not an OS-level compare-and-swap.",
+    "No power-loss fault injection, account authentication, model call or arm64 runtime validation was performed."
+  ]
+}

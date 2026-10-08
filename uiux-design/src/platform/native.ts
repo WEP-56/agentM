@@ -27,6 +27,9 @@ interface NativeHost {
   postMessage(value: string): void;
   onmessage: ((event: MessageEvent<string>) => void) | null;
 }
+export class NativeError extends Error {
+  constructor(message: string, public readonly code: string) { super(message); this.name = 'NativeError'; }
+}
 declare global {
   interface Window { AgentMHost?: NativeHost; agentMBack?: () => boolean }
 }
@@ -36,14 +39,14 @@ const pending = new Map<string, Pending>();
 
 if (isNative) {
   window.AgentMHost!.onmessage = (event) => {
-    let reply: { id: string; ok: boolean; value?: unknown; error?: { message: string } };
+    let reply: { id: string; ok: boolean; value?: unknown; error?: { message: string; code?: string } };
     try { reply = JSON.parse(event.data); } catch { return; }
     const request = pending.get(reply.id);
     if (!request) return;
     clearTimeout(request.timer);
     pending.delete(reply.id);
     if (reply.ok) request.resolve(reply.value);
-    else request.reject(new Error(reply.error?.message ?? '原生操作未完成'));
+    else request.reject(new NativeError(reply.error?.message ?? '原生操作未完成', reply.error?.code ?? 'NATIVE_ERROR'));
   };
 }
 

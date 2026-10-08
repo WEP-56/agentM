@@ -72,7 +72,7 @@ export function NativePackages() {
         <p className="type-body-medium">卸载 Claude Code {packages?.claude?.version}？配置、登录信息、会话和工作区将保留。</p>
         <div className="mt-3 flex gap-2"><Button variant="text" onClick={() => setConfirmRemove(false)}>取消</Button><Button disabled={unavailable} onClick={() => void run('removeClaude')}>确认卸载</Button></div>
       </div>}
-      <p className="mt-4 type-body-small text-on-surface-variant">当前使用固定版本。Claude Code 启动后由其原生界面完成登录；工作台配置文件管理仍在开发中。</p>
+      <p className="mt-4 type-body-small text-on-surface-variant">当前使用固定版本。可在配置页管理 Claude 的连接与模型，原生登录仍在终端中完成。</p>
       {[packages?.node, packages?.claude].map(record => record && <details key={record.slot} className="mt-4">
         <summary className="cursor-pointer type-label-large">{record.entry.endsWith('/node') ? 'Node.js 与基础工具' : 'Claude Code'} · {record.version} · 检查结果</summary>
         <pre className="mt-2 whitespace-pre-wrap break-all font-mono text-xs text-on-surface-variant">{record.probeOutput}</pre>

@@ -22,6 +22,7 @@ import { Ripple } from "@/components/md/Ripple";
 import { AgentIcon, Shape } from "@/components/Brand";
 import { hostOf, uid } from "@/utils/format";
 import { isNative } from '@/platform/native';
+import { NativeClaudeConfig } from './NativeClaudeConfig';
 
 export const isInstalled = (s: AgentStatus) => s !== "not_installed" && s !== "installing";
 const needsKey = (p: Provider) => !p.apiKey && p.presetId !== "ollama";
@@ -29,18 +30,8 @@ const needsKey = (p: Provider) => !p.apiKey && p.presetId !== "ollama";
 /* ───────────── Tab ───────────── */
 export function ConfigScreen() {
   const agents = useApp((s) => s.agents);
-  const native = useApp((s) => s.native);
-  const launch = useApp((s) => s.launchAgent);
-  const setTab = useApp((s) => s.setTab);
   const installed = AGENTS.filter((a) => isInstalled(agents[a.id].status));
-  if (isNative) return <TabPage title="配置">
-    <div className="rounded-[28px] bg-surface-container-low p-5">
-      <h2 className="type-title-medium">配置文件管理正在开发中</h2>
-      <p className="mt-3 type-body-medium text-on-surface-variant">{native?.packages.claudeReady ? `Claude Code ${native.packages.claude?.version} 已安装，可在其原生终端中登录和配置。` : '准备开发工具并安装 Claude Code 后，可在其原生终端中登录和配置。'}</p>
-      <p className="mt-3 type-body-medium text-on-surface-variant">提供商表单尚未连接原生配置文件。你的登录、配置与会话保存在 Ubuntu 的持久主目录。</p>
-      <div className="mt-4"><Button variant="tonal" onClick={() => native?.packages.claudeReady ? void launch('claude') : setTab('env')}>{native?.packages.claudeReady ? '打开 Claude Code' : '准备环境'}</Button></div>
-    </div>
-  </TabPage>;
+  if (isNative) return <NativeClaudeConfig />;
   return (
     <TabPage title="配置">
       {installed.length === 0 ? (

@@ -2,6 +2,8 @@
 
 本文件定义五个适配器的目标范围。源码依据见[调研索引](01-源码调研与选型.md)。候选版本来自 2026-10-08 实际读取的 [npm 元数据](research/npm-snapshot.json)。后续 0.3.0 已验证 Claude Code 2.1.293 在 x86_64 Android 模拟器的安装、版本检查、原生 PTY 启停及卸载；其余 Agent、配置适配和 arm64 真机尚未验证，详见 [开发记录](08-开发工具与首个Agent.md)。
 
+0.4.0 已进一步实现并测试 Claude 用户级 settings.json 的四个受管 env 字段、预览、冲突与备份恢复，详见 [配置开发记录](09-Claude配置文件管理.md)。下文其余适配器及完整 ProviderProfile 流程仍是目标设计。
+
 ## 1. 包与执行矩阵
 
 | Agent ID | npm 包 | 当日 latest 候选 | npm 声明 Node | 使用形态 |

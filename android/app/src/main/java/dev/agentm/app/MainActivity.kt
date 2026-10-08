@@ -78,7 +78,9 @@ class MainActivity : ComponentActivity() {
                 return@addWebMessageListener
             }
             val body = request.optJSONObject("params") ?: JSONObject()
-            val fingerprint = method + ":" + body.toString()
+            // Configuration requests may contain a credential. Never retain plaintext in the reply cache.
+            val fingerprint = method + ":" + java.security.MessageDigest.getInstance("SHA-256")
+                .digest(body.toString().toByteArray()).joinToString("") { "%02x".format(it) }
             replies[id]?.let { cached ->
                 reply.postMessage(if (cached.first == fingerprint) cached.second else error(id, "REQUEST_ID_REUSED", "请求标识已被使用"))
                 return@addWebMessageListener
@@ -91,6 +93,22 @@ class MainActivity : ComponentActivity() {
             }
             try {
                 when (method) {
+                    "readClaudeConfig", "previewClaudeConfig", "previewClaudeRestore", "applyClaudeConfig" -> worker.execute {
+                        try {
+                            val result = when (method) {
+                                "readClaudeConfig" -> app.configs.read()
+                                "previewClaudeConfig" -> app.configs.preview(body)
+                                "previewClaudeRestore" -> app.configs.previewRestore(body.getString("revision"))
+                                else -> app.configs.apply(body.getString("token"))
+                            }
+                            runOnUiThread { if (!isDestroyed) respond(result) }
+                        } catch (failure: Exception) {
+                            val known = failure as? dev.agentm.app.config.ConfigFailure
+                            val code = known?.code ?: "CONFIG_IO"
+                            app.logs.add("config", "配置操作未完成：$code", "W")
+                            runOnUiThread { if (!isDestroyed) reply.postMessage(error(id, code, known?.message ?: "配置操作未完成，请重新读取；未记录配置内容")) }
+                        } finally { body.remove("secret") }
+                    }
                     "managePackages" -> {
                         val operationId = app.packages.enqueue(body.optString("action"))
                         try { dev.agentm.app.packages.PackageService.start(this) }

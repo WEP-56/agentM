@@ -30,6 +30,7 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
     fun requireOpenable(requestedKind: String) {
         require(requestedKind in setOf("deviceShell", "linuxShell", "claude")) { "未知终端类型" }
         check(!app.packages.busy) { "软件管理任务进行中，请完成后打开终端" }
+        check(!app.configs.busy) { "配置保存进行中，请稍后打开终端" }
         check(session?.isRunning != true || kind == requestedKind) { "请先关闭当前终端，再切换终端类型" }
         if (requestedKind != "deviceShell") check(app.linux.ready) { "Ubuntu 尚未就绪，请先安装或检查系统" }
         if (requestedKind == "claude") app.packages.claudeCommand()

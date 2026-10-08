@@ -82,6 +82,7 @@ class PackageManager(private val app: AgentMApplication) {
 
     fun enqueue(action: String): String = synchronized(app.maintenance) {
         require(action in setOf("installTools", "installClaude", "removeClaude", "checkPackages")) { "未知软件管理操作" }
+        check(!app.configs.busy) { "配置保存进行中，请稍后管理软件" }
         if (busy) {
             check(state.optString("action") == action) { "另一个软件管理任务正在执行" }
             return@synchronized state.getString("operationId")
