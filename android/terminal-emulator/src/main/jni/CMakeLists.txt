@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.22.1)
+project(agentm_terminal C)
+add_library(termux SHARED termux.c dsha-pty.c)
+target_compile_options(termux PRIVATE -std=c11 -O2 -Wall -Wextra -fstack-protector-strong)
+target_link_options(termux PRIVATE -Wl,-z,max-page-size=16384 -Wl,-z,common-page-size=4096)

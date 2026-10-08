@@ -1,0 +1,158 @@
+{
+  "note": "Fetched primary documentation excerpts; not device verification. HTML entities may remain.",
+  "sources": [
+    {
+      "id": "codex-basic",
+      "url": "https://developers.openai.com/codex/config-basic/",
+      "resolvedUrl": "https://learn.chatgpt.com/docs/config-file/config-basic",
+      "status": 200,
+      "fetchedAt": "2026-10-08T09:06:02.556Z",
+      "sha256": "1564ab09500e912592eab2564fac0f99532c80046336117371317a5eafb51f7b",
+      "excerpts": [
+        "on details from more than one location. Your personal defaults live in ~/.codex/config.toml , and you can add project overrides with .codex/config.toml files. For security, Codex loads project .codex/ layers only when you trust the project. Codex configuration file Codex stores user-level ",
+        "ts live in ~/.codex/config.toml , and you can add project overrides with .codex/config.toml files. For security, Codex loads project .codex/ layers only when you trust the project. Codex configuration file Codex stores user-level configuration at ~/.codex/config.toml . To scope settings to",
+        "ect. Codex configuration file Codex stores user-level configuration at ~/.codex/config.toml . To scope settings to a specific project or subfolder, add a .codex/config.toml file in your repo. To open the configuration file from the Codex IDE extension, select the gear icon in the top-right",
+        "onfig.toml . To scope settings to a specific project or subfolder, add a .codex/config.toml file in your repo. To open the configuration file from the Codex IDE extension, select the gear icon in the top-right corner, then select Codex Settings &gt; Open config.toml . The CLI and IDE exten",
+        "ect the gear icon in the top-right corner, then select Codex Settings &gt; Open config.toml . The CLI and IDE extension share the same configuration layers. You can use them to: Set the default model and provider. Configure approval policies and sandbox settings . Configure MCP servers . C",
+        "recedence first): CLI flags and --config overrides Project config files: .codex/config.toml , ordered from the project root down to your current working directory (closest wins; trusted projects only) Profile files selected with --profile profile-name ( ~/.codex/profile-name.config.toml ) ",
+        "red from the project root down to your current working directory (closest wins; trusted projects only) Profile files selected with --profile profile-name ( ~/.codex/profile-name.config.toml ) User config: ~/.codex/config.toml Cloud-managed config.toml defaults, when delivered for the signe",
+        "nly) Profile files selected with --profile profile-name ( ~/.codex/profile-name.config.toml ) User config: ~/.codex/config.toml Cloud-managed config.toml defaults, when delivered for the signed-in workspace System config (if present): /etc/codex/config.toml on Unix Built-in defaults Use th",
+        "rofile profile-name ( ~/.codex/profile-name.config.toml ) User config: ~/.codex/config.toml Cloud-managed config.toml defaults, when delivered for the signed-in workspace System config (if present): /etc/codex/config.toml on Unix Built-in defaults Use that precedence to set shared defaults",
+        "odex/profile-name.config.toml ) User config: ~/.codex/config.toml Cloud-managed config.toml defaults, when delivered for the signed-in workspace System config (if present): /etc/codex/config.toml on Unix Built-in defaults Use that precedence to set shared defaults in config.toml and keep p",
+        "en delivered for the signed-in workspace System config (if present): /etc/codex/config.toml on Unix Built-in defaults Use that precedence to set shared defaults in config.toml and keep profile files focused on the values that differ. Cloud-managed and system configuration can define plugin",
+        "ig.toml on Unix Built-in defaults Use that precedence to set shared defaults in config.toml and keep profile files focused on the values that differ. Cloud-managed and system configuration can define plugin marketplaces and set whether plugins are enabled by default. These are separate fro",
+        "he CLI: codex -c log_dir=./.codex-log Feature flags Use the [features] table in config.toml to toggle optional and experimental capabilities. Common feature flags Key Default Maturity Description apps true Stable Enable app (connector) integrations goals true Stable Enable persisted goals ",
+        "ir defaults. For lifecycle hook configuration, see Hooks . Enabling features In config.toml , add feature_name = true under [features] . From the CLI, run codex --enable feature_name . To enable more than one feature, run codex --enable feature_a --enable feature_b . To disable a feature, ",
+        "le feature_a --enable feature_b . To disable a feature, set the key to false in config.toml . Next Advanced Config Ask AI Docs agent Loading docs agent... "
+      ]
+    },
+    {
+      "id": "codex-reference",
+      "url": "https://developers.openai.com/codex/config-reference/",
+      "resolvedUrl": "https://learn.chatgpt.com/docs/config-file/config-reference",
+      "status": 200,
+      "fetchedAt": "2026-10-08T09:06:02.375Z",
+      "sha256": "10269c2da78eed7d713f2cb2bf52f6a8085b05f67abdae062ee3a18007b54b49",
+      "excerpts": [
+        "s cannot move cloud storage or logs. A local model catalog does not carry over. model_provider , model_providers Not supported in managed Local computer access with Work Cloud requirements or configuration. Custom inference gateways and provider connections do not carry over through these ",
+        "ud storage or logs. A local model catalog does not carry over. model_provider , model_providers Not supported in managed Local computer access with Work Cloud requirements or configuration. Custom inference gateways and provider connections do not carry over through these fields. This is s",
+        "keys. Codex ignores openai_base_url , chatgpt_base_url , apps_mcp_product_sku , model_provider , model_providers , notify , profile , profiles , experimental_realtime_ws_base_url , and otel when they appear in a project-local .codex/config.toml ; put provider, notification, and telemetry k",
+        "es openai_base_url , chatgpt_base_url , apps_mcp_product_sku , model_provider , model_providers , notify , profile , profiles , experimental_realtime_ws_base_url , and otel when they appear in a project-local .codex/config.toml ; put provider, notification, and telemetry keys in user-level",
+        "file string (path) Replacement for built-in instructions instead of AGENTS.md . model_provider string Provider id from model_providers (default: openai ). model_providers.&lt;id&gt; table Custom provider definition. Built-in provider IDs ( openai , ollama , and lmstudio ) are reserved and ",
+        "t-in instructions instead of AGENTS.md . model_provider string Provider id from model_providers (default: openai ). model_providers.&lt;id&gt; table Custom provider definition. Built-in provider IDs ( openai , ollama , and lmstudio ) are reserved and cannot be overridden. model_providers.&",
+        "md . model_provider string Provider id from model_providers (default: openai ). model_providers.&lt;id&gt; table Custom provider definition. Built-in provider IDs ( openai , ollama , and lmstudio ) are reserved and cannot be overridden. model_providers.&lt;id&gt;.auth table Command-backed ",
+        "r IDs ( openai , ollama , and lmstudio ) are reserved and cannot be overridden. model_providers.&lt;id&gt;.auth table Command-backed bearer token configuration for a custom provider. Do not combine with env_key , experimental_bearer_token , or requires_openai_auth . model_providers.&lt;id&",
+        "nd-backed bearer token configuration for a custom provider. Do not combine with env_key , experimental_bearer_token , or requires_openai_auth . model_providers.&lt;id&gt;.auth.args array&lt;string&gt; Arguments passed to the token command. model_providers.&lt;id&gt;.auth.command string Com",
+        "a custom provider. Do not combine with env_key , experimental_bearer_token , or requires_openai_auth . model_providers.&lt;id&gt;.auth.args array&lt;string&gt; Arguments passed to the token command. model_providers.&lt;id&gt;.auth.command string Command to run when Codex needs a bearer tok",
+        "ot combine with env_key , experimental_bearer_token , or requires_openai_auth . model_providers.&lt;id&gt;.auth.args array&lt;string&gt; Arguments passed to the token command. model_providers.&lt;id&gt;.auth.command string Command to run when Codex needs a bearer token. The command must pr",
+        "&lt;id&gt;.auth.args array&lt;string&gt; Arguments passed to the token command. model_providers.&lt;id&gt;.auth.command string Command to run when Codex needs a bearer token. The command must print the token to stdout. model_providers.&lt;id&gt;.auth.cwd string (path) Working directory for",
+        "un when Codex needs a bearer token. The command must print the token to stdout. model_providers.&lt;id&gt;.auth.cwd string (path) Working directory for the token command. model_providers.&lt;id&gt;.auth.refresh_interval_ms number How often Codex proactively refreshes the token in milliseco",
+        "ders.&lt;id&gt;.auth.cwd string (path) Working directory for the token command. model_providers.&lt;id&gt;.auth.refresh_interval_ms number How often Codex proactively refreshes the token in milliseconds (default: 300000). Set to 0 to refresh only after an authentication retry. model_provid",
+        "onds (default: 300000). Set to 0 to refresh only after an authentication retry. model_providers.&lt;id&gt;.auth.timeout_ms number Maximum token command runtime in milliseconds (default: 5000). model_providers.&lt;id&gt;.base_url string API base URL for the model provider. model_providers.&",
+        "imeout_ms number Maximum token command runtime in milliseconds (default: 5000). model_providers.&lt;id&gt;.base_url string API base URL for the model provider. model_providers.&lt;id&gt;.env_http_headers map&lt;string,string&gt; HTTP headers populated from environment variables when presen",
+        "model_providers.&lt;id&gt;.base_url string API base URL for the model provider. model_providers.&lt;id&gt;.env_http_headers map&lt;string,string&gt; HTTP headers populated from environment variables when present. model_providers.&lt;id&gt;.env_key string Environment variable supplying the ",
+        "ring,string&gt; HTTP headers populated from environment variables when present. model_providers.&lt;id&gt;.env_key string Environment variable supplying the provider API key. model_providers.&lt;id&gt;.env_key_instructions string Optional setup guidance for the provider API key. model_prov",
+        "s populated from environment variables when present. model_providers.&lt;id&gt;.env_key string Environment variable supplying the provider API key. model_providers.&lt;id&gt;.env_key_instructions string Optional setup guidance for the provider API key. model_providers.&lt;id&gt;.experiment",
+        ".&lt;id&gt;.env_key string Environment variable supplying the provider API key. model_providers.&lt;id&gt;.env_key_instructions string Optional setup guidance for the provider API key. model_providers.&lt;id&gt;.experimental_bearer_token string Direct bearer token for the provider (discour"
+      ]
+    },
+    {
+      "id": "opencode-web",
+      "url": "https://opencode.ai/docs/web/",
+      "resolvedUrl": "https://opencode.ai/docs/web/",
+      "status": 200,
+      "fetchedAt": "2026-10-08T09:06:01.851Z",
+      "sha256": "f79896cc680406cab872bdcf38f7a0cf115e813f3f23ce50790b5cc3e4c2812e",
+      "excerpts": [
+        "lable port and automatically opens OpenCode in your default browser. Caution If OPENCODE_SERVER_PASSWORD is not set, the server will be unsecured. This is fine for local use but should be set for network access. Windows Users For the best experience, run opencode web from WSL rather than P",
+        "e picks an available port. You can specify a port: Terminal window opencode web --port 4096 Hostname By default, the server binds to 127.0.0.1 (localhost only). To make OpenCode accessible on your network: Terminal window opencode web --hostname 0.0.0.0 When using 0.0.0.0 , OpenCode will d",
+        "nly). To make OpenCode accessible on your network: Terminal window opencode web --hostname 0.0.0.0 When using 0.0.0.0 , OpenCode will display both local and network addresses: Local access: http://localhost:4096 Network access: http://192.168.1.100:4096 mDNS Discovery Enable mDNS to make y",
+        " https://example.com Authentication To protect access, set a password using the OPENCODE_SERVER_PASSWORD environment variable: Terminal window OPENCODE_SERVER_PASSWORD = secret opencode web The username defaults to opencode but can be changed with OPENCODE_SERVER_USERNAME . Using the Web I",
+        "ssword using the OPENCODE_SERVER_PASSWORD environment variable: Terminal window OPENCODE_SERVER_PASSWORD = secret opencode web The username defaults to opencode but can be changed with OPENCODE_SERVER_USERNAME . Using the Web Interface Once started, the web interface provides access to you",
+        "UI to a running web server: Terminal window # Start the web server opencode web --port 4096 # In another terminal, attach the TUI opencode attach http://localhost:4096 This allows you to use both the web interface and terminal simultaneously, sharing the same sessions and state. Config Fil"
+      ]
+    },
+    {
+      "id": "opencode-config",
+      "url": "https://opencode.ai/docs/config/",
+      "resolvedUrl": "https://opencode.ai/docs/config/",
+      "status": 200,
+      "fetchedAt": "2026-10-08T09:06:01.949Z",
+      "sha256": "705c99d62cb5a262b0ef8d7e1d582a8b27adfb5448ae60ce8adddb08cd109da3",
+      "excerpts": [
+        "ervers Permissions Compaction Watcher MCP servers Plugins Instructions Disabled providers Enabled providers Experimental Variables Env vars Files On this page Overview Format Locations Precedence order Remote Global Per project Custom path Custom directory Managed settings Schema TUI Serve",
+        " Compaction Watcher MCP servers Plugins Instructions Disabled providers Enabled providers Experimental Variables Env vars Files On this page Overview Format Locations Precedence order Remote Global Per project Custom path Custom directory Managed settings Schema TUI Server Shell Tools Mode",
+        "ervers Permissions Compaction Watcher MCP servers Plugins Instructions Disabled providers Enabled providers Experimental Variables Env vars Files Config Using the OpenCode JSON config. You can configure OpenCode using a JSON config file. Format OpenCode supports both JSON and JSONC (JSON w",
+        " Compaction Watcher MCP servers Plugins Instructions Disabled providers Enabled providers Experimental Variables Env vars Files Config Using the OpenCode JSON config. You can configure OpenCode using a JSON config file. Format OpenCode supports both JSON and JSONC (JSON with Comments) form",
+        "ile. Format OpenCode supports both JSON and JSONC (JSON with Comments) formats. opencode.jsonc { \"$schema\" : \"https://opencode.ai/config.json\" , \"model\" : \"anthropic/claude-sonnet-4-5\" , \"autoupdate\" : true , \"server\" : { \"port\" : 4096 , }, } Locations You can place your config in a couple",
+        "n/opencode endpoint. This is fetched automatically when you authenticate with a provider that supports it. Remote config is loaded first, serving as the base layer. All other config sources (global, project) can override these defaults. For example, if your organization provides MCP server",
+        "opencode.json . Use global config for user-wide server/runtime preferences like providers, models, and permissions. For TUI-specific settings, use ~/.config/opencode/tui.json . Global config overrides remote organizational defaults. Per project Add opencode.json in your project root. Proje",
+        "gs are loaded at the highest priority tier. File-based Drop an opencode.json or opencode.jsonc file in the system managed config directory: Platform Path macOS /Library/Application Support/opencode/ Linux /etc/opencode/ Windows %ProgramData%\\opencode These directories require admin/root ac",
+        ", \"bash\" : false } } Learn more about tools here . Models You can configure the providers and models you want to use in your OpenCode config through the provider , model and small_model options. opencode.json { \"$schema\" : \"https://opencode.ai/config.json\" , \"provider\" : {}, \"model\" : \"ant",
+        "re the providers and models you want to use in your OpenCode config through the provider , model and small_model options. opencode.json { \"$schema\" : \"https://opencode.ai/config.json\" , \"provider\" : {}, \"model\" : \"anthropic/claude-sonnet-4-5\" , \"small_model\" : \"anthropic/claude-haiku-4-5\" ",
+        "model options. opencode.json { \"$schema\" : \"https://opencode.ai/config.json\" , \"provider\" : {}, \"model\" : \"anthropic/claude-sonnet-4-5\" , \"small_model\" : \"anthropic/claude-haiku-4-5\" } The small_model option configures a separate model for lightweight tasks like title generation. By defaul",
+        "By default, OpenCode tries to use a cheaper model if one is available from your provider, otherwise it falls back to your main model. Provider options can include timeout , headerTimeout , chunkTimeout , and setCacheKey : opencode.json { \"$schema\" : \"https://opencode.ai/config.json\" , \"pro",
+        " setCacheKey : opencode.json { \"$schema\" : \"https://opencode.ai/config.json\" , \"provider\" : { \"anthropic\" : { \"options\" : { \"timeout\" : 600000 , \"chunkTimeout\" : 30000 , \"setCacheKey\" : true } } } } timeout - Request timeout in milliseconds (default: 300000). Set to false to disable. heade",
+        "false to disable. setCacheKey - Ensure a cache key is always set for designated provider. You can also configure local models . Learn more . Policies Use the experimental.policies option to allow or deny OpenCode actions on configured resources. Currently, policies can control which provid",
+        "OpenCode actions on configured resources. Currently, policies can control which providers OpenCode may use. opencode.json { \"$schema\" : \"https://opencode.ai/config.json\" , \"experimental\" : { \"policies\" : [ { \"effect\" : \"deny\" , \"action\" : \"provider.use\" , \"resource\" : \"openai\" } ] } } Lear",
+        "fig.json\" , \"experimental\" : { \"policies\" : [ { \"effect\" : \"deny\" , \"action\" : \"provider.use\" , \"resource\" : \"openai\" } ] } } Learn more about policies here . Image attachments OpenCode normalizes image attachments before sending them to the model. By default, images are resized when they ",
+        "2880 } } } auto_resize - Resize images that exceed the configured limits before provider requests. Set to false to reject oversized images instead. max_width - Maximum image width in pixels before resizing or rejection. max_height - Maximum image height in pixels before resizing or rejecti",
+        "d user-provided images with an image size error. Provider-Specific Options Some providers support additional configuration options beyond the generic timeout and apiKey settings. Amazon Bedrock Amazon Bedrock supports AWS-specific configuration: opencode.json { \"$schema\" : \"https://opencod",
+        "oviders support additional configuration options beyond the generic timeout and apiKey settings. Amazon Bedrock Amazon Bedrock supports AWS-specific configuration: opencode.json { \"$schema\" : \"https://opencode.ai/config.json\" , \"provider\" : { \"amazon-bedrock\" : { \"options\" : { \"region\" : \"",
+        "configuration: opencode.json { \"$schema\" : \"https://opencode.ai/config.json\" , \"provider\" : { \"amazon-bedrock\" : { \"options\" : { \"region\" : \"us-east-1\" , \"profile\" : \"my-aws-profile\" , \"endpoint\" : \"https://bedrock-runtime.us-east-1.vpce-xxxxx.amazonaws.com\" } } } } region - AWS region for"
+      ]
+    },
+    {
+      "id": "pi-models",
+      "url": "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/docs/models.md",
+      "resolvedUrl": "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/docs/models.md",
+      "status": 200,
+      "fetchedAt": "2026-10-08T09:06:01.766Z",
+      "sha256": "9b11e5db77ce952d6830a074c7e4a0bf07e4e797a82f0b0898cb79c811bbfd33",
+      "excerpts": [
+        "p router | | An OpenAI-, Anthropic-, or Google-compatible endpoint | Add it to `models.json` | | A provider with a custom protocol or authentication flow | Build or install a provider extension | Browse the [model catalog](https://pi.dev/models) for current providers, model IDs, capabiliti",
+        " ## Authenticate Run `/login` and select a provider. Pi stores credentials in [`auth.json`](configuration.md#agent-directory). Run `/logout` to remove stored credentials for a provider. You can instead provide an API key through the provider's environment variable. This is useful in CI and",
+        "ial sources are configured, Pi uses a runtime `--api-key` first, then a stored `auth.json` credential, an `apiKey` from `models.json`, and finally the provider's environment variables or ambient cloud credentials. Provider extensions can define their own authentication behavior. Keep `auth",
+        " Pi uses a runtime `--api-key` first, then a stored `auth.json` credential, an `apiKey` from `models.json`, and finally the provider's environment variables or ambient cloud credentials. Provider extensions can define their own authentication behavior. Keep `auth.json` and any credential c",
+        "time `--api-key` first, then a stored `auth.json` credential, an `apiKey` from `models.json`, and finally the provider's environment variables or ambient cloud credentials. Provider extensions can define their own authentication behavior. Keep `auth.json` and any credential commands privat",
+        "ntials. Provider extensions can define their own authentication behavior. Keep `auth.json` and any credential commands private. Project settings and extensions can execute inside the Pi process after you trust a project. Review [Security](security.md) before loading configuration from an u",
+        "ervers, [configure a compatible endpoint](#configure-a-compatible-endpoint) in `models.json`. ## Configure a compatible endpoint Use [`models.json`](configuration.md#agent-directory) when an endpoint speaks an API Pi already supports. This includes most Ollama, LM Studio, vLLM, SGLang, and",
+        "compatible-endpoint) in `models.json`. ## Configure a compatible endpoint Use [`models.json`](configuration.md#agent-directory) when an endpoint speaks an API Pi already supports. This includes most Ollama, LM Studio, vLLM, SGLang, and proxy deployments. ```json { \"providers\": { \"ollama\": ",
+        "dio, vLLM, SGLang, and proxy deployments. ```json { \"providers\": { \"ollama\": { \"baseUrl\": \"http://localhost:11434/v1\", \"api\": \"openai-completions\", \"apiKey\": \"ollama\", \"models\": [ { \"id\": \"qwen2.5-coder:7b\" } ] } } } ``` The dummy key makes the model available to Pi; Ollama ignores it. For",
+        "llama\": { \"baseUrl\": \"http://localhost:11434/v1\", \"api\": \"openai-completions\", \"apiKey\": \"ollama\", \"models\": [ { \"id\": \"qwen2.5-coder:7b\" } ] } } } ``` The dummy key makes the model available to Pi; Ollama ignores it. For an authenticated endpoint, `apiKey` and header values can use `$NAME",
+        "s the model available to Pi; Ollama ignores it. For an authenticated endpoint, `apiKey` and header values can use `$NAME` or `${NAME}` environment interpolation, a literal value, or a leading `!command`. Commands in `models.json` run at request time and are not cached by Pi. Opening `/mode",
+        "vironment interpolation, a literal value, or a leading `!command`. Commands in `models.json` run at request time and are not cached by Pi. Opening `/model` reloads the file. A `models` entry adds or replaces a model with the same ID on that provider. Use `modelOverrides` to change metadata",
+        "nfirm that its provider has usable authentication. Custom models can load from `models.json` but remain unavailable in `/model` until Pi can resolve credentials. For llama.cpp, only models currently loaded by the router appear. ### Authentication works in one shell only Check whether the k",
+        "shell only Check whether the key came from an environment variable rather than `auth.json`. Environment variables must be present in the process that starts Pi. ### Sign-in opens a browser on a remote machine Complete the provider's headless authentication flow when available. Some provide",
+        "ble endpoint rejects requests Check its API type and compatibility settings in `models.json`. The upstream server must support the corresponding request fields and behavior. "
+      ]
+    },
+    {
+      "id": "android-exec",
+      "url": "https://developer.android.com/about/versions/10/behavior-changes-10#execute-permission",
+      "resolvedUrl": "https://developer.android.com/about/versions/10/behavior-changes-10",
+      "status": 200,
+      "fetchedAt": "2026-10-08T09:06:02.143Z",
+      "sha256": "c09e6bd4c02393768ee433e4c7f63f6e9ba0b967a82f7ecca6deb86386fffa56",
+      "excerpts": [
+        "h shared memory, improving performance and security of Android overall. Removed execute permission for app home directory Execution of files from the writable app home directory is a W^X violation . Apps should load only the binary code that&#39;s embedded within an app&#39;s APK file. Unt",
+        ". Removed execute permission for app home directory Execution of files from the writable app home directory is a W^X violation . Apps should load only the binary code that&#39;s embedded within an app&#39;s APK file. Untrusted apps that target Android&nbsp;10 cannot invoke execve() directl",
+        "an app&#39;s APK file. Untrusted apps that target Android&nbsp;10 cannot invoke execve() directly on files within the app&#39;s home directory. In addition, apps that target Android&nbsp;10 cannot in-memory modify executable code from files which have been opened with dlopen() and expect t"
+      ]
+    },
+    {
+      "id": "android-fgs",
+      "url": "https://developer.android.com/develop/background-work/services/fgs/service-types",
+      "resolvedUrl": "https://developer.android.com/develop/background-work/services/fgs/service-types?hl=es-419",
+      "status": 200,
+      "fetchedAt": "2026-10-08T09:06:02.924Z",
+      "sha256": "f45157f95060faa0b80c241afcef5df94e86c34d291ee56d437664ce6a412190",
+      "excerpts": [
+        "primer plano que se declarará en el manifiesto en android:foregroundServiceType dataSync Permiso que se debe declarar en el manifiesto FOREGROUND_SERVICE_DATA_SYNC Constante para pasar a startForeground() FOREGROUND_SERVICE_TYPE_DATA_SYNC Requisitos previos del tiempo de ejecución Ninguno ",
+        "primer plano que se declarará en el manifiesto en android:foregroundServiceType specialUse Permiso para declarar en tu manifiesto FOREGROUND_SERVICE_SPECIAL_USE Constante para pasar a startForeground() FOREGROUND_SERVICE_TYPE_SPECIAL_USE Requisitos previos del entorno de ejecución Ninguno ",
+        "ar suficientes información para que el revisor pueda ver por qué necesitas usar specialUse el tipo de letra. &lt;service android:name=\"fooService\" android:foregroundServiceType=\"specialUse\"&gt; &lt;property android:name=\"android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE\" android:value=\"explanat",
+        " de letra. &lt;service android:name=\"fooService\" android:foregroundServiceType=\"specialUse\"&gt; &lt;property android:name=\"android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE\" android:value=\"explanation_for_special_use\"/&gt; &lt;/service&gt; Sistema exento Tipo de servicio en primer plano que se "
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "engineVersion": "5.1.107.96",
+  "rootfs": {
+    "x86_64": {
+      "arch": "amd64",
+      "version": "24.04.5",
+      "url": "https://cdimage.ubuntu.com/ubuntu-base/releases/24.04/release/ubuntu-base-24.04.5-base-amd64.tar.gz",
+      "sha256": "e77b6f10c2590cef872b33ee9f635a0e3fd1f57fb074c0e52b5c7f56147a0c86",
+      "bytes": 30028293
+    },
+    "arm64-v8a": {
+      "arch": "arm64",
+      "version": "24.04.5",
+      "url": "https://cdimage.ubuntu.com/ubuntu-base/releases/24.04/release/ubuntu-base-24.04.5-base-arm64.tar.gz",
+      "sha256": "a91d5a93010193712d346d761372b7c9db6dfcf093893161c64ca107f05914f2",
+      "bytes": 29936675
+    }
+  }
+}

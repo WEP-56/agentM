@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 2,
+  "researchDate": "2026-10-08",
+  "repositories": [
+    {
+      "name": "cc-switch",
+      "path": "examples/cc-switch",
+      "url": "https://github.com/farion1231/cc-switch.git",
+      "commit": "5ae6ad3888ba4543f6fad343c87656a97bd69da4",
+      "commitDate": "2026-10-08T11:25:51+08:00",
+      "branch": "main",
+      "layout": "pruned-reference-snapshot",
+      "gitMetadataPresent": false,
+      "buildable": false
+    },
+    {
+      "name": "DSHA",
+      "path": "examples/DSHA",
+      "url": "https://github.com/DSH-APP/DSHA.git",
+      "commit": "70e37a7dbcae83b32fc92a8a37b33af88befc0e0",
+      "commitDate": "2026-10-08T06:03:35Z",
+      "branch": "main",
+      "layout": "pruned-reference-snapshot",
+      "gitMetadataPresent": false,
+      "buildable": false
+    }
+  ],
+  "cleanupManifest": "../docs/research/reference-cleanup.json"
+}

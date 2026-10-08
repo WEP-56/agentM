@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "engineVersion": "5.1.107.96",
+  "retrievedAt": "2026-10-08T12:04:58.624Z",
+  "packages": [
+    {
+      "name": "proot",
+      "arch": "x86_64",
+      "version": "5.1.107.96",
+      "url": "https://packages.termux.dev/apt/termux-main/pool/main/p/proot/proot_5.1.107.96_x86_64.deb",
+      "sha256": "77ea45540071ca543adda2b51aca2bc3761c52904d013fd0890682288eff9455"
+    },
+    {
+      "name": "libtalloc",
+      "arch": "x86_64",
+      "version": "2.5.0",
+      "url": "https://packages.termux.dev/apt/termux-main/pool/main/libt/libtalloc/libtalloc_2.5.0_x86_64.deb",
+      "sha256": "b8c6d95f20075dc1f9ec6573575b2444e8d526e48e0d8d6d5cf4e071e6e06530"
+    },
+    {
+      "name": "libandroid-shmem",
+      "arch": "x86_64",
+      "version": "0.7",
+      "url": "https://packages.termux.dev/apt/termux-main/pool/main/liba/libandroid-shmem/libandroid-shmem_0.7_x86_64.deb",
+      "sha256": "ffa9e4c87467b158b148d0ff92dda796aa038276c2075af3269cdcdb06f25797"
+    },
+    {
+      "name": "proot",
+      "arch": "aarch64",
+      "version": "5.1.107.96",
+      "url": "https://packages.termux.dev/apt/termux-main/pool/main/p/proot/proot_5.1.107.96_aarch64.deb",
+      "sha256": "8199dca06dccb693ec09fb1759e3e1ad08b4863f0c11c612f89c20bd9ecdc1a0"
+    },
+    {
+      "name": "libtalloc",
+      "arch": "aarch64",
+      "version": "2.5.0",
+      "url": "https://packages.termux.dev/apt/termux-main/pool/main/libt/libtalloc/libtalloc_2.5.0_aarch64.deb",
+      "sha256": "556591f43bb773ad8777e1a29522640866a55f95dab71914418b94a8c58ad5a7"
+    },
+    {
+      "name": "libandroid-shmem",
+      "arch": "aarch64",
+      "version": "0.7",
+      "url": "https://packages.termux.dev/apt/termux-main/pool/main/liba/libandroid-shmem/libandroid-shmem_0.7_aarch64.deb",
+      "sha256": "0da3a24d558b93c92bcf8d611e0826a99ff96e396b148e6cdf33b47c47c57ff6"
+    }
+  ],
+  "files": [
+    {
+      "file": "app/src/main/jniLibs/x86_64/libproot.so",
+      "originalSha256": "9a1303a51e69b89d78beaf40e4ec829c5c2ca98cbd5672411bdb15eebd871316",
+      "sha256": "cd893e5243aa0213a4f8dec38c84fb41b24a104605fda71e61d0b2f459f31177",
+      "patch": "Rename libtalloc.so.2 to libtalloc.so (same-size NUL-padded ELF string)"
+    },
+    {
+      "file": "app/src/main/jniLibs/x86_64/libprootloader.so",
+      "originalSha256": "a836b0569c84b1661333d16bacf6b396ff08fea816a5c936a82e08ddeeca8341",
+      "sha256": "a836b0569c84b1661333d16bacf6b396ff08fea816a5c936a82e08ddeeca8341",
+      "patch": "none"
+    },
+    {
+      "file": "app/src/main/jniLibs/x86_64/libtalloc.so",
+      "originalSha256": "7fa6722a4320495b1b85832fc7fd02de0cb367b45f116c1921b2830a6936da90",
+      "sha256": "7354442094c5363639cc87e1126e9298442a2546dd2a0699972f74d263901da2",
+      "patch": "Rename libtalloc.so.2 to libtalloc.so (same-size NUL-padded ELF string)"
+    },
+    {
+      "file": "app/src/main/jniLibs/x86_64/libandroid-shmem.so",
+      "originalSha256": "092926060298acd3778e6239033d7aef1280dcb59aebe021a3719612e6a3465f",
+      "sha256": "092926060298acd3778e6239033d7aef1280dcb59aebe021a3719612e6a3465f",
+      "patch": "none"
+    },
+    {
+      "file": "app/src/main/jniLibs/arm64-v8a/libproot.so",
+      "originalSha256": "1545b85b312505db6eb6908ff8b2ded0a77a3bd689c50ae85aa7c1d8445dd717",
+      "sha256": "0df9240e08015aa7f5194c32b3fe5d9c8a8ea16dfb895ccafb65847a7f392c7d",
+      "patch": "Rename libtalloc.so.2 to libtalloc.so (same-size NUL-padded ELF string)"
+    },
+    {
+      "file": "app/src/main/jniLibs/arm64-v8a/libprootloader.so",
+      "originalSha256": "cbdef0e652c2b78af25d867e1719fdebbb0915e25aae2dd35b3b5c1835f6b551",
+      "sha256": "cbdef0e652c2b78af25d867e1719fdebbb0915e25aae2dd35b3b5c1835f6b551",
+      "patch": "none"
+    },
+    {
+      "file": "app/src/main/jniLibs/arm64-v8a/libtalloc.so",
+      "originalSha256": "742b438c4d09e276985a61d44164c9de207b6d8cc268f3018cb3001961bcb309",
+      "sha256": "160d39bc0d7ed946f22310d1d6f20addda21b02b0972dffe929fe49951543941",
+      "patch": "Rename libtalloc.so.2 to libtalloc.so (same-size NUL-padded ELF string)"
+    },
+    {
+      "file": "app/src/main/jniLibs/arm64-v8a/libandroid-shmem.so",
+      "originalSha256": "84475798e07c8174dbbfaec70a827fdb02f19ffa69a589380c13e7507fd0e731",
+      "sha256": "84475798e07c8174dbbfaec70a827fdb02f19ffa69a589380c13e7507fd0e731",
+      "patch": "none"
+    }
+  ],
+  "rootfs": {
+    "x86_64": {
+      "arch": "amd64",
+      "version": "24.04.5",
+      "url": "https://cdimage.ubuntu.com/ubuntu-base/releases/24.04/release/ubuntu-base-24.04.5-base-amd64.tar.gz",
+      "sha256": "e77b6f10c2590cef872b33ee9f635a0e3fd1f57fb074c0e52b5c7f56147a0c86",
+      "bytes": 30028293
+    },
+    "arm64-v8a": {
+      "arch": "arm64",
+      "version": "24.04.5",
+      "url": "https://cdimage.ubuntu.com/ubuntu-base/releases/24.04/release/ubuntu-base-24.04.5-base-arm64.tar.gz",
+      "sha256": "a91d5a93010193712d346d761372b7c9db6dfcf093893161c64ca107f05914f2",
+      "bytes": 29936675
+    }
+  }
+}

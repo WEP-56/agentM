@@ -1,0 +1,203 @@
+{
+  "note": "Registry metadata only; these versions have not been validated on Android.",
+  "packages": [
+    {
+      "source": "https://registry.npmjs.org/@anthropic-ai/claude-code/latest",
+      "fetchedAt": "2026-10-08T09:05:26.892Z",
+      "name": "@anthropic-ai/claude-code",
+      "version": "2.1.293",
+      "engines": {
+        "node": ">=22.0.0"
+      },
+      "bin": {
+        "claude": "bin/claude.exe"
+      },
+      "optionalDependencies": {
+        "@anthropic-ai/claude-code-linux-x64": "2.1.293",
+        "@anthropic-ai/claude-code-win32-x64": "2.1.293",
+        "@anthropic-ai/claude-code-darwin-x64": "2.1.293",
+        "@anthropic-ai/claude-code-linux-arm64": "2.1.293",
+        "@anthropic-ai/claude-code-win32-arm64": "2.1.293",
+        "@anthropic-ai/claude-code-darwin-arm64": "2.1.293",
+        "@anthropic-ai/claude-code-linux-x64-musl": "2.1.293",
+        "@anthropic-ai/claude-code-linux-arm64-musl": "2.1.293"
+      },
+      "dist": {
+        "shasum": "d653d8b46b676742dfd6dea808bfcc82f2fc0fd8",
+        "tarball": "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.293.tgz",
+        "fileCount": 7,
+        "integrity": "sha512-PfPSvsd0zH1R1NhLKLebYdEXg/KcGCXc7LBntE186EWuZtBXa7sMnBqs0/uW/BvzkBEfHKqww/WbK/kMAk0TXg==",
+        "signatures": [
+          {
+            "sig": "MEUCIQCUrXP+6XEd1OJll7EGGm+H7/Eyegpma8OuL/5tuu9X5gIgHg+xFUvBkTC1/v7ODlhvMgxiIf+w24qlMbxRfK+fjv8=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEYCIQDmK0WzH7UhF2F5a75nqSvbnRabRaxQZcfOjy1sm56/ZgIhAM6FHtz1xwha5B6jKSS5twRohBUMcyKvjv4jNagjyDSD",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "unpackedSize": 188525
+      }
+    },
+    {
+      "source": "https://registry.npmjs.org/@openai/codex/latest",
+      "fetchedAt": "2026-10-08T09:05:26.880Z",
+      "name": "@openai/codex",
+      "version": "0.161.0",
+      "engines": {
+        "node": ">=16"
+      },
+      "bin": {
+        "codex": "bin/codex.js"
+      },
+      "optionalDependencies": {
+        "@openai/codex-linux-x64": "npm:@openai/codex@0.161.0-linux-x64",
+        "@openai/codex-win32-x64": "npm:@openai/codex@0.161.0-win32-x64",
+        "@openai/codex-darwin-x64": "npm:@openai/codex@0.161.0-darwin-x64",
+        "@openai/codex-linux-arm64": "npm:@openai/codex@0.161.0-linux-arm64",
+        "@openai/codex-win32-arm64": "npm:@openai/codex@0.161.0-win32-arm64",
+        "@openai/codex-darwin-arm64": "npm:@openai/codex@0.161.0-darwin-arm64"
+      },
+      "repository": {
+        "url": "git+https://github.com/openai/codex.git",
+        "type": "git",
+        "directory": "codex-cli"
+      },
+      "dist": {
+        "shasum": "4bc843cf5946904d75032d56d310340220fb6385",
+        "tarball": "https://registry.npmjs.org/@openai/codex/-/codex-0.161.0.tgz",
+        "fileCount": 3,
+        "integrity": "sha512-+ZnJFGBbQBwYnjUTs+PoacgYVxmNyxMLiadIz6eSJ0AzQW0mRVxuuOQizSbz2qeNAJia9Syxag6j2uGf7guD2Q==",
+        "signatures": [
+          {
+            "sig": "MEUCIQDQl88QFO7Dfb11RuoPd7rL3H4aMF+f/fbkkxKJ1uj57AIgcZS3FgdHAyCcdIte8rLRJyVVTETxjnT6suhcJz/w2+c=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIG3g59s0NHhyUoLfT7+C8iL49SngT9QXKFDOWtuUhx6rAiEAhnjtrRKs0qlyDuNKzO5r9prTmYdDUcklyajxFfrCdY8=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/@openai%2fcodex@0.161.0",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 13206
+      }
+    },
+    {
+      "source": "https://registry.npmjs.org/opencode-ai/latest",
+      "fetchedAt": "2026-10-08T09:05:26.823Z",
+      "name": "opencode-ai",
+      "version": "1.18.35",
+      "bin": {
+        "opencode": "bin/opencode.exe"
+      },
+      "optionalDependencies": {
+        "opencode-linux-x64": "1.18.35",
+        "opencode-darwin-x64": "1.18.35",
+        "opencode-linux-arm64": "1.18.35",
+        "opencode-windows-x64": "1.18.35",
+        "opencode-darwin-arm64": "1.18.35",
+        "opencode-windows-arm64": "1.18.35",
+        "opencode-linux-x64-musl": "1.18.35",
+        "opencode-linux-arm64-musl": "1.18.35",
+        "opencode-linux-x64-baseline": "1.18.35",
+        "opencode-darwin-x64-baseline": "1.18.35",
+        "opencode-windows-x64-baseline": "1.18.35",
+        "opencode-linux-x64-baseline-musl": "1.18.35"
+      },
+      "dist": {
+        "shasum": "08cd9a77993031d2c66289d82a99f10227af7fac",
+        "tarball": "https://registry.npmjs.org/opencode-ai/-/opencode-ai-1.18.35.tgz",
+        "fileCount": 4,
+        "integrity": "sha512-tDQKThIZ3amp8NSn3XDP2Dj5BlhRbZC0VkIxgYuf6gvRSXkseqD31j/U4KfpPwha593i8M59hdsDfz32yJx4Og==",
+        "signatures": [
+          {
+            "sig": "MEQCIHtUNFz8GFOGynJew+RBWsY2lyDqoHdgpafOaByB3d39AiB/EnRaQ67swvycStHE7hvQeVUKVbp+XWTrVTZED0ZC2g==",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIHQRqqCE5tMc7LMoA7bMi9v5zKGrah/QTS4A4L72nAbXAiEA5+tWcPSlktBc1Pyl3q8ilM6/aw6uWbaWrsn7J5nm9iw=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "unpackedSize": 7865
+      }
+    },
+    {
+      "source": "https://registry.npmjs.org/@earendil-works/pi-coding-agent/latest",
+      "fetchedAt": "2026-10-08T09:05:26.892Z",
+      "name": "@earendil-works/pi-coding-agent",
+      "version": "1.1.0",
+      "engines": {
+        "node": ">=22.19.0"
+      },
+      "bin": {
+        "pi": "dist/bundle/cli.js"
+      },
+      "repository": {
+        "url": "git+https://github.com/earendil-works/pi.git",
+        "type": "git",
+        "directory": "packages/coding-agent"
+      },
+      "dist": {
+        "shasum": "0ebd064bf1342f812f9676dde85b2f0b3e02b7e6",
+        "tarball": "https://registry.npmjs.org/@earendil-works/pi-coding-agent/-/pi-coding-agent-1.1.0.tgz",
+        "fileCount": 1254,
+        "integrity": "sha512-SeEi/4hdcHNgA9UWlefZl7ZZpm3dzi2OoxNjDHsBJ9o298LNOtbL4DGKgitlEj6uCTccvtw6f2hlCkTPVJ2RXg==",
+        "signatures": [
+          {
+            "sig": "MEUCIQCqte7GUgr/3sfyBV+TJzIABHeMLOI5Oj7cfmFeD+HNGQIgI+cWG/Lr8050v+vA00izBD++Rzni4kxZtbZZWLh1rIQ=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIQDbWUenUYEOxJM3aoosgkTZJOOaWqAHljyrghl2pukcIwIgS8pp9Ce4LZMfJYakmRk1y0jMS1AITfRzwak3WeSjUGQ=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/@earendil-works%2fpi-coding-agent@1.1.0",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
+        },
+        "unpackedSize": 22924895
+      }
+    },
+    {
+      "source": "https://registry.npmjs.org/@deepseek-ai/dsh/latest",
+      "fetchedAt": "2026-10-08T09:05:26.895Z",
+      "name": "@deepseek-ai/dsh",
+      "version": "0.2.0-rc.2",
+      "bin": {
+        "dsh": "lib/bin.js"
+      },
+      "repository": {
+        "url": "git+https://github.com/deepseek-ai/deepseek-harness.git",
+        "type": "git",
+        "directory": "apps/cli"
+      },
+      "dist": {
+        "shasum": "dfc8f7e09cfa96b854d6f0cf3a973ce7f2948925",
+        "tarball": "https://registry.npmjs.org/@deepseek-ai/dsh/-/dsh-0.2.0-rc.2.tgz",
+        "fileCount": 20,
+        "integrity": "sha512-EAJ3gPNcVt/uv8X19PMm9NkVhWgT7xXNMk0UKCVm+IQ5rpSQOcsMUa0HWlnYYVybKMsccjcRB21vVVsaXQ6IdA==",
+        "signatures": [
+          {
+            "sig": "MEYCIQD+tQwM0+pnVWktN+MLjWdOZ1lTF+vCLbvDxO/xeneU6QIhAIdUAlWtUAje0+eg006foqUS6zwCA2axW6RCMTAQEFX5",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIQDS3oN9bKpfh9Ept+c6YgUvrYs2fgfRpzUrFczwHztswAIgce17yg4V3pHzBuJIz+Y3X0vsY+opVfb9lWGIGCGY9SU=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "unpackedSize": 73328
+      }
+    }
+  ]
+}

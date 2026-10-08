@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "nodeVersion": "24.21.0",
+  "claudeVersion": "2.1.293",
+  "node": {
+    "x86_64": {
+      "url": "https://nodejs.org/dist/v24.21.0/node-v24.21.0-linux-x64.tar.gz",
+      "bytes": 58088022,
+      "sha256": "6e1db87ef58b8819e5d5402eff1536491b18edd8eb7bee5ef7897876e88dc5ff",
+      "archiveRoot": "node-v24.21.0-linux-x64",
+      "version": "24.21.0"
+    },
+    "arm64-v8a": {
+      "url": "https://nodejs.org/dist/v24.21.0/node-v24.21.0-linux-arm64.tar.gz",
+      "bytes": 57824078,
+      "sha256": "724282c3b43aec998aa9527380465b45d229e021b58035f5f4f63095eabfe5d5",
+      "archiveRoot": "node-v24.21.0-linux-arm64",
+      "version": "24.21.0"
+    }
+  },
+  "claude": {
+    "x86_64": {
+      "url": "https://registry.npmjs.org/@anthropic-ai/claude-code-linux-x64/-/claude-code-linux-x64-2.1.293.tgz",
+      "bytes": 113084293,
+      "sha256": "7b6d6842a9e9de1fa0f5dfc18967696b91883b9d82be333a05b35bcf21f7d70f",
+      "archiveRoot": "package",
+      "package": "@anthropic-ai/claude-code-linux-x64",
+      "integrity": "sha512-tYTbeVuhqD0TW2WJs90Tq+JaKLLnrX5JuxYTLG3pxf4Vr3QMonqsMLu4hZkgVSfEDPZhneFuDDgULQ3/FZzAIw==",
+      "version": "2.1.293"
+    },
+    "arm64-v8a": {
+      "url": "https://registry.npmjs.org/@anthropic-ai/claude-code-linux-arm64/-/claude-code-linux-arm64-2.1.293.tgz",
+      "bytes": 113342417,
+      "sha256": "6e29253042eda79119845ccfd84117b9ccb75b6d9bcca2eb82e452585b3db0b9",
+      "archiveRoot": "package",
+      "package": "@anthropic-ai/claude-code-linux-arm64",
+      "integrity": "sha512-cTtIjy1TR2/E4jzh8jEPwkd7MoJTaCVRItsLQtVUKf/2DZSDLnA1x5G9WzwkgNQgmJHntbOrd1YSetjmZMV9og==",
+      "version": "2.1.293"
+    }
+  }
+}

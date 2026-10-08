@@ -1,0 +1,117 @@
+{
+  "repository": "https://github.com/termux/termux-app",
+  "ref": "v0.118.0",
+  "archiveSha256": "089ae8a55a8f583444d8f7ea30e5cb7e39bc920d8f70a1a8c960c07d55bee806",
+  "files": [
+    {
+      "file": "android/terminal-emulator/src/main/java/com/termux/terminal/ByteQueue.java",
+      "sha256": "a331e76e385e77db85c6434b3c4c787ae4aefaab81afc9b76ea42138e7903d9c"
+    },
+    {
+      "file": "android/terminal-emulator/src/main/java/com/termux/terminal/JNI.java",
+      "sha256": "7b9bd2fd066d3ccc861827b946c27abd19958efb52a7445c6878fd299212a9d5"
+    },
+    {
+      "file": "android/terminal-emulator/src/main/java/com/termux/terminal/KeyHandler.java",
+      "sha256": "543043c05d38450a4a805422b02ac77085bfa727e0cdb088353b7996c0b1856f"
+    },
+    {
+      "file": "android/terminal-emulator/src/main/java/com/termux/terminal/TerminalBuffer.java",
+      "sha256": "7ca819ab4a5a31a33665ccc7410b00809f39b8f9434c832aa8e379bc5aa05a2e"
+    },
+    {
+      "file": "android/terminal-emulator/src/main/java/com/termux/terminal/TerminalColors.java",
+      "sha256": "144f6bad8b6158f77145ccc98c6f29021232669a0045f075e3e137c4999826be"
+    },
+    {
+      "file": "android/terminal-emulator/src/main/java/com/termux/terminal/TerminalColorScheme.java",
+      "sha256": "22828d348df0dbcd1b1c940003735ed7a3094d129c9dba31c0bb8d85ba6a2548"
+    },
+    {
+      "file": "android/terminal-emulator/src/main/java/com/termux/terminal/TerminalEmulator.java",
+      "sha256": "65e38d48618afaac26997d2d5004193aabdd3f457fd2c5b71c535062740faafa"
+    },
+    {
+      "file": "android/terminal-emulator/src/main/java/com/termux/terminal/TerminalOutput.java",
+      "sha256": "f844b820e8a344e97bdbf421251daf9312dbf3f69a367b084bd920ed8a4898bc"
+    },
+    {
+      "file": "android/terminal-emulator/src/main/java/com/termux/terminal/TerminalRow.java",
+      "sha256": "95cc09fdeff519f955a39677fa76998d04b5072dc315070dd59b3b1aed6d2a88"
+    },
+    {
+      "file": "android/terminal-emulator/src/main/java/com/termux/terminal/TerminalSession.java",
+      "sha256": "932c7bc65cfed44337096a6048a91c26ff696c381ac5ff2cbd3865752656fae3"
+    },
+    {
+      "file": "android/terminal-emulator/src/main/java/com/termux/terminal/TerminalSessionClient.java",
+      "sha256": "853c3816ea1fc827895cea8191628482e1845e888a33d6c7da7e7ddac63af1b9"
+    },
+    {
+      "file": "android/terminal-emulator/src/main/java/com/termux/terminal/TextStyle.java",
+      "sha256": "234faa9646aca6b04329998106d9b29aac757abdc7e0400f2a3ed90c95a07297"
+    },
+    {
+      "file": "android/terminal-emulator/src/main/java/com/termux/terminal/WcWidth.java",
+      "sha256": "af8b58be28e68a5782ecbc6cd36eadf05764c19b72641fa1b44e452fb2d498f1"
+    },
+    {
+      "file": "android/terminal-emulator/src/main/jni/termux.c",
+      "sha256": "99d72bbd00910630affe2989fc3aeacfb621bebc30bc6f44afc899d079874496",
+      "upstreamSha256": "729112f2e66cdddb7e7311ddf8a89ad54037a54bddbf4d5291f2e1fff5b97373",
+      "localModification": "DSHA fork/exec identity handshake integration"
+    },
+    {
+      "file": "android/terminal-view/src/main/java/com/termux/view/GestureAndScaleRecognizer.java",
+      "sha256": "0df6451d1187ffe2d4c9aa5496cdcc04c96f75839cc990e70b40afaf0bd6e071"
+    },
+    {
+      "file": "android/terminal-view/src/main/java/com/termux/view/TerminalRenderer.java",
+      "sha256": "52db93a02a856e3da3fb79d296d200f5dab2167c97101e46633ed558331f76b7"
+    },
+    {
+      "file": "android/terminal-view/src/main/java/com/termux/view/TerminalView.java",
+      "sha256": "04ca7b03cd225bd6c7b54fe7377b239f6b6ce3724d6c5acc5491ec8dab28d59e"
+    },
+    {
+      "file": "android/terminal-view/src/main/java/com/termux/view/TerminalViewClient.java",
+      "sha256": "8f8e647e734e7a888104511979f00084e2e5fc0a887ebbd56c601fd4c314a795"
+    },
+    {
+      "file": "android/terminal-view/src/main/java/com/termux/view/textselection/CursorController.java",
+      "sha256": "6a7331f375881be9b24d34467900ec84a232ca07feeff69575b3b642abdc3e60"
+    },
+    {
+      "file": "android/terminal-view/src/main/java/com/termux/view/textselection/TextSelectionCursorController.java",
+      "sha256": "14c01f42c82ae891687139088b802442b0a8121b502e7ca21fddceeb51ad6f2a"
+    },
+    {
+      "file": "android/terminal-view/src/main/java/com/termux/view/textselection/TextSelectionHandleView.java",
+      "sha256": "1f7258ebbd5ab29f7b8ef9ce74c5191a86a6b04cd5806bcb05cf5065843e16fe"
+    },
+    {
+      "file": "android/terminal-view/src/main/res/drawable/text_select_handle_left_material.xml",
+      "sha256": "3ce66a831646933bea6adc67ed8d4b8dfd3bb86b992b1ea789b0ba577add4551"
+    },
+    {
+      "file": "android/terminal-view/src/main/res/drawable/text_select_handle_right_material.xml",
+      "sha256": "977579c11e9c28ef74af25ab61b8f39f812006e8ac5d2a9c5bf185a2456d522f"
+    },
+    {
+      "file": "android/terminal-view/src/main/res/values/strings.xml",
+      "sha256": "c2880e9b490ea42e0816dc2ad1b9bd6b1e75098508afd3681433ba07b14a1bfb"
+    },
+    {
+      "file": "android/terminal-emulator/src/main/jni/dsha-pty.c",
+      "sha256": "84b46a1f953f717b419eb40650e573502a3dfcf171b5c354e3aee810a2f4b198",
+      "source": "DSHA 70e37a7dbcae83b32fc92a8a37b33af88befc0e0",
+      "localModification": "JNI callback class renamed"
+    },
+    {
+      "file": "android/terminal-emulator/src/main/jni/dsha-pty.h",
+      "sha256": "5d4ea133eb6c51ec960f0a352dea0f34679fe2d594c7d7b8aefa97105914aeea",
+      "source": "DSHA 70e37a7dbcae83b32fc92a8a37b33af88befc0e0",
+      "localModification": "none"
+    }
+  ]
+}
