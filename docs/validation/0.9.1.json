@@ -1,0 +1,54 @@
+{
+  "version": "0.9.1-dev",
+  "versionCode": 12,
+  "date": "2026-10-09",
+  "apk": "android/app/build/outputs/apk/debug/app-debug.apk",
+  "apkSha256": "a1450e1f4f1a7a337fa0fe1130033472e041ae745686a5dfc0f843a8228403b7",
+  "frontend": "TypeScript strict and Vite production build passed",
+  "unitTests": {
+    "passed": 19,
+    "failed": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 36
+  },
+  "instrumentation": {
+    "passed": 2,
+    "failed": 0,
+    "elapsedSeconds": 35.052,
+    "device": {
+      "serial": "emulator-5554",
+      "api": 35,
+      "abi": "x86_64"
+    },
+    "tests": [
+      "DshWebUiTest.listsWorkspaceDirectoryWithComposedAbortSignal",
+      "OpenCodeWebUiTest.rendersBeyondDocumentLoadAndAuthenticatedHealth"
+    ],
+    "evidence": "output/android/desktop-viewport-091-regression.log",
+    "checks": [
+      "DSH desktop/mobile/desktop toggle through menu implementation",
+      "DSH Activity recreation preserves desktop mode and PID",
+      "DSH authenticated directory RPC with AbortSignal.any",
+      "OpenCode actual homepage, no management bridge, desktop viewport and owned restart"
+    ]
+  },
+  "browserRegression": {
+    "passed": 5,
+    "evidence": "output/playwright/dsh-desktop/regression.log",
+    "cases": [
+      "mobile",
+      "desktop-late-meta",
+      "desktop-duplicate-meta",
+      "desktop-no-meta",
+      "mobile-restored"
+    ]
+  },
+  "buildEvidence": "output/android/desktop-viewport-091-build.log",
+  "userAcceptance": "User confirmed 0.9.1 tested with no issues; next work is page responsibilities, Agent package management and onboarding",
+  "limitations": [
+    "Existing Codex standalone sandbox probe failure remains",
+    "No new arm64 or multi-device acceptance in this version"
+  ]
+}

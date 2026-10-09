@@ -6,6 +6,8 @@
 
 本机构建、安装与验证入口见 [本地开发与当前进度](docs/06-本地开发与当前进度.md)。
 
+**新会话接续请先读 [HANDOFF](docs/HANDOFF.md)**：用户已确认 0.9.1 测试无问题，下一阶段完成四页职责调整、五类 Agent 包管理和真实引导流程。
+
 ```powershell
 .\tools\android.ps1 -SdkPath E:/androidsdk -Install -Serial emulator-5554
 ```
@@ -42,7 +44,7 @@ DSHA 不是现成 SDK，不能仅复制几个 Java 类就完成集成。其底�
 
 ## 参考源码
 
-[examples/](examples/README.md) 保留 DSHA 与 CC Switch 的精简参考源码。精确提交见 [sources.lock.json](examples/sources.lock.json)，裁剪清单与逐文件摘要见 [清理记录](docs/research/reference-cleanup.json)。它们不是完整可构建工程；保留的上游源码内容未改写。
+`examples/` 仅作本地参考，已从 Git 跟踪中移除并忽略，开源仓库不包含上游源码副本。来源、精确提交和恢复命令见 [参考源码与恢复](docs/参考源码与恢复.md) 与 [来源锁定清单](docs/research/reference-sources.lock.json)；历史裁剪记录仍保留在 [清理记录](docs/research/reference-cleanup.json)。产品实际使用的第三方组件及许可继续保留在 `android/third-party/` 和 APK 资产中。
 
 文档区分「源码已确认」「上游说明」「实际验证」「设计建议」和「用户实测」。早期调研文件中的“本次未构建”指调研阶段；实际开发与各阶段验证见最新记录。完整模型/工具调用矩阵、多设备与 arm64 真机验收尚未完成。
 

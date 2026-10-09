@@ -22,4 +22,5 @@ android/**/.cxx/
 android/local.properties
 output/
 upstream-build/
+/examples/
 .playwright-cli/

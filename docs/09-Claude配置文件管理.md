@@ -12,7 +12,7 @@ Android 配置页现在读取持久主目录下的 `~/.claude/settings.json`，�
 
 ## 管理范围与实现依据
 
-参考 CC Switch [claude_direct.rs](../examples/cc-switch/src-tauri/src/services/provider/claude_direct.rs) 的受管字段补丁、私有文件权限和写入事务语义。Rust 模块不是 Android SDK，本阶段在 Kotlin 中实现对应的最小文件适配层。
+参考 CC Switch [claude_direct.rs](https://github.com/farion1231/cc-switch/blob/5ae6ad3888ba4543f6fad343c87656a97bd69da4/src-tauri/src/services/provider/claude_direct.rs) 的受管字段补丁、私有文件权限和写入事务语义。Rust 模块不是 Android SDK，本阶段在 Kotlin 中实现对应的最小文件适配层。
 
 | 字段 | 行为 |
 | --- | --- |

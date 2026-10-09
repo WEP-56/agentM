@@ -61,3 +61,5 @@ DSH `dsh-web-frontend@0.2.0-rc.2` 自带 `width=device-width, initial-scale=1`�
 `tools/verify-desktop-viewport.js` 是可由 Playwright CLI 执行的真实浏览器回归，覆盖正常移动、延迟 meta、重复 meta、无 meta 和恢复移动五类页面，并检查桌面 CSS 断点确实触发。浏览器实测桌面宽度为 1280、移动为 360，不以单独读取第一个 meta 的值当作成功。
 
 DSH 设备回归改为调用与菜单相同的切换方法，检查「桌面 → 移动 → 桌面」、Activity 重建后保留模式、PID 不变，以及桌面模式下的真实目录 RPC。共享脚本同时保留 OpenCode 回归。精确结果见 [0.9.1 验证摘要](validation/0.9.1.json)。
+
+用户随后明确反馈「我已测试，无问题」。本轮问题已关闭；下一会话按 [HANDOFF](HANDOFF.md) 进入页面职责、包管理和引导流程开发。

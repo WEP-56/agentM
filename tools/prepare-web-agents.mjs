@@ -51,8 +51,14 @@ for (const [abi, suffix] of [['x86_64', 'x64-baseline'], ['arm64-v8a', 'arm64']]
 fs.writeFileSync(catalogFile, JSON.stringify(catalog, null, 2) + '\n');
 fs.writeFileSync(path.join(root, 'docs/research/agent-packages/opencode.json'), JSON.stringify({ checkedAt: new Date().toISOString(), packages: metadata }, null, 2) + '\n');
 
-const lockFile = path.join(root, 'examples/DSHA/tools/dsh-runtime/package-lock.json');
-const lock = JSON.parse(fs.readFileSync(lockFile, 'utf8'));
+// Local reference checkouts are intentionally not part of the public repository.
+const lockFile = path.join(root, '.cache/dsha-reference/tools/dsh-runtime/package-lock.json');
+const lockUrl = 'https://raw.githubusercontent.com/DSH-APP/DSHA/70e37a7dbcae83b32fc92a8a37b33af88befc0e0/tools/dsh-runtime/package-lock.json';
+const lockBytes = fs.existsSync(lockFile) ? fs.readFileSync(lockFile) : Buffer.from(await (await fetchOk(lockUrl)).arrayBuffer());
+if (hash(lockBytes) !== 'a3cf19ad8320ca415ae4eeff288d649645c3637dd9d08b1dd8588d3013c2ea2d') throw Error('Pinned DSH dependency lock digest mismatch');
+fs.mkdirSync(path.dirname(lockFile), { recursive: true });
+fs.writeFileSync(lockFile, lockBytes);
+const lock = JSON.parse(lockBytes.toString('utf8'));
 const permitted = (values, value) => !values || (!values.includes('!' + value) && (values.every(v => v.startsWith('!')) || values.includes(value)));
 const entries = Object.entries(lock.packages).filter(([name, info]) => name && permitted(info.os, 'linux') && permitted(info.libc, 'glibc') &&
   (permitted(info.cpu, 'x64') || permitted(info.cpu, 'arm64')));
