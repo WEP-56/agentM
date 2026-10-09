@@ -4,13 +4,14 @@
 
 ## 当前状态
 
-- **0.13.0-dev / versionCode 16** 已构建；本轮未安装到设备、未停止/重启会话。用户自行安排设备测试。
+- **0.14.0-dev / versionCode 17** 已构建；本轮未安装到设备、未停止/重启会话或修改设备目录偏好。用户自行安排设备测试。
+- 本轮按用户截图，将工作目录选择器加入首页原有紫色 Ubuntu 组件；保存后新启动的终端类 Agent / Linux 终端使用该目录，既有会话和 WebUI 行为保留。
 - Claude Code、Pi、OpenCode、**Codex** 提供商管理已完成。Codex 严格参考 CC Switch 原生直连路径，加入 **OpenAI Official** 默认配置；DSH 仍使用原生界面配置。
 - 0.10.0、0.11 Claude/Pi 已验收。用户于 2026-10-09 确认 **0.12 OpenCode「可用」**，要求最后制作 Codex 配置能力，必须严格参考 CC Switch，并有与 Claude Official 相同的 OpenAI Official。0.13 Codex 真实使用待测试，不冒充已验收。
-- 当前修改叠加在上一阶段未提交工作区上，仍未提交、未推送；用户原文件不自动提交或删除。
+- 本轮起点为 `b97c368`（完成四类 Agent 配置能力），当时仅用户 `image.png` 未跟踪。本轮未提交/推送；用户在工作期间删除了 `构思与调研.md` 及其 README 链接，已保留该用户改动，截图也保留。
 - `examples/cc-switch` 仅本地参考，继续被 Git 忽略，不恢复跟踪。
 
-本轮说明：[18-Codex提供商配置](18-Codex提供商配置.md)；验证：[0.13.0](validation/0.13.0.json)。上一阶段：[17-OpenCode](17-OpenCode提供商配置.md)、[16-Claude与Pi](16-Claude与Pi提供商配置.md)，更早见 [15-包管理与原生引导](15-包管理与原生引导.md)。
+本轮说明：[19-首页工作目录选择](19-首页工作目录选择.md)；验证：[0.14.0](validation/0.14.0.json)。上一阶段：[18-Codex](18-Codex提供商配置.md)、[17-OpenCode](17-OpenCode提供商配置.md)、[16-Claude与Pi](16-Claude与Pi提供商配置.md)。
 
 ## 用户永久约束
 
@@ -20,7 +21,17 @@
 
 ## 本版实现
 
-### 新增 Codex
+### 新增首页工作目录选择
+
+- 入口在原紫色 Ubuntu 组件内部，不加新首页卡片。目录弹层浏览 `/workspace`、`/root`，支持逐层进入、上级、刷新、新建、分页；点击「使用此目录」才保存，浏览和新建不自动改变偏好。
+- 原生 `WorkingDirectories` + SharedPreferences 持久化默认目录；默认 `/workspace`，只选择现有挂载的私有 Linux 目录，不新增共享存储权限/挂载。拒绝越界、文件、符号链接和不可访问路径。
+- Claude/Codex/Pi/OpenCode TUI 与 Linux Shell 新建 PTY 时，所选 guest 路径作为 proot 独立 `-w` 参数，host cwd 同步到真实项目目录。路径不经过 shell 拼接，支持中文/空格等字面目录名。
+- 已有同类型 Session 直接重进，不修改当前目录；显式重启使用当前选择，确认框显示路径，且结束旧会话前先校验目标。设备 Shell、WebUI、环境检查/安装探针保持原默认目录逻辑。
+- 目录失效后提示重新选择并拒绝新启动，不自动落到其他项目。Service 因打开/重启失败时保留正在运行的会话。
+- 终端无 OSC 上报时显示 `launchDirectory`；Linux Shell 的 OSC 7 转义空格/百分号/查询片段符，避免目录显示错误。
+- 入口：`WorkingDirectories.kt`、`TerminalDirectoryPrompt.kt`、`TerminalManager.kt`、`LinuxRuntime.kt`、`WorkingDirectoryPicker.tsx`、`Home.tsx`；快照新增 `workingDirectory` 和 `terminal.directory`；桥新增 list/set/createWorkingDirectory。
+
+### 沿用 Codex
 
 - OpenAI Official 默认存在，不能改名/删除，可编辑和复制；使用 Codex 原生登录，不将原生登录 token 返回编辑页。
 - CC Switch `{auth, config, modelCatalog}` 结构：Auth JSON、TOML、目录 JSON 双向同步。支持名称、Key、请求地址、原生 Headers、默认/审查模型、推理档位、计划推理、1M/压缩阈值、远程压缩、禁用响应存储。
@@ -74,6 +85,7 @@ Claude Official 登录状态不能当作 API Key 查询模型；原生登录模�
 | 范围 | 文件 |
 | --- | --- |
 | 页签、版本、列表 | `uiux-design/src/screens/NativeConfig.tsx`、`NativePackages.tsx`、`NativeProviders.tsx` |
+| 首页目录、终端启动 | `screens/Home.tsx`、`WorkingDirectoryPicker.tsx`；`WorkingDirectories.kt`、`TerminalManager.kt`、`linux/LinuxRuntime.kt` |
 | 二级编辑 | `screens/ProviderEditor.tsx`、`CodexProviderEditor.tsx`、`ProviderControls.tsx`、`platform/providers.ts`、`store/useApp.ts` 的 `providerEdit` 路由 |
 | 原生提供商 | `config/ProviderManager.kt`、`ProviderDocuments.kt`、`CodexDocuments.kt`、`TomlDocument.kt`、`OpenCodeDocuments.kt`、`ProviderFiles.kt`、`ProviderModelDiscovery.kt`；`JsonDocument.kt` 支持等长规范化文本的源位置编辑 |
 | 迁移 | `config/ClaudeProfileStore.kt` 的原生导出方法；原旧配置管理接口保留，新 UI 不再使用旧的 Claude 两块表单 |
@@ -85,11 +97,12 @@ Kotlin 省略前缀为 `android/app/src/main/java/dev/agentm/app/`，前端省�
 
 ## 验证
 
-- TypeScript strict、Vite、APK、AndroidTest APK 构建通过；**63 项 JVM 测试通过**，无跳过；Lint 0 错误、40 警告（新增 1 条为 TOML 依赖有更新）。
-- 本轮 `ProviderIntegrationTest` 扩展 Codex 旧库补默认官方卡、Auth/TOML/目录、复制与删除、原生登录保留、外部 auth 冲突、编辑后删除当前卡等场景，**只编译，未运行设备测试**。0.11 的模拟器 2 项通过记录不能当作本版设备验证。
-- 提供商界面 320 px 浅色、480 px 深色两组通过，覆盖 Claude/Pi/OpenCode/Codex；原四组包管理/引导回归通过。使用隔离桥快照，无真实商业 API 调用。
-- 日志：`output/android/providers-013-build.log`；`output/playwright/providers-013-regression.log`、`providers-013-management-regression.log`。
-- 截图：`output/playwright/providers-codex-model-*.png`、`providers-codex-source-*.png`、`providers-codex-list-*.png`，以及 Claude/Pi/OpenCode 回归截图。
+- TypeScript strict、Vite、APK、AndroidTest APK 构建通过；**69 项 JVM 测试通过**，无跳过；Lint 0 错误、42 警告。
+- 新增 `WorkingDirectoriesTest` 覆盖映射、偏好、特殊字符、校验、目录失效、排序分页和失败保存；桥策略测试覆盖新接口。
+- 目录选择器 320 px 浅色、480 px 深色两组浏览器测试通过；原四组包管理/引导回归通过。使用隔离桥快照，无真实商业 API 调用。
+- 新增 `WorkingDirectoryIntegrationTest`（临时目录、独立 proot pwd/OSC 7）并更新 `SessionChromeTest` 的预期路径，**仅编译，未运行设备测试**。先前版本的设备结果不计入本版验证。
+- 日志：`output/android/workdir-014-build.log`；`output/playwright/workdir-014-regression.log`、`workdir-014-management-regression.log`。
+- 截图：`output/playwright/workdir-home-320.png`、`workdir-home-480.png`、`workdir-picker-320.png`、`workdir-picker-480.png`。
 - APK：`android/app/build/outputs/apk/debug/app-debug.apk`；SHA-256 见验证 JSON。**未覆盖安装设备**，未操作真实提供商、停止或重启 Agent 会话。
 
 ## 稳定基线与保留边界

@@ -16,6 +16,7 @@ import { useNow } from "@/utils/hooks";
 import { isNative } from "@/platform/native";
 import { openDeviceTerminal, openLinuxTerminal } from "./NativeEnvironment";
 import { NativeAgentCard } from './NativePackages';
+import { WorkingDirectoryPicker } from './WorkingDirectoryPicker';
 
 export function HomeScreen() {
   const now = useNow(1000);
@@ -26,6 +27,7 @@ export function HomeScreen() {
       {isNative && <div className="mb-4 rounded-[24px] bg-primary-container p-5 text-on-primary-container">
         <h2 className="type-title-medium">{native?.environment.linuxReady ? 'Ubuntu 已就绪' : '准备你的 Linux 环境'}</h2>
         <p className="mt-2 type-body-medium">{native?.environment.reason ?? '正在检查设备…'}</p>
+        <WorkingDirectoryPicker />
         <div className="mt-4 flex flex-wrap gap-2">
           <Button variant="tonal" onClick={() => native?.environment.linuxReady ? void openLinuxTerminal() : setTab('env')}>{native?.environment.linuxReady ? '打开 Linux 终端' : '准备环境'}</Button>
           <Button variant="text" onClick={() => void openDeviceTerminal()}>设备终端</Button>

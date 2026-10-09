@@ -26,11 +26,12 @@ class LinuxRuntime(private val app: AgentMApplication) {
         finally { linked.delete(); original.delete() }
     }
 
-    fun launch(root: File = rootfs, command: List<String> = listOf("/bin/bash", "--noprofile", "--norc", "-i"), guestEnvironment: Map<String, String> = emptyMap()): LinuxLaunch {
+    fun launch(root: File = rootfs, command: List<String> = listOf("/bin/bash", "--noprofile", "--norc", "-i"), guestEnvironment: Map<String, String> = emptyMap(), workingDirectory: String = "/workspace"): LinuxLaunch {
         require(proot.isFile) { "APK 缺少 proot 执行引擎" }
         home.mkdirs(); workspace.mkdirs(); temp.mkdirs(); managed.mkdirs()
+        val directory = app.workingDirectories.resolve(workingDirectory)
         val args = mutableListOf(proot.absolutePath, "-L", "--kill-on-exit", "-0",
-            "-r", root.absolutePath, "-w", "/workspace", "-b", "/dev", "-b", "/proc", "-b", "/sys",
+            "-r", root.absolutePath, "-w", directory.path, "-b", "/dev", "-b", "/proc", "-b", "/sys",
             "-b", "/proc/self/fd:/dev/fd", "-b", "${home.absolutePath}:/root", "-b", "${workspace.absolutePath}:/workspace",
             "-b", "${managed.absolutePath}:/opt/agentm")
         val l2s = File(root, ".l2s")
@@ -50,7 +51,7 @@ class LinuxRuntime(private val app: AgentMApplication) {
             "PROOT_TMP_DIR=${temp.absolutePath}", "PROOT_LOADER=${File(native, "libprootloader.so").absolutePath}",
             "LD_LIBRARY_PATH=${native.absolutePath}", "PROOT_NO_SECCOMP=1")
         if (!hardlinks) environment += "PROOT_L2S_DIR=${l2s.absolutePath}"
-        return LinuxLaunch(args.toTypedArray(), environment.toTypedArray(), workspace.absolutePath)
+        return LinuxLaunch(args.toTypedArray(), environment.toTypedArray(), directory.host.absolutePath)
     }
 
     fun run(root: File = rootfs, script: String, timeoutSeconds: Long = 30): CommandResult {

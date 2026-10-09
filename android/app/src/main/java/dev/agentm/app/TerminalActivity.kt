@@ -90,7 +90,7 @@ class TerminalActivity : ComponentActivity() {
         val reported = session?.emulator?.workingDirectoryUri?.let { runCatching { Uri.parse(it) }.getOrNull() }
             ?.takeIf { it.scheme == "file" && it.host in listOf("", "localhost", "127.0.0.1") }?.path
         return reported?.takeIf { it.startsWith('/') && it.length <= 4096 && it.none(Char::isISOControl) }
-            ?: if (kind == "deviceShell") session?.cwd ?: java.io.File(filesDir, "workspaces").absolutePath else "/workspace"
+            ?: if (kind == "deviceShell") session?.cwd ?: java.io.File(filesDir, "workspaces").absolutePath else manager.launchDirectory
     }
     private fun sessionStatus(): String = when {
         manager.snapshot().optBoolean("stopping") -> "正在结束当前任务…"
@@ -110,7 +110,8 @@ class TerminalActivity : ComponentActivity() {
             },
             SessionChrome.Item("text", "终端字号") { fontDialog() },
             SessionChrome.Item("refresh", "重启 $agentName", !stopping) {
-                chrome.confirm("重启 $agentName？", "当前终端任务会结束，并从启动目录新建会话。", "重启") { setCtrl(false); TerminalService.restart(this) }
+                val target = if (manager.kind == "deviceShell") manager.launchDirectory else (application as AgentMApplication).workingDirectories.snapshot().optString("path")
+                chrome.confirm("重启 $agentName？", "当前终端任务会结束，并在 $target 新建会话。", "重启") { setCtrl(false); TerminalService.restart(this) }
             },
             SessionChrome.Item("stop", "终止会话", running && !stopping, danger = true) {
                 chrome.confirm("终止当前会话？", "当前终端中的任务将被终止。", "终止") { manager.stop() }

@@ -96,6 +96,19 @@ class MainActivity : ComponentActivity() {
             }
             try {
                 when (method) {
+                    "listWorkingDirectories", "setWorkingDirectory", "createWorkingDirectory" -> storageWorker.execute {
+                        try {
+                            val directories = app.workingDirectories
+                            val result = when (method) {
+                                "setWorkingDirectory" -> directories.select(body.getString("path"))
+                                "createWorkingDirectory" -> directories.create(body.getString("path"), body.getString("name"))
+                                else -> directories.list(body.optString("path", WorkingDirectories.DEFAULT), body.optInt("offset", 0))
+                            }
+                            runOnUiThread { if (!isDestroyed) respond(result) }
+                        } catch (failure: Exception) {
+                            runOnUiThread { if (!isDestroyed) reply.postMessage(error(id, "WORKING_DIRECTORY_ERROR", failure.message ?: "工作目录操作未完成")) }
+                        }
+                    }
                     "listProviders", "readProvider", "saveProvider", "copyProvider", "deleteProvider", "switchProvider", "fetchProviderModels" -> {
                         val executor = if (method == "fetchProviderModels") modelWorker else worker
                         executor.execute {

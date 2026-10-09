@@ -1,0 +1,88 @@
+{
+  "version": "0.14.0-dev",
+  "versionCode": 17,
+  "date": "2026-10-09",
+  "apk": "android/app/build/outputs/apk/debug/app-debug.apk",
+  "apkSha256": "80f890ad4f2ee8390cdc78b603f938032b8ebbdbfb263d52998b4c9a71474e43",
+  "apkBytes": 12765609,
+  "installedOnDevice": false,
+  "frontend": "TypeScript strict and Vite production build passed",
+  "unitTests": {
+    "passed": 69,
+    "failed": 0,
+    "skipped": 0,
+    "newSuite": "WorkingDirectoriesTest",
+    "checks": [
+      "Guest/host project mapping",
+      "Persistent selection across manager recreation",
+      "Unicode, spaces and literal shell characters",
+      "Browsing/creating does not select",
+      "Missing directory does not fall back",
+      "Traversal, file and symlink rejection",
+      "Sorted directory pagination",
+      "Failed preference write",
+      "Bridge origin and main-frame restriction"
+    ]
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 42
+  },
+  "browserRegression": {
+    "directoryCasesPassed": 2,
+    "viewports": [
+      "320px light",
+      "480px dark"
+    ],
+    "script": "tools/verify-working-directory-ui.js",
+    "evidence": "output/playwright/workdir-014-regression.log",
+    "checks": [
+      "Selector inside existing purple Ubuntu component",
+      "Browse/up/cancel/Android back",
+      "Explicit save",
+      "New terminal and OpenCode TUI use selection",
+      "Existing session retained",
+      "WebUI independent of terminal selection",
+      "Create folder without auto-select",
+      "Save failure and missing folder recovery",
+      "No stop/manage actions",
+      "No horizontal overflow"
+    ],
+    "existingManagementCasesPassed": 4,
+    "existingManagementEvidence": "output/playwright/workdir-014-management-regression.log",
+    "scope": "Isolated native bridge fixtures; no device sessions started"
+  },
+  "instrumentation": {
+    "apkBuilt": true,
+    "executed": false,
+    "newTest": "WorkingDirectoryIntegrationTest",
+    "updatedTest": "SessionChromeTest",
+    "scope": "Opt-in isolated proot pwd and OSC 7 checks; preference and existing sessions unchanged by the new test",
+    "reason": "This turn did not install APKs or stop/restart the user application or Agent sessions"
+  },
+  "buildEvidence": "output/android/workdir-014-build.log",
+  "behavior": {
+    "defaultDirectory": "/workspace",
+    "selectableRoots": [
+      "/workspace",
+      "/root"
+    ],
+    "persistence": "Android working-directory SharedPreferences",
+    "appliesTo": [
+      "claude terminal",
+      "codex terminal",
+      "pi terminal",
+      "opencode TUI",
+      "linuxShell"
+    ],
+    "existingSessions": "Retained; explicit restart uses selected directory",
+    "webUI": "Unchanged; choose projects inside WebUI",
+    "launch": "Separate proot -w argument plus matching host cwd; no shell command interpolation"
+  },
+  "userAcceptance": "0.14 actual device use pending user testing",
+  "limitations": [
+    "Only existing private Linux mounts are selectable; no shared-storage permissions or new mounts",
+    "Device instrumentation compiled but not run",
+    "Existing Codex sandbox probe limitation and untested arm64/multi-device matrix remain"
+  ]
+}

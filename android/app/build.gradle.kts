@@ -7,8 +7,8 @@ android {
         applicationId = "dev.agentm.app"
         minSdk = 30
         targetSdk = 36
-        versionCode = 16
-        versionName = "0.13.0-dev"
+        versionCode = 17
+        versionName = "0.14.0-dev"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { buildConfig = true }

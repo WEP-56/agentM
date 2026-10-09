@@ -32,9 +32,10 @@ class SessionChromeTest {
         assertTrue(app.linux.ready)
         assertFalse("Close user terminals before this opt-in test", app.terminals.session?.isRunning == true)
         assertFalse("Close Web services before this opt-in test", app.webAgents.active)
+        val expectedDirectory = app.workingDirectories.current().path
         try {
             ActivityScenario.launch<TerminalActivity>(Intent(app, TerminalActivity::class.java).putExtra("kind", "linuxShell")).use { screen ->
-                awaitMain { app.terminals.session?.emulator?.workingDirectoryUri == "file://localhost/workspace" }
+                awaitMain { app.terminals.session?.emulator?.workingDirectoryUri?.let { android.net.Uri.parse(it).path } == expectedDirectory }
                 val first = app.terminals.session!!
                 screen.onActivity {
                     first.write("cd /tmp; AGENTM_CHROME=kept\r")
@@ -55,7 +56,7 @@ class SessionChromeTest {
                     File(app.getExternalFilesDir(null), "terminal-chrome.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }; bitmap.recycle()
                 }
                 screen.onActivity { TerminalService.restart(it) }
-                awaitMain { app.terminals.session !== first && app.terminals.session?.emulator?.workingDirectoryUri == "file://localhost/workspace" }
+                awaitMain { app.terminals.session !== first && app.terminals.session?.emulator?.workingDirectoryUri?.let { android.net.Uri.parse(it).path } == expectedDirectory }
                 val second = app.terminals.session!!
                 assertFalse(first.isRunning)
                 screen.recreate()

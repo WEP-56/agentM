@@ -35,7 +35,8 @@ class TerminalService : Service() {
             if (intent?.action == "restart") manager.restart() else manager.open(intent?.getStringExtra("kind") ?: manager.kind)
         } catch (e: Exception) {
             (application as AgentMApplication).logs.add("terminal", "PTY 创建失败：${e.javaClass.simpleName}", "E")
-            stopSelf()
+            android.widget.Toast.makeText(this, e.message ?: "终端启动失败", android.widget.Toast.LENGTH_LONG).show()
+            if (manager.session?.isRunning != true) stopSelf()
         }
         // A killed terminal must not silently replay a command or create a new shell.
         return START_NOT_STICKY

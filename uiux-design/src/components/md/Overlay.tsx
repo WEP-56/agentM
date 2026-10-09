@@ -73,12 +73,14 @@ export function BottomSheet({
   title,
   children,
   footer,
+  label,
 }: {
   open: boolean;
   onClose: () => void;
   title?: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
+  label?: string;
 }) {
   const controls = useDragControls();
   return (
@@ -95,6 +97,9 @@ export function BottomSheet({
               onClick={onClose}
             />
             <motion.div
+              role={label ? 'dialog' : undefined}
+              aria-modal={label ? true : undefined}
+              aria-label={label}
               drag="y"
               dragListener={false}
               dragControls={controls}

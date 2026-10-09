@@ -14,6 +14,7 @@ export interface NativeWebSession {
 export interface NativeSnapshot {
   protocolVersion: 1;
   appVersion: string;
+  workingDirectory?: { path: string; available: boolean; error: string | null };
   device: { model: string; androidVersion: string; sdk: number; abis: string[]; webViewVersion: string; availableBytes: number; totalBytes: number; workspace: string };
   environment: {
     status: string; phase: string; linuxReady: boolean; distribution: string; reason: string;
@@ -29,7 +30,7 @@ export interface NativeSnapshot {
     nodeVersion: string; claudeVersion: string; codexVersion: string; piVersion: string; node?: ManagedPackage; claude?: ManagedPackage; codex?: ManagedPackage; pi?: ManagedPackage;
     openCodeReady: boolean; dshReady: boolean; opencodeVersion: string; dshVersion: string; opencode?: ManagedPackage; dsh?: ManagedPackage;
   };
-  terminal: { id: string | null; running: boolean; stopping: boolean; kind: 'deviceShell' | 'linuxShell' | 'claude' | 'codex' | 'pi' | 'opencode'; pid: number };
+  terminal: { id: string | null; running: boolean; stopping: boolean; kind: 'deviceShell' | 'linuxShell' | 'claude' | 'codex' | 'pi' | 'opencode'; pid: number; directory?: string };
   webSessions: Partial<Record<'opencode' | 'dsh', NativeWebSession>>;
   permissions: { notifications: boolean; storage: boolean; battery: boolean };
   logs: { id: number; t: number; level: 'D' | 'I' | 'W' | 'E'; tag: string; msg: string }[];

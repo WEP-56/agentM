@@ -2,15 +2,15 @@
 
 安卓端开发工作台：安装 Linux 用户态环境，在手机上安装、配置和使用 Claude Code、Codex、OpenCode、Pi、DSH。
 
-当前 0.13.0-dev 在五个 Agent 页签下统一使用可折叠的「版本」和「提供商」列表。Claude Code、Pi、OpenCode、Codex 支持新增、编辑、复制、删除和二次确认切换，包含真实模型列表查询、模型能力配置及源码编辑。Codex 严格参考 CC Switch 的原生直连实现，新增 OpenAI Official 默认配置、Auth JSON/TOML 编辑、模型目录、推理档位、1M 与压缩设置。提供商及备份加密保存，原生文件写入有冲突检查和事务恢复。
+当前 0.14.0-dev 在首页原有紫色 Ubuntu 组件内增加工作目录选择器，记住所选项目目录，后续新启动的终端类 Agent 和 Linux 终端从该目录运行；已有会话保留，WebUI 内选择项目。Claude Code、Pi、OpenCode、Codex 的提供商管理、源码编辑、加密备份及配置事务沿用 0.13 实现。
 
-0.10.0、0.11 Claude/Pi、0.12 OpenCode 已获用户测试确认；0.13 已构建并完成 JVM 与浏览器验证，未覆盖安装设备，Codex 配置真实使用待用户测试。终端、WebUI、认证隔离和桌面模式继续沿用已验收实现，Codex 独立沙箱自检失败记录仍保留。按用户明确要求，项目不制作协议转换或本地代理服务。
+0.10.0、0.11 Claude/Pi、0.12 OpenCode 已获用户测试确认；0.14 已构建并完成 JVM 与浏览器验证，本轮未覆盖安装设备。终端、WebUI、认证隔离和桌面模式继续沿用既有实现，Codex 独立沙箱自检失败记录仍保留。按用户明确要求，项目不制作协议转换或本地代理服务。
 
 本机构建、安装与验证入口见 [本地开发与当前进度](docs/06-本地开发与当前进度.md)。
 
 **新会话接续请先读 [HANDOFF](docs/HANDOFF.md)**。本阶段实现、更新边界与验证见 [包管理与原生引导](docs/15-包管理与原生引导.md)。
 
-最新实现见 [Codex 提供商配置](docs/18-Codex提供商配置.md)；上一阶段见 [OpenCode](docs/17-OpenCode提供商配置.md) 与 [Claude/Pi](docs/16-Claude与Pi提供商配置.md)。
+最新实现见 [首页工作目录选择](docs/19-首页工作目录选择.md)；提供商配置见 [Codex](docs/18-Codex提供商配置.md)、[OpenCode](docs/17-OpenCode提供商配置.md) 与 [Claude/Pi](docs/16-Claude与Pi提供商配置.md)。
 
 ```powershell
 .\tools\android.ps1 -SdkPath E:/androidsdk -Install -Serial emulator-5554
@@ -39,8 +39,8 @@
 17. [Claude 与 Pi 提供商配置](docs/16-Claude与Pi提供商配置.md)：0.11.0 的统一列表、二级编辑、模型查询与原生配置事务。
 18. [OpenCode 提供商配置](docs/17-OpenCode提供商配置.md)：0.12.0 的 SDK 选项、模型属性、JSONC 多文件管理与升级导入。
 19. [Codex 提供商配置](docs/18-Codex提供商配置.md)：0.13.0 的 OpenAI Official、CC Switch 原生直连投影、TOML、模型目录与登录保留。
+20. [首页工作目录选择](docs/19-首页工作目录选择.md)：0.14.0 的紫色组件内目录选择、偏好持久化与新终端启动目录。
 
-原始想法保留在 [构思与调研.md](构思与调研.md)。调研日期：2026-10-08。
 
 ## 当前建议
 
@@ -55,4 +55,3 @@ DSHA 不是现成 SDK，不能仅复制几个 Java 类就完成集成。其底�
 `examples/` 仅作本地参考，已从 Git 跟踪中移除并忽略，开源仓库不包含上游源码副本。来源、精确提交和恢复命令见 [参考源码与恢复](docs/参考源码与恢复.md) 与 [来源锁定清单](docs/research/reference-sources.lock.json)；历史裁剪记录仍保留在 [清理记录](docs/research/reference-cleanup.json)。产品实际使用的第三方组件及许可继续保留在 `android/third-party/` 和 APK 资产中。
 
 文档区分「源码已确认」「上游说明」「实际验证」「设计建议」和「用户实测」。早期调研文件中的“本次未构建”指调研阶段；实际开发与各阶段验证见最新记录。完整模型/工具调用矩阵、多设备与 arm64 真机验收尚未完成。
-

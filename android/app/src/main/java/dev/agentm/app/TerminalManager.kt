@@ -21,6 +21,7 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
     private var restartRequested = false
     private var birth: ProcessIdentity? = null
     @Volatile var kind: String = "deviceShell"; private set
+    @Volatile var launchDirectory: String = "/workspace"; private set
     private val main = Handler(Looper.getMainLooper())
     private val observers = mutableSetOf<() -> Unit>()
 
@@ -37,6 +38,7 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
         check(session?.isRunning != true || kind == requestedKind) { "请先关闭当前终端，再切换终端类型" }
         if (requestedKind != "deviceShell") check(app.linux.ready) { "Ubuntu 尚未就绪，请先安装或检查系统" }
         if (requestedKind in dev.agentm.app.packages.ManagedPackagePaths.agents) app.packages.agentCommand(requestedKind)
+        if (requestedKind != "deviceShell" && session?.isRunning != true) app.workingDirectories.current()
     }
 
     fun open(requestedKind: String = "deviceShell"): TerminalSession = synchronized(app.maintenance) {
@@ -46,9 +48,10 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
         val workspace = File(app.filesDir, "workspaces").apply { mkdirs() }
         val env = arrayOf("HOME=${workspace.absolutePath}", "PATH=/system/bin:/system/xbin", "TERM=xterm-256color",
             "LANG=C.UTF-8", "TMPDIR=${app.cacheDir.absolutePath}", "PS1=agentM \\$ ")
+        val directory = if (requestedKind == "deviceShell") null else app.workingDirectories.current()
         val linux = when (requestedKind) {
-            "linuxShell" -> app.linux.runtime.launch(guestEnvironment = mapOf("PROMPT_COMMAND" to "printf '\\033]7;file://localhost%s\\007' \"\$PWD\""))
-            in dev.agentm.app.packages.ManagedPackagePaths.agents -> app.linux.runtime.launch(command = app.packages.agentCommand(requestedKind))
+            "linuxShell" -> app.linux.runtime.launch(guestEnvironment = mapOf("PROMPT_COMMAND" to TerminalDirectoryPrompt.COMMAND), workingDirectory = directory!!.path)
+            in dev.agentm.app.packages.ManagedPackagePaths.agents -> app.linux.runtime.launch(command = app.packages.agentCommand(requestedKind), workingDirectory = directory!!.path)
             else -> null
         }
         val argv = linux?.argv ?: arrayOf("/system/bin/sh", "-i")
@@ -56,6 +59,7 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
         id = UUID.randomUUID().toString()
         stopping = false
         kind = requestedKind
+        launchDirectory = directory?.path ?: workspace.absolutePath
         session = created
         birth = null
         try { PtyIdentity.capture({ birth = it }) { created.initializeEmulator(80, 24) } }
@@ -73,6 +77,7 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
     fun restart() {
         if (restartRequested || stopping) return
         requireOpenable(kind)
+        if (kind != "deviceShell") app.workingDirectories.current() // Reject a missing selection before stopping an existing session.
         if (session?.isRunning != true) { open(kind); return }
         restartRequested = true
         stopOwnedSession()
@@ -107,6 +112,7 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
     fun snapshot(): JSONObject = JSONObject().put("id", id ?: JSONObject.NULL)
         .put("running", session?.isRunning == true).put("stopping", stopping)
         .put("kind", kind).put("pid", session?.pid ?: -1)
+        .put("directory", launchDirectory)
 
     override fun onTextChanged(changedSession: TerminalSession) = changed()
     override fun onTitleChanged(changedSession: TerminalSession) = changed()

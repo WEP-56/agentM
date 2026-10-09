@@ -35,6 +35,7 @@ class EnvironmentInspector(private val app: AgentMApplication) {
                 .put("workspace", File(app.filesDir, "workspaces").absolutePath))
             .put("environment", linux.put("status", linux.getString("phase")).put("reason", linux.getString("message")).put("probes", probes))
             .put("terminal", app.terminals.snapshot())
+            .put("workingDirectory", app.workingDirectories.snapshot())
             .put("webSessions", app.webAgents.snapshot())
             .put("packages", app.packages.snapshot())
             .put("permissions", JSONObject().put("notifications", notifications).put("storage", true)
