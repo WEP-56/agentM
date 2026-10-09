@@ -29,10 +29,12 @@ class ClaudeConfigManager(
         fun source(): String = bytes?.let { Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
             .onUnmappableCharacter(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(it)).toString() } ?: "{\n}\n"
     }
-    private data class Plan(val token: String, val revision: String, val next: ByteArray?, val expires: Long)
+    private data class ProfileRef(val id: String, val revision: String)
+    private data class Plan(val token: String, val revision: String, val next: ByteArray?, val expires: Long, val profile: ProfileRef? = null)
     private val plans = linkedMapOf<String, Plan>()
     private val backup get() = AtomicFile(File(stateDirectory, "claude-backup.json"))
     private val secrets = EncryptedBackup()
+    private val profiles = ClaudeProfileStore(stateDirectory)
     @Volatile var busy: Boolean = false; private set
 
     private fun target(): File {
@@ -91,6 +93,26 @@ class ClaudeConfigManager(
             catch (error: IllegalArgumentException) { throw ConfigFailure("CONFIG_INPUT", error.message ?: "请检查配置字段") }
         return plan(before, after, "save")
     }
+    private fun currentFieldsOrNull(): Map<String, String>? = runCatching { values(nativeFile()) }.getOrNull()
+    @Synchronized fun listProfiles(): JSONObject = profiles.snapshot(currentFieldsOrNull())
+    @Synchronized fun saveProfile(params: JSONObject): JSONObject {
+        val capture = if (params.optBoolean("captureCurrent")) {
+            val current = nativeFile()
+            checkRevision(current, params.getString("nativeRevision"))
+            values(current)
+        } else null
+        return profiles.save(params, currentFieldsOrNull(), capture)
+    }
+    @Synchronized fun deleteProfile(params: JSONObject): JSONObject = profiles.delete(params, currentFieldsOrNull())
+    @Synchronized fun previewProfile(params: JSONObject): JSONObject {
+        val before = nativeFile()
+        checkRevision(before, params.getString("revision"))
+        values(before)
+        return profiles.withSelected(params.getString("id"), params.getString("profileRevision")) { selected ->
+            val after = if (before.bytes == null && selected.fields.isEmpty()) null else ClaudeSettings.patch(before.source(), selected.fields).toByteArray()
+            plan(before, after, "profile", ProfileRef(selected.id, selected.revision)).put("profileName", selected.name)
+        }
+    }
     @Synchronized fun previewRestore(expectedRevision: String): JSONObject {
         val before = nativeFile()
         checkRevision(before, expectedRevision)
@@ -102,7 +124,7 @@ class ClaudeConfigManager(
         values(NativeFile(after, revision(after)))
         return plan(before, after, "restore")
     }
-    private fun plan(before: NativeFile, next: ByteArray?, action: String): JSONObject {
+    private fun plan(before: NativeFile, next: ByteArray?, action: String, profile: ProfileRef? = null): JSONObject {
         if (next != null && next.size > MAX_BYTES) throw ConfigFailure("CONFIG_SIZE", "修改后的配置超过 1 MiB")
         expire()
         val token = UUID.randomUUID().toString()
@@ -116,7 +138,10 @@ class ClaudeConfigManager(
                 .put("operation", if (desired[key] == null) "删除" else if (current[key] == null) "新增" else "替换"))
         }
         val changed = !before.bytes.contentEquals(next)
-        if (changed) plans[token] = Plan(token, before.revision, next, expiry)
+        if (changed) {
+            plans[token] = Plan(token, before.revision, next, expiry, profile)
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ synchronized(this) { expire() } }, 120001)
+        }
         while (plans.size > 4) plans.remove(plans.keys.first())?.next?.fill(0)
         return JSONObject().put("token", if (changed) token else JSONObject.NULL).put("expiresAt", expiry).put("action", action)
             .put("changes", changes).put("changed", changed).put("deletesFile", next == null)
@@ -131,6 +156,11 @@ class ClaudeConfigManager(
         val selected = plans.remove(token) ?: throw ConfigFailure("CONFIG_EXPIRED", "预览已过期或已使用，请重新预览")
         busy = true
         try {
+            if (selected.profile != null) profiles.withSelected(selected.profile.id, selected.profile.revision) { commit(selected) }
+            else commit(selected)
+        } finally { busy = false; selected.next?.fill(0) }
+    }
+    private fun commit(selected: Plan): JSONObject {
             stateDirectory.mkdirs()
             FileChannel.open(File(stateDirectory, "claude.lock").toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE).use { channel ->
                 channel.lock().use {
@@ -162,8 +192,7 @@ class ClaudeConfigManager(
                 }
             }
             app.logs.add("config", "Claude 配置已保存；未记录配置内容")
-            read().put("busy", false)
-        } finally { busy = false; selected.next?.fill(0) }
+            return read().put("busy", false)
     }
     companion object {
         private const val MAX_BYTES = 1024 * 1024

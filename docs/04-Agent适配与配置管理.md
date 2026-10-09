@@ -4,6 +4,8 @@
 
 0.4.0 已进一步实现并测试 Claude 用户级 settings.json 的四个受管 env 字段、预览、冲突与备份恢复，详见 [配置开发记录](09-Claude配置文件管理.md)。下文其余适配器及完整 ProviderProfile 流程仍是目标设计。
 
+0.5.0 已加入 Claude 多提供商模板库，支持独立密钥、编辑/删除、捕获当前配置和按模板 revision 预览应用，详见 [模板开发记录](10-Claude提供商模板.md)。其余 Agent 及模板导入/导出、同步仍未接入。
+
 ## 1. 包与执行矩阵
 
 | Agent ID | npm 包 | 当日 latest 候选 | npm 声明 Node | 使用形态 |

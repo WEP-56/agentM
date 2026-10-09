@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity() {
                 reply.postMessage(if (cached.first == fingerprint) cached.second else error(id, "REQUEST_ID_REUSED", "请求标识已被使用"))
                 return@addWebMessageListener
             }
-            // A queued duplicate can only repeat read-only inspection. UI mutations run atomically below.
+            // Async configuration mutations also require a revision or a single-use preview token.
             fun respond(result: JSONObject) {
                 val encoded = JSONObject().put("id", id).put("ok", true).put("value", result).toString()
                 replies[id] = fingerprint to encoded
@@ -93,12 +93,17 @@ class MainActivity : ComponentActivity() {
             }
             try {
                 when (method) {
-                    "readClaudeConfig", "previewClaudeConfig", "previewClaudeRestore", "applyClaudeConfig" -> worker.execute {
+                    "readClaudeConfig", "previewClaudeConfig", "previewClaudeRestore", "applyClaudeConfig",
+                    "listClaudeProfiles", "saveClaudeProfile", "deleteClaudeProfile", "previewClaudeProfile" -> worker.execute {
                         try {
                             val result = when (method) {
                                 "readClaudeConfig" -> app.configs.read()
                                 "previewClaudeConfig" -> app.configs.preview(body)
                                 "previewClaudeRestore" -> app.configs.previewRestore(body.getString("revision"))
+                                "listClaudeProfiles" -> app.configs.listProfiles()
+                                "saveClaudeProfile" -> app.configs.saveProfile(body)
+                                "deleteClaudeProfile" -> app.configs.deleteProfile(body)
+                                "previewClaudeProfile" -> app.configs.previewProfile(body)
                                 else -> app.configs.apply(body.getString("token"))
                             }
                             runOnUiThread { if (!isDestroyed) respond(result) }

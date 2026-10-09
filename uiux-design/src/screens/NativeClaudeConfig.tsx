@@ -6,6 +6,7 @@ import { TabPage } from '@/components/md/Layout';
 import { Button } from '@/components/md/Button';
 import { TextField } from '@/components/md/Controls';
 import { BottomSheet } from '@/components/md/Overlay';
+import { NativeClaudeProfiles, type ClaudeProfile } from './NativeClaudeProfiles';
 
 type AuthMode = 'native' | 'apiKey' | 'authToken' | 'conflict';
 interface Config {
@@ -13,7 +14,7 @@ interface Config {
   hasApiKey: boolean; hasAuthToken: boolean; canRestore: boolean; overrides: string[]; busy: boolean;
 }
 interface Preview {
-  token: string | null; expiresAt: number; changed: boolean; action: 'save' | 'restore'; deletesFile: boolean;
+  token: string | null; expiresAt: number; changed: boolean; action: 'save' | 'restore' | 'profile'; deletesFile: boolean; profileName?: string;
   changes: { field: string; before: string; after: string; operation: string }[];
 }
 const labels: Record<string, string> = {
@@ -72,10 +73,21 @@ export function NativeClaudeConfig() {
     catch (failure) { failed(failure); setPreview(null); }
     finally { setWorking(false); }
   };
+  const prepareProfile = async (profile: ClaudeProfile) => {
+    if (!config) return;
+    setWorking(true); setError(''); setConflict(false);
+    try {
+      const next = await nativeRequest<Preview>('previewClaudeProfile', { revision: config.revision, id: profile.id, profileRevision: profile.revision });
+      if (!next.changed) useApp.getState().showSnack('模板与当前用户配置一致');
+      else setPreview(next);
+    } catch (failure) { failed(failure); }
+    finally { setWorking(false); }
+  };
   const blocked = working || !native?.environment.linuxReady || native.packages.busy || native.terminal.running;
   const hasSelectedSecret = mode === 'apiKey' ? config?.hasApiKey : config?.hasAuthToken;
   const changed = () => { setDirty(true); setPreview(null); };
   return <TabPage title="配置">
+    <NativeClaudeProfiles nativeRevision={config?.revision} blocked={blocked} onApply={profile => void prepareProfile(profile)} />
     <div className="rounded-[28px] bg-surface-container-low p-5">
       <div className="flex items-center gap-3"><MdOutlineTune className="text-2xl text-primary" /><h2 className="type-title-large">Claude Code</h2></div>
       <p className="mt-2 type-body-medium text-on-surface-variant">{config?.path ?? '~/.claude/settings.json'} · {config ? config.exists ? '读取自设备' : '保存时创建' : '正在读取'}</p>
@@ -119,10 +131,11 @@ export function NativeClaudeConfig() {
       </div>
       <p className="mt-4 type-body-small text-on-surface-variant">保存会写入 Claude 的私有配置文件，供其读取密钥；上一份配置以加密备份保存。其余 Agent 的配置管理尚未接入。</p>
     </div>
-    <BottomSheet open={!!preview} onClose={() => { if (!working) setPreview(null); }} title={preview?.action === 'restore' ? '确认恢复配置' : '确认配置变更'}
+    <BottomSheet open={!!preview} onClose={() => { if (!working) setPreview(null); }} title={preview?.action === 'restore' ? '确认恢复配置' : preview?.action === 'profile' ? '确认应用模板' : '确认配置变更'}
       footer={<div className="flex justify-end gap-2"><Button variant="text" disabled={working} onClick={() => setPreview(null)}>取消</Button><Button disabled={blocked} onClick={() => void apply()}>{working ? '保存中…' : '确认应用'}</Button></div>}>
       <div className="px-6 pb-6">
         <p className="type-body-medium text-on-surface-variant">只应用下面的变更。预览有效期为 2 分钟，文件发生变化时会阻止保存。</p>
+        {preview?.profileName && <p className="mt-3 break-words type-body-medium">模板：{preview.profileName}。{dirty ? '本页未保存的草稿不会应用。' : '模板在预览后被编辑或删除时，也会阻止应用。'}</p>}
         {preview?.deletesFile && <p className="mt-3 type-body-medium">恢复后 settings.json 将回到原本不存在的状态。</p>}
         {preview?.changes.map(change => <div key={change.field} className="mt-4 rounded-xl bg-surface-container-high p-4">
           <p className="type-title-small">{labels[change.field]} · {change.operation}</p>

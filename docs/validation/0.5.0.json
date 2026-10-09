@@ -1,0 +1,56 @@
+{
+  "version": "0.5.0-dev",
+  "date": "2026-10-09",
+  "baselineCommit": "06212d1",
+  "device": {
+    "serial": "emulator-5554",
+    "androidApi": 35,
+    "abi": "x86_64"
+  },
+  "apk": "android/app/build/outputs/apk/debug/app-debug.apk",
+  "apkSha256": "1a6d672769a545b891ad784d50e52dd398b155ad829f23b3d8bdae8107199354",
+  "frontend": "TypeScript strict and Vite production build passed",
+  "unitTests": {
+    "passed": 10,
+    "failed": 0
+  },
+  "instrumentation": {
+    "passed": 2,
+    "failed": 0,
+    "tests": [
+      "ClaudeConfigIntegrationTest.preservesUnknownFieldsEncryptsBackupAndRejectsConflicts",
+      "ClaudeProfilesIntegrationTest.templatesRemainIndependentAndStalePreviewsCannotApply"
+    ],
+    "isolatedFixtureHome": true
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 23
+  },
+  "visualCheck": {
+    "liveConfigUnchanged": true,
+    "newEditPreviewDeletePassed": true,
+    "temporaryTemplateRemoved": true,
+    "credentialNotRevealed": true,
+    "credentialAbsentFromLocalStorage": true,
+    "screenshots": [
+      "output/android/profiles-editor.png",
+      "output/android/profiles-list.png",
+      "output/android/profiles-preview.png"
+    ]
+  },
+  "crashLogSince": "2026-10-09T08:55:09+0800",
+  "newCrashEntries": 0,
+  "localEvidence": [
+    "output/android/profiles-validation.log",
+    "output/android/profiles-final-validation.log",
+    "output/android/profiles-crash.log"
+  ],
+  "limitations": [
+    "Claude templates only; other Agent adapters are pending.",
+    "Template library is device-bound encrypted storage; import/export, sync and key migration are not implemented.",
+    "Match status compares the four managed user-level fields, not effective project settings or active sessions.",
+    "Native settings retain the credentials required by Claude after application.",
+    "No model requests, provider connectivity checks, power-loss fault injection or arm64 runtime tests were performed."
+  ]
+}
