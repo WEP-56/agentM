@@ -5,8 +5,8 @@
 ## 当前状态
 
 - 用户于 2026-10-09 确认 0.14 新功能测试无问题，本轮进入首次公开发布；不再重复已验收的功能开发。
-- **0.14.0 / versionCode 18** 为首个正式签名版本。新增公开 README、MIT 和 tag 触发的 Android Release Actions；发布与签名操作见 [20-GitHub发布](20-GitHub发布.md)。根目录 `secrtes.txt` 与 `.secrets/` 含本地签名材料，已忽略，禁止提交；删除前需离线备份。
-- 新远程仓库为 `https://github.com/WEP-56/agentM`，首个 tag 为 `v0.14.0`。本轮只构建与发布，不安装 APK、不停止设备会话。
+- **0.14.1 / versionCode 19** 为首次公开 Release 目标。新增公开 README、MIT 和 tag 触发的 Android Release Actions；发布与签名操作见 [20-GitHub发布](20-GitHub发布.md)。根目录 `secrtes.txt` 与 `.secrets/` 含本地签名材料，已忽略，禁止提交；删除前需离线备份。
+- 新远程仓库为 `https://github.com/WEP-56/agentM`，已推送的 `v0.14.0` 因 setup-android 默认安装已下架 tools 包而失败，未生成公开 Release；修复后使用新 tag `v0.14.1`，不改写旧 tag。本轮只构建与发布，不安装 APK、不停止设备会话。
 
 以下为 0.14 开发阶段实现记录；其中「待测试」「本轮未提交」描述该阶段当时状态，以本节最新发布记录为准。
 

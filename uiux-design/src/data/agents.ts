@@ -1,5 +1,5 @@
 export const APP_NAME = "agentM";
-export const APP_VERSION = "0.14.0";
+export const APP_VERSION = "0.14.1";
 export const GITHUB_URL = "";
 export const PROJECT_DIR = "~/projects/demo";
 

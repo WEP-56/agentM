@@ -59,7 +59,7 @@ agentM 是一个无需 root 的 Android 开发工作台。通过 proot 和 Ubunt
 
 ## 当前边界
 
-项目仍在快速迭代，首次公开版本为 `0.14.0`。工作目录和提供商功能已获用户测试确认，但尚未覆盖所有 Agent 功能、arm64 真机、16 KB 页设备与各厂商长期后台场景。
+项目仍在快速迭代，首次公开 Release 为 `0.14.1`。工作目录和提供商功能已获用户测试确认，但尚未覆盖所有 Agent 功能、arm64 真机、16 KB 页设备与各厂商长期后台场景。
 
 Codex 在 proot 中的独立沙箱自检仍有 `cannot establish app-server socket mount isolation` 限制；不要将这里的 Linux 用户态环境视为完整虚拟机或独立安全沙箱。各 Agent 的模型服务、账号资格和收费由对应提供商决定，agentM 不附带账号、API Key 或额度。
 

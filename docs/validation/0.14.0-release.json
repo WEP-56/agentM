@@ -37,6 +37,7 @@
     "repository": "https://github.com/WEP-56/agentM",
     "tag": "v0.14.0",
     "secrets": "Four signing secrets configured; local values ignored by Git",
-    "status": "Ready to push and verify Actions"
+    "status": "CI failed before application build: setup-android default requested retired tools package. No public release. Fixed in v0.14.1.",
+    "run": "https://github.com/WEP-56/agentM/actions/runs/37935223862"
   }
 }

@@ -1,7 +1,7 @@
 # GitHub 签名打包与发布
 
 仓库：<https://github.com/WEP-56/agentM>。工作流：`.github/workflows/android-release.yml`。
-只有推送 `v*` tag 才触发；普通分支 push 不发布。首个公开版本为 `v0.14.0`，Android `versionCode = 18`。
+只有推送 `v*` tag 才触发；普通分支 push 不发布。首个公开 Release 为 `v0.14.1`，Android `versionCode = 19`。`v0.14.0` 保留为首轮 CI 配置验证 tag，因上游已下架旧 `tools` 包而失败，没有公开 Release。
 
 ## 一次性签名配置
 
@@ -39,12 +39,12 @@ gh secret set --repo WEP-56/agentM --env-file secrtes.txt
 4. 完成验证、提交后推送分支与 tag。例如下一个版本：
 
 ```bash
-node tools/release/check-version.mjs v0.14.1
-git add android/app/build.gradle.kts uiux-design/src/data/agents.ts docs/releases/v0.14.1.md
-git commit -m "Release v0.14.1"
+node tools/release/check-version.mjs v0.14.2
+git add android/app/build.gradle.kts uiux-design/src/data/agents.ts docs/releases/v0.14.2.md
+git commit -m "Release v0.14.2"
 git push origin main
-git tag -a v0.14.1 -m "agentM v0.14.1"
-git push origin v0.14.1
+git tag -a v0.14.2 -m "agentM v0.14.2"
+git push origin v0.14.2
 ```
 
 允许正式 `vX.Y.Z` 和预发布 `vX.Y.Z-alpha.N` / `beta.N` / `rc.N`；tag 必须与两处版本号一致，且存在发行说明。预发布 tag 会生成 GitHub Pre-release。
