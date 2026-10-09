@@ -1,0 +1,42 @@
+{
+  "version": "0.14.0",
+  "versionCode": 18,
+  "date": "2026-10-09",
+  "userAcceptance": "User confirmed the 0.14 feature test passed before requesting the public release.",
+  "local": {
+    "signedReleaseBuild": "passed",
+    "jvm": {
+      "tests": 69,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "releaseLint": {
+      "errors": 0,
+      "warnings": 41
+    },
+    "apksigner": "passed (v2, RSA 4096)",
+    "zipalign": "passed (-P 16, 4-byte alignment)",
+    "certificateSha256": "28d9fdbea09725074638f86cab4af1fd6153e2b3cb7b0eb9baab664bac07dd1b",
+    "apkSha256": "736fcb4b572a0b24450ceada4cfbdfead05925b9f4819616f3c537e1103ff1fc",
+    "actionlint": "1.7.12 passed",
+    "tagValidation": "Matching tag passed; invalid tag and version mismatch rejected",
+    "unsignedRelease": "Missing signing variables rejected",
+    "runtimeSources": "All four archive digests verified; source bundle built",
+    "dependencyNotices": "17 locked workbench dependencies verified",
+    "readmeLinks": "All local links resolve",
+    "gitHistoryScan": "No blobs above 50 MiB; credential pattern hits limited to upstream private-key-redaction test fixtures"
+  },
+  "device": {
+    "apkInstalled": false,
+    "sessionsStopped": false,
+    "arm64RealDevice": false,
+    "page16KBDevice": false
+  },
+  "github": {
+    "repository": "https://github.com/WEP-56/agentM",
+    "tag": "v0.14.0",
+    "secrets": "Four signing secrets configured; local values ignored by Git",
+    "status": "Ready to push and verify Actions"
+  }
+}

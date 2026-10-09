@@ -1,5 +1,12 @@
 plugins { id("com.android.application") }
 
+val releaseStorePath = providers.environmentVariable("ANDROID_KEYSTORE_PATH").orNull
+val releaseStorePassword = providers.environmentVariable("ANDROID_KEYSTORE_PASSWORD").orNull
+val releaseKeyAlias = providers.environmentVariable("ANDROID_KEY_ALIAS").orNull
+val releaseKeyPassword = providers.environmentVariable("ANDROID_KEY_PASSWORD").orNull
+val hasReleaseSigning = listOf(releaseStorePath, releaseStorePassword, releaseKeyAlias, releaseKeyPassword)
+    .all { !it.isNullOrBlank() }
+
 android {
     namespace = "dev.agentm.app"
     compileSdk = 36
@@ -7,11 +14,26 @@ android {
         applicationId = "dev.agentm.app"
         minSdk = 30
         targetSdk = 36
-        versionCode = 17
-        versionName = "0.14.0-dev"
+        versionCode = 18
+        versionName = "0.14.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { buildConfig = true }
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = file(releaseStorePath!!)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+    buildTypes {
+        getByName("release") {
+            if (hasReleaseSigning) signingConfig = signingConfigs.getByName("release")
+        }
+    }
     packaging { jniLibs { useLegacyPackaging = true } }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -19,6 +41,16 @@ android {
     }
     sourceSets["main"].assets.srcDir(layout.buildDirectory.dir("generated/webAssets").get().asFile)
 }
+
+val validateReleaseSigning by tasks.registering {
+    doLast {
+        check(hasReleaseSigning) {
+            "Release signing requires ANDROID_KEYSTORE_PATH, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD. See docs/20-GitHub发布.md."
+        }
+        check(file(releaseStorePath!!).isFile) { "Release keystore does not exist." }
+    }
+}
+tasks.matching { it.name == "preReleaseBuild" }.configureEach { dependsOn(validateReleaseSigning) }
 
 val npm = if (System.getProperty("os.name").startsWith("Windows")) "npm.cmd" else "npm"
 val buildWorkbench by tasks.registering(Exec::class) {

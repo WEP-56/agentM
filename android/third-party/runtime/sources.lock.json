@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "termuxPackagesCommit": "c22ae83b2c7a4d88febe216c1414d032c32075f6",
+  "sources": [
+    {
+      "file": "proot-5.1.107.96.zip",
+      "url": "https://codeload.github.com/termux/proot/zip/refs/tags/v5.1.107.96",
+      "sha256": "75f654fe60dea92dabff2bf083ae8bfe4f91baa6a1a374786a6bf391015eebaa"
+    },
+    {
+      "file": "talloc-2.5.0.tar.gz",
+      "url": "https://www.samba.org/ftp/talloc/talloc-2.5.0.tar.gz",
+      "sha256": "912afa237510ae542a7733998eb18a12bcda35ab6729c8e2ddb43e8d0ebab007"
+    },
+    {
+      "file": "libandroid-shmem-0.7.tar.gz",
+      "url": "https://codeload.github.com/termux/libandroid-shmem/tar.gz/refs/tags/v0.7",
+      "sha256": "1e5ff8459bc0a8c229dd8a94b27d119987e09ef3414331c2b5ebfff20b98e867"
+    },
+    {
+      "file": "termux-packages-c22ae83b2c7a4d88febe216c1414d032c32075f6.tar.gz",
+      "url": "https://codeload.github.com/termux/termux-packages/tar.gz/c22ae83b2c7a4d88febe216c1414d032c32075f6",
+      "sha256": "5984d85d84009b9ecb897dd6258520e289f681ff1e16c3e47824e55ab08686c5"
+    }
+  ]
+}

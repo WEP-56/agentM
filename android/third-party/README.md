@@ -1,5 +1,18 @@
 # Terminal components
 
+agentM's original code is MIT-licensed (see the repository root `LICENSE`).
+Vendored components keep the licenses documented below. Each public Release
+includes `linux-runtime-sources.tar.gz`; see `runtime/README.md` for its pinned
+full sources, build recipes, preparation scripts and reconstruction steps.
+
+The workbench's locked production dependency notices, including React,
+smol-toml, the Roboto / JetBrains Mono fonts, Material utilities and react-icons,
+are bundled as `app/src/main/assets/licenses/workbench-dependencies.txt`.
+Regenerate after dependency updates with `node tools/release/web-licenses.mjs --write`;
+the release workflow verifies it after `npm ci`. Material Design icons retain
+Apache-2.0 and Simple Icons retain CC0-1.0. The included icon names/brands remain
+the property of their respective owners.
+
 The Java terminal emulator/view and `termux.c` are vendored from `termux/termux-app`, tag `v0.118.0`, downloaded from https://codeload.github.com/termux/termux-app/zip/refs/tags/v0.118.0 .
 
 Only the terminal modules are used, under the upstream Apache-2.0 exception. See `Termux-upstream-exception.md` and `Termux-Apache-2.0.txt`; this does not apply to the entire Termux app.

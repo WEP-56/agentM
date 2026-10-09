@@ -4,6 +4,12 @@
 
 ## 当前状态
 
+- 用户于 2026-10-09 确认 0.14 新功能测试无问题，本轮进入首次公开发布；不再重复已验收的功能开发。
+- **0.14.0 / versionCode 18** 为首个正式签名版本。新增公开 README、MIT 和 tag 触发的 Android Release Actions；发布与签名操作见 [20-GitHub发布](20-GitHub发布.md)。根目录 `secrtes.txt` 与 `.secrets/` 含本地签名材料，已忽略，禁止提交；删除前需离线备份。
+- 新远程仓库为 `https://github.com/WEP-56/agentM`，首个 tag 为 `v0.14.0`。本轮只构建与发布，不安装 APK、不停止设备会话。
+
+以下为 0.14 开发阶段实现记录；其中「待测试」「本轮未提交」描述该阶段当时状态，以本节最新发布记录为准。
+
 - **0.14.0-dev / versionCode 17** 已构建；本轮未安装到设备、未停止/重启会话或修改设备目录偏好。用户自行安排设备测试。
 - 本轮按用户截图，将工作目录选择器加入首页原有紫色 Ubuntu 组件；保存后新启动的终端类 Agent / Linux 终端使用该目录，既有会话和 WebUI 行为保留。
 - Claude Code、Pi、OpenCode、**Codex** 提供商管理已完成。Codex 严格参考 CC Switch 原生直连路径，加入 **OpenAI Official** 默认配置；DSH 仍使用原生界面配置。
