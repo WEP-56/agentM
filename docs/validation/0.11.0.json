@@ -1,0 +1,43 @@
+{
+  "version": "0.11.0-dev",
+  "versionCode": 14,
+  "date": "2026-10-09",
+  "apk": "android/app/build/outputs/apk/debug/app-debug.apk",
+  "apkSha256": "864b1eb3662e1ff1f07b8979bb5267174aaa4a26d7b030aecb044d2e5ad0fb3f",
+  "apkBytes": 12116500,
+  "installedOnDevice": true,
+  "installation": { "device": "emulator-5554", "method": "adb install -r", "result": "Success", "launched": true, "dataCleared": false },
+  "frontend": "TypeScript strict and Vite production build passed",
+  "unitTests": { "passed": 43, "failed": 0, "skipped": 0, "newSuites": ["ProviderDocumentsTest", "ProviderFilesTest", "ProviderModelDiscoveryTest"] },
+  "lint": { "errors": 0, "warnings": 39 },
+  "instrumentation": {
+    "passed": 2,
+    "failed": 0,
+    "elapsedSeconds": 0.438,
+    "class": "dev.agentm.app.ProviderIntegrationTest",
+    "scope": "Disposable home/state directories with real Android Keystore, plus a loopback HTTP model fixture. No real provider files, account login or Agent sessions were exercised.",
+    "checks": ["encrypted legacy migration", "copy with credentials", "confirmed-switch backend writes", "official reset", "Pi default and model files", "delete and default cleanup", "external revision conflicts", "preserved permissions/login/other providers", "HTTP model path and authentication headers"],
+    "evidence": "output/android/providers-011-device.log"
+  },
+  "browserRegression": {
+    "providerCasesPassed": 2,
+    "providerViewports": ["320px light", "480px dark"],
+    "providerScript": "tools/verify-provider-ui.js",
+    "providerEvidence": "output/playwright/providers-011-regression.log",
+    "checks": ["collapsible version section", "official default", "secondary editor", "form/source sync", "invalid JSON blocks save", "models and 1M", "Pi typed headers/compatibility/capabilities", "confirmation before switch", "copy/edit/delete", "unsaved back protection", "no credentials in persisted browser state"],
+    "existingManagementCasesPassed": 4,
+    "existingManagementEvidence": "output/playwright/providers-011-management-regression.log",
+    "scope": "Real React native branch with isolated bridge fixtures; not commercial-provider API acceptance"
+  },
+  "buildEvidence": "output/android/providers-011-build.log",
+  "userAcceptance": "User confirmed on 2026-10-09 that Claude Code and Pi provider configuration testing found no problems; requested OpenCode next",
+  "limitations": [
+    "Only Claude Code and Pi provider adapters were added in this phase",
+    "No protocol conversion or local proxy, per permanent user instruction",
+    "Claude generic Body override is not a native configuration feature; UA/custom headers use ANTHROPIC_CUSTOM_HEADERS",
+    "Bedrock has no generic models endpoint and requires manual model entries",
+    "Saving a provider draft does not apply it; card selection plus confirmation writes native files",
+    "No real commercial model requests or user credentials used in tests",
+    "Existing Codex sandbox probe limitation and untested arm64/multi-device matrix remain"
+  ]
+}

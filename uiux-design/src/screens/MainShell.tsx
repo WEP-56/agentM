@@ -23,6 +23,7 @@ import { Onboarding } from "./Onboarding";
 import { isNative, nativeRequest, type NativeSnapshot } from "@/platform/native";
 import { NativeEnvironment } from "./NativeEnvironment";
 import { NativeOnboarding } from "./NativeOnboarding";
+import { ProviderEditor } from './ProviderEditor';
 
 const NAV: NavItem<Tab>[] = [
   { key: "home", label: "首页", icon: <MdOutlineHome />, activeIcon: <MdHome /> },
@@ -124,6 +125,8 @@ function MainShellContent({ tab, setTab, stack }: { tab: Tab; setTab: (tab: Tab)
           >
             {r.name === "session" ? (
               <SessionScreen agentId={r.agentId} view={r.view} />
+            ) : r.name === 'providerEdit' ? (
+              <ProviderEditor kind={r.agentId} id={r.providerId} />
             ) : r.name === "agentConfig" ? (
               <AgentConfigScreen agentId={r.agentId} />
             ) : (

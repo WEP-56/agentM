@@ -1,0 +1,88 @@
+{
+  "version": "0.12.0-dev",
+  "versionCode": 15,
+  "date": "2026-10-09",
+  "apk": "android/app/build/outputs/apk/debug/app-debug.apk",
+  "apkSha256": "e6c5faa11138b5f803aa3f5a163799e85f382f1a5689150fd4e5911fea28011b",
+  "apkBytes": 12149550,
+  "installedOnDevice": false,
+  "frontend": "TypeScript strict and Vite production build passed",
+  "unitTests": {
+    "passed": 50,
+    "failed": 0,
+    "skipped": 0,
+    "addedChecks": [
+      "OpenCode native SDK/model shape",
+      "JSONC layer merge and source preservation",
+      "deletion without lower-layer resurrection",
+      "duplicate keys and malformed JSONC/UTF-8 rejection",
+      "SDK/model field types",
+      "disabled-provider guard",
+      "multi-file rollback and stale revisions",
+      "SDK-specific model discovery authentication and reference/unsupported-SDK rejection"
+    ]
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 39
+  },
+  "instrumentation": {
+    "apkBuilt": true,
+    "executed": false,
+    "class": "dev.agentm.app.ProviderIntegrationTest",
+    "addedScenarios": [
+      "import OpenCode into pre-existing 0.11 encrypted library",
+      "idempotent import",
+      "copy and save without native changes",
+      "apply SDK/model fields and default",
+      "external new config layer conflict",
+      "delete while preserving unrelated providers/comments/auth",
+      "encrypted library and native backup"
+    ],
+    "reason": "This turn did not install APKs or restart the user's existing application or Agent sessions. Previous 0.11 device results are not claimed for this build."
+  },
+  "browserRegression": {
+    "providerCasesPassed": 2,
+    "providerViewports": [
+      "320px light",
+      "480px dark"
+    ],
+    "providerScript": "tools/verify-provider-ui.js",
+    "providerEvidence": "output/playwright/providers-012-regression.log",
+    "checks": [
+      "Claude and Pi regression",
+      "OpenCode SDK selection and omitted default npm",
+      "typed SDK options and nested JSON character-by-character entry",
+      "typed model variants and cost",
+      "model ID rename",
+      "source/form synchronization",
+      "unrelated model modalities/options/limit.input retained",
+      "save does not switch",
+      "confirmed switch",
+      "unique copy and retained credentials",
+      "delete",
+      "unsaved back confirmation",
+      "no credentials in persisted browser state"
+    ],
+    "existingManagementCasesPassed": 4,
+    "existingManagementEvidence": "output/playwright/providers-012-management-regression.log",
+    "visualReview": [
+      "providers-opencode-model-320.png",
+      "providers-opencode-list-480.png",
+      "providers-opencode-properties-320.png",
+      "providers-opencode-sdk-480.png"
+    ],
+    "scope": "Real React native branch with isolated bridge fixtures; not commercial-provider API acceptance"
+  },
+  "buildEvidence": "output/android/providers-012-build.log",
+  "userAcceptance": "User confirmed OpenCode usable on 2026-10-09 and requested Codex provider configuration next, strictly referencing CC Switch with an OpenAI Official default",
+  "limitations": [
+    "No protocol conversion or local proxy, per permanent user instruction",
+    "Uses the native provider/npm/options/models format verified against OpenCode v1.18.35",
+    "Only global user config files are managed; project, environment and managed configuration can override them",
+    "Bedrock and unknown/custom SDK model discovery require manual model entries",
+    "Model discovery does not execute key commands or expand env/file references",
+    "No user credentials, commercial model calls, account logins, device install or Agent session restarts in this turn",
+    "Existing Codex sandbox probe limitation and untested arm64/multi-device matrix remain"
+  ]
+}

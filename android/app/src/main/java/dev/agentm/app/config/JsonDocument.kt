@@ -1,20 +1,20 @@
 package dev.agentm.app.config
 
 /** Strict JSON with source spans. Edits replace only selected values/members, never serialize the document. */
-class JsonDocument(val source: String) {
+class JsonDocument(val source: String, private val input: String = source) {
     data class Member(val name: String, val start: Int, val value: Value)
     data class Value(val start: Int, val end: Int, val kind: Char, val text: String? = null, val members: List<Member> = emptyList()) {
         fun member(name: String) = members.firstOrNull { it.name == name }
     }
-    private var offset = if (source.startsWith('\uFEFF')) 1 else 0
-    val root: Value = parse(0).also { whitespace(); requireJson(offset == source.length) }
+    private var offset = if (input.startsWith('\uFEFF')) 1 else 0
+    val root: Value = parse(0).also { whitespace(); requireJson(offset == input.length) }
     private fun requireJson(condition: Boolean) { if (!condition) throw IllegalArgumentException("JSON 格式无效（位置 $offset）") }
-    private fun whitespace() { while (offset < source.length && source[offset] in " \t\r\n") offset++ }
-    private fun take(character: Char): Boolean { whitespace(); return if (offset < source.length && source[offset] == character) { offset++; true } else false }
+    private fun whitespace() { while (offset < input.length && input[offset] in " \t\r\n") offset++ }
+    private fun take(character: Char): Boolean { whitespace(); return if (offset < input.length && input[offset] == character) { offset++; true } else false }
     private fun parse(depth: Int): Value {
-        requireJson(depth <= 64); whitespace(); requireJson(offset < source.length)
+        requireJson(depth <= 64); whitespace(); requireJson(offset < input.length)
         val start = offset
-        return when (val character = source[offset]) {
+        return when (val character = input[offset]) {
             '{' -> {
                 offset++; val members = mutableListOf<Member>(); val names = mutableSetOf<String>()
                 if (!take('}')) while (true) {
@@ -34,11 +34,11 @@ class JsonDocument(val source: String) {
             '"' -> Value(start, 0, '"', string()).let { it.copy(end = offset) }
             't', 'f', 'n' -> {
                 val literal = when (character) { 't' -> "true"; 'f' -> "false"; else -> "null" }
-                requireJson(source.startsWith(literal, offset)); offset += literal.length
+                requireJson(input.startsWith(literal, offset)); offset += literal.length
                 Value(start, offset, character)
             }
             else -> {
-                val match = NUMBER.find(source, offset)
+                val match = NUMBER.find(input, offset)
                 requireJson(match != null && match.range.first == offset)
                 offset = match!!.range.last + 1
                 Value(start, offset, '0')
@@ -46,15 +46,15 @@ class JsonDocument(val source: String) {
         }
     }
     private fun string(): String {
-        requireJson(offset < source.length && source[offset++] == '"')
+        requireJson(offset < input.length && input[offset++] == '"')
         val result = StringBuilder()
-        while (offset < source.length) {
-            val character = source[offset++]
+        while (offset < input.length) {
+            val character = input[offset++]
             if (character == '"') return result.toString()
             requireJson(character.code >= 32)
             if (character != '\\') { result.append(character); continue }
-            requireJson(offset < source.length)
-            when (val escape = source[offset++]) {
+            requireJson(offset < input.length)
+            when (val escape = input[offset++]) {
                 '"', '\\', '/' -> result.append(escape)
                 'b' -> result.append('\b')
                 'f' -> result.append('\u000c')
@@ -62,8 +62,8 @@ class JsonDocument(val source: String) {
                 'r' -> result.append('\r')
                 't' -> result.append('\t')
                 'u' -> {
-                    requireJson(offset + 4 <= source.length)
-                    val digits = source.substring(offset, offset + 4)
+                    requireJson(offset + 4 <= input.length)
+                    val digits = input.substring(offset, offset + 4)
                     requireJson(digits.all { it in "0123456789abcdefABCDEF" })
                     val code = digits.toIntOrNull(16)
                     requireJson(code != null); result.append(code!!.toChar()); offset += 4
@@ -82,7 +82,7 @@ class JsonDocument(val source: String) {
             return when {
                 index < obj.members.lastIndex -> source.removeRange(member.start, obj.members[index + 1].start)
                 index > 0 -> source.removeRange(obj.members[index - 1].value.end, member.value.end)
-                else -> source.removeRange(member.start, member.value.end)
+                else -> source.removeRange(member.start, if (input !== source) obj.end - 1 else member.value.end)
             }
         }
         if (rawValue == null) return source

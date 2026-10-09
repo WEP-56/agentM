@@ -19,6 +19,7 @@ export type Tab = "home" | "config" | "env" | "settings";
 export type Route =
   | { name: "session"; agentId: AgentId; view: ViewKind }
   | { name: "agentConfig"; agentId: AgentId }
+  | { name: "providerEdit"; agentId: 'claude' | 'pi' | 'opencode' | 'codex'; providerId?: string }
   | { name: "logs" };
 
 export type AgentStatus =

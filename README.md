@@ -2,13 +2,15 @@
 
 安卓端开发工作台：安装 Linux 用户态环境，在手机上安装、配置和使用 Claude Code、Codex、OpenCode、Pi、DSH。
 
-当前 0.10.0-dev 完成四页职责调整：主页启动会话，配置页分五个 Agent 管理安装、在线更新检查、受管更新、卸载和配置，环境页管理 Ubuntu、开发工具及只读存储浏览。原生引导复用实际安装器，支持已有环境、跳过可选 Agent、失败重试与退出重入。Claude/Codex/OpenCode 的动态更新限定当前次版本系列补丁，Pi/DSH 保持固定适配清单；上游版本与可适配版本分开展示。
+当前 0.13.0-dev 在五个 Agent 页签下统一使用可折叠的「版本」和「提供商」列表。Claude Code、Pi、OpenCode、Codex 支持新增、编辑、复制、删除和二次确认切换，包含真实模型列表查询、模型能力配置及源码编辑。Codex 严格参考 CC Switch 的原生直连实现，新增 OpenAI Official 默认配置、Auth JSON/TOML 编辑、模型目录、推理档位、1M 与压缩设置。提供商及备份加密保存，原生文件写入有冲突检查和事务恢复。
 
-0.9.1 的五个 Agent 与会话界面已获用户确认；0.10.0 已完成构建和自动化，等待新版设备实测。终端、WebUI、认证隔离和桌面模式继续沿用已验收实现，Codex 独立沙箱自检失败记录仍保留。
+0.10.0、0.11 Claude/Pi、0.12 OpenCode 已获用户测试确认；0.13 已构建并完成 JVM 与浏览器验证，未覆盖安装设备，Codex 配置真实使用待用户测试。终端、WebUI、认证隔离和桌面模式继续沿用已验收实现，Codex 独立沙箱自检失败记录仍保留。按用户明确要求，项目不制作协议转换或本地代理服务。
 
 本机构建、安装与验证入口见 [本地开发与当前进度](docs/06-本地开发与当前进度.md)。
 
 **新会话接续请先读 [HANDOFF](docs/HANDOFF.md)**。本阶段实现、更新边界与验证见 [包管理与原生引导](docs/15-包管理与原生引导.md)。
+
+最新实现见 [Codex 提供商配置](docs/18-Codex提供商配置.md)；上一阶段见 [OpenCode](docs/17-OpenCode提供商配置.md) 与 [Claude/Pi](docs/16-Claude与Pi提供商配置.md)。
 
 ```powershell
 .\tools\android.ps1 -SdkPath E:/androidsdk -Install -Serial emulator-5554
@@ -34,6 +36,9 @@
 14. [OpenCode 与 DSH 接入](docs/13-OpenCode与DSH接入.md)：0.8.0 的 TUI / WebUI、认证隔离、DSHA 适配和用户验收步骤。
 15. [终端与 WebUI 界面打磨](docs/14-终端与WebUI界面打磨.md)：0.8.1–0.8.2 WebView 兼容修复，以及 0.9.0 工具栏、菜单、桌面模式与回归记录。
 16. [包管理与原生引导](docs/15-包管理与原生引导.md)：0.10.0 的四页职责、五 Agent 包管理、更新策略、真实引导与存储浏览。
+17. [Claude 与 Pi 提供商配置](docs/16-Claude与Pi提供商配置.md)：0.11.0 的统一列表、二级编辑、模型查询与原生配置事务。
+18. [OpenCode 提供商配置](docs/17-OpenCode提供商配置.md)：0.12.0 的 SDK 选项、模型属性、JSONC 多文件管理与升级导入。
+19. [Codex 提供商配置](docs/18-Codex提供商配置.md)：0.13.0 的 OpenAI Official、CC Switch 原生直连投影、TOML、模型目录与登录保留。
 
 原始想法保留在 [构思与调研.md](构思与调研.md)。调研日期：2026-10-08。
 

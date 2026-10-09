@@ -35,6 +35,7 @@ async page => {
         const request = JSON.parse(raw); window.fixture.requests.push(request);
         const { id, method, params } = request;
         if (method === 'inspect' || method === 'checkLinux') return reply(id, window.fixture.snapshot);
+        if (method === 'listProviders') return reply(id, { kind: params.kind, revision: 'fixture', nativeRevision: 'fixture', providers: [], hasCurrent: false });
         if (method === 'readClaudeConfig') return reply(id, { revision: 'test', exists: false, path: '~/.claude/settings.json', baseUrl: '', model: '', authMode: 'native', hasApiKey: false, hasAuthToken: false, canRestore: false, overrides: [], busy: false });
         if (method === 'listClaudeProfiles') return reply(id, { revision: 'test', profiles: [], canCompare: true, limit: 20 });
         if (method === 'installLinux') {
@@ -78,6 +79,7 @@ async page => {
     for (const name of names) {
       await snapshot(target, 'config-' + name);
       await target.getByRole('tab', { name, exact: true }).click();
+      await target.locator('summary:visible').filter({ hasText: /^版本$/ }).click();
       check(await target.getByRole('button', { name: /^安装 / }).count() === 1, name + ': install must be visible when absent');
       check(await target.getByRole('button', { name: '在线检查更新', exact: true }).count() === 1, name + ': online check missing');
     }
@@ -108,6 +110,7 @@ async page => {
     const t = update.target;
     await t.locator('nav').waitFor(); await snapshot(t, 'update-home');
     await t.getByRole('button', { name: '配置', exact: true }).click();
+    await t.locator('summary:visible').filter({ hasText: /^版本$/ }).click();
     await t.getByRole('button', { name: '在线检查更新', exact: true }).waitFor(); await snapshot(t, 'update-config');
     await t.getByRole('button', { name: '在线检查更新', exact: true }).click();
     await t.getByText(/在线检查失败，无法确认最新状态/).waitFor();

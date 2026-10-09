@@ -1,0 +1,86 @@
+{
+  "version": "0.13.0-dev",
+  "versionCode": 16,
+  "date": "2026-10-09",
+  "apk": "android/app/build/outputs/apk/debug/app-debug.apk",
+  "apkSha256": "270a0e953971ce6fcfdfb5c1e7548ab94cf44e6a152a21e358d6237452e7ff26",
+  "apkBytes": 12962589,
+  "installedOnDevice": false,
+  "reference": {
+    "ccSwitchCommit": "5ae6ad3888ba4543f6fad343c87656a97bd69da4",
+    "codexVersion": "0.161.0",
+    "mode": "Native/direct projection with official auth preserved; no proxy or protocol conversion"
+  },
+  "frontend": "TypeScript strict and Vite production build passed",
+  "unitTests": {
+    "passed": 63,
+    "failed": 0,
+    "skipped": 0,
+    "addedSuites": [
+      "TomlDocumentTest",
+      "CodexDocumentsTest"
+    ],
+    "additionalChecks": [
+      "Codex config/catalog/library rollback and auth revision guards",
+      "Codex model discovery uses independent key and native headers",
+      "No environment/command credential execution"
+    ]
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 40,
+    "newWarning": "tomlj dependency update available"
+  },
+  "instrumentation": {
+    "apkBuilt": true,
+    "executed": false,
+    "class": "dev.agentm.app.ProviderIntegrationTest",
+    "addedScenarios": [
+      "Upgrade existing encrypted library with OpenAI Official",
+      "Official rename/delete and secret isolation",
+      "Save without native mutation",
+      "Custom bearer projection and catalog",
+      "Unchanged native ChatGPT auth",
+      "Deleting inactive identical copy preserves selection",
+      "External auth conflict",
+      "Deleting edited active provider restores official"
+    ],
+    "reason": "No device APK installation or existing application/Agent restart in this turn"
+  },
+  "browserRegression": {
+    "providerCasesPassed": 2,
+    "providerViewports": [
+      "320px light",
+      "480px dark"
+    ],
+    "providerScript": "tools/verify-provider-ui.js",
+    "providerEvidence": "output/playwright/providers-013-regression.log",
+    "checks": [
+      "All four provider editors",
+      "Protected OpenAI Official and native-login UI",
+      "Auth JSON/TOML bidirectional editing",
+      "Native headers and Responses route",
+      "Remote compaction, 1M, reasoning settings",
+      "Model catalog import/rename/default/effort/capabilities",
+      "CC Switch exact text-only registry",
+      "Invalid Auth/TOML/catalog guards",
+      "Save does not switch; confirmed switch",
+      "Copy/delete/unsaved back",
+      "No keys in persisted UI state"
+    ],
+    "existingManagementCasesPassed": 4,
+    "existingManagementEvidence": "output/playwright/providers-013-management-regression.log",
+    "scope": "Isolated bridge fixtures; no commercial API calls"
+  },
+  "buildEvidence": "output/android/providers-013-build.log",
+  "userAcceptance": "0.12 OpenCode accepted by user; 0.13 Codex provider configuration pending real use",
+  "limitations": [
+    "Native auth.json is preserved and included in revision guards; provider auth JSON is a catalog key container only",
+    "Only global user config is managed; project/profile/managed configuration may override native behavior",
+    "Generated GPT model definitions are pinned to the adapted Codex 0.161.0 bundle",
+    "Foreign model catalog paths are preserved without reading or rewriting their files",
+    "Native env/command/AWS/query-parameter authentication requires manual model entries for discovery",
+    "Instrumented scenarios compiled, not executed this turn",
+    "Existing Codex sandbox probe limitation and untested arm64/multi-device matrix remain"
+  ]
+}

@@ -32,6 +32,7 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
         require(requestedKind in setOf("deviceShell", "linuxShell") || requestedKind in dev.agentm.app.packages.ManagedPackagePaths.terminals) { "未知终端类型" }
         check(!app.packages.busy) { "软件管理任务进行中，请完成后打开终端" }
         check(!app.configs.busy) { "配置保存进行中，请稍后打开终端" }
+        check(!app.providers.busy && app.providers.recoveryError == null) { "提供商配置写入或恢复未完成，请先处理配置" }
         check(app.webAgents.current(requestedKind)?.active != true) { "请先停止该 Agent 的 Web 服务，再打开终端" }
         check(session?.isRunning != true || kind == requestedKind) { "请先关闭当前终端，再切换终端类型" }
         if (requestedKind != "deviceShell") check(app.linux.ready) { "Ubuntu 尚未就绪，请先安装或检查系统" }

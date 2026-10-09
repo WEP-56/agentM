@@ -93,7 +93,7 @@ export function NativeTools() {
   </div></ListGroup>;
 }
 
-export function NativeAgentPackage({ id, onPrepare }: { id: ManagedAgentId; onPrepare?: () => void }) {
+export function NativeAgentPackage({ id, onPrepare, showTitle = true }: { id: ManagedAgentId; onPrepare?: () => void; showTitle?: boolean }) {
   const { native, packages: p, run, active, unavailable } = usePackages();
   const [remove, setRemove] = useState(false);
   const agent = managedAgent(id)!;
@@ -105,7 +105,7 @@ export function NativeAgentPackage({ id, onPrepare }: { id: ManagedAgentId; onPr
   const canUpdate = fresh && record && update.updateAvailable;
   const web = id === 'opencode' || id === 'dsh' ? native?.webSessions[id] : undefined;
   return <div className="rounded-[24px] bg-surface-container-low p-5">
-    <h2 className="type-title-large">{agent.name}</h2>
+    {showTitle && <h2 className="type-title-large">{agent.name}</h2>}
     <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 type-body-medium">
       <dt>已安装</dt><dd>{record?.version ?? '未安装'}{record && !p?.[agent.ready] ? ' · 需自检或修复' : ''}</dd>
       <dt>内置适配</dt><dd>{pinned ?? '读取中'}</dd>

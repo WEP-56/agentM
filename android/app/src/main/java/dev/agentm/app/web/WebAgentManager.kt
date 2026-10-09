@@ -54,6 +54,7 @@ class WebAgentManager(private val app: AgentMApplication) : TerminalSessionClien
             return@synchronized it
         }
         check(app.linux.ready && !app.linux.busy && !app.packages.busy && !app.configs.busy) { "请先完成环境或软件管理任务" }
+        check(!app.providers.busy && app.providers.recoveryError == null) { "请先完成提供商配置写入或恢复" }
         check(app.terminals.session?.isRunning != true || app.terminals.kind != kind) { "请先关闭该 Agent 的终端，再打开 WebUI" }
         app.packages.agentCommand(kind)
         Session(kind, UUID.randomUUID().toString(), app.packages.snapshot().getJSONObject(kind).getString("version")).also {

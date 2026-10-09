@@ -31,6 +31,7 @@ class MainActivity : ComponentActivity() {
     private val inspector by lazy { EnvironmentInspector(app) }
     private val storage by lazy { StorageInspector(app) }
     private val storageWorker = ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, ArrayBlockingQueue(2))
+    private val modelWorker = ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, ArrayBlockingQueue(2))
     private val worker = ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, ArrayBlockingQueue(32))
     private val replies = object : LinkedHashMap<String, Pair<String, String>>() {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Pair<String, String>>) = size > 128
@@ -90,11 +91,31 @@ class MainActivity : ComponentActivity() {
             // Async configuration mutations also require a revision or a single-use preview token.
             fun respond(result: JSONObject) {
                 val encoded = JSONObject().put("id", id).put("ok", true).put("value", result).toString()
-                replies[id] = fingerprint to encoded
+                if (method != "readProvider") replies[id] = fingerprint to encoded
                 reply.postMessage(encoded)
             }
             try {
                 when (method) {
+                    "listProviders", "readProvider", "saveProvider", "copyProvider", "deleteProvider", "switchProvider", "fetchProviderModels" -> {
+                        val executor = if (method == "fetchProviderModels") modelWorker else worker
+                        executor.execute {
+                            try {
+                                val result = when (method) {
+                                    "listProviders" -> app.providers.list(body.getString("kind"))
+                                    "readProvider" -> app.providers.read(body.getString("kind"), body.optString("id"))
+                                    "saveProvider" -> app.providers.save(body)
+                                    "copyProvider" -> app.providers.copy(body)
+                                    "deleteProvider" -> app.providers.delete(body)
+                                    "switchProvider" -> app.providers.switch(body)
+                                    else -> dev.agentm.app.config.ProviderModelDiscovery().fetch(body.getString("kind"), body.getString("source"))
+                                }
+                                runOnUiThread { if (!isDestroyed) respond(result) }
+                            } catch (failure: Exception) {
+                                val detail = if (failure is java.io.IOException) "网络或文件读取失败，请检查连接后重试" else failure.message?.take(300) ?: "提供商操作未完成"
+                                runOnUiThread { if (!isDestroyed) reply.postMessage(error(id, "PROVIDER_ERROR", detail)) }
+                            } finally { body.remove("source") }
+                        }
+                    }
                     "storageUsage", "listStorage" -> storageWorker.execute {
                         try {
                             val result = if (method == "storageUsage") storage.usage() else storage.list(body.getString("root"), body.optString("path"), body.optInt("offset", 0))
@@ -218,6 +239,7 @@ class MainActivity : ComponentActivity() {
         if (::web.isInitialized) web.evaluateJavascript("window.dispatchEvent(new Event('agentm:resume'))", null)
     }
     override fun onDestroy() {
+        modelWorker.shutdownNow()
         storageWorker.shutdownNow()
         worker.shutdownNow()
         if (::web.isInitialized) { WebViewCompat.removeWebMessageListener(web, "AgentMHost"); web.destroy() }

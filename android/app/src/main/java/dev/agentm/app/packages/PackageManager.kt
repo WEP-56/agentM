@@ -120,6 +120,7 @@ class PackageManager(private val app: AgentMApplication) {
         require(action in ManagedPackagePaths.installActions || action in ManagedPackagePaths.removeActions || action in ManagedPackagePaths.checkActions ||
             action in ManagedPackagePaths.updateCheckActions || action in ManagedPackagePaths.updateActions || action == "installTools") { "未知软件管理操作" }
         check(!app.configs.busy) { "配置保存进行中，请稍后管理软件" }
+        check(!app.providers.busy && app.providers.recoveryError == null) { "提供商配置写入或恢复未完成" }
         if (busy) {
             check(state.optString("action") == action) { "另一个软件管理任务正在执行" }
             return@synchronized state.getString("operationId")

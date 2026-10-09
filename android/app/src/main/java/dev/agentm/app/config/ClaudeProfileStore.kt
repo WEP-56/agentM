@@ -85,6 +85,7 @@ class ClaudeProfileStore(private val directory: File) {
             .put("matchesCurrent", current != null && profile.fields == current)
         }))
     fun snapshot(current: Map<String, String>?): JSONObject = locked { summary(it, current) }
+    internal fun exportForMigration(): List<Profile> = locked { it.profiles }
 
     fun save(params: JSONObject, current: Map<String, String>?, capture: Map<String, String>? = null): JSONObject = locked { library ->
         requireRevision(library, params.getString("libraryRevision"))

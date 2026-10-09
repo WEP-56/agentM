@@ -67,9 +67,13 @@ export function nativeRequest<T = { opened: boolean }>(method: string, params: R
   if (pending.size >= 16) return Promise.reject(new Error('操作较多，请稍后重试'));
   const id = crypto.randomUUID();
   return new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(() => { pending.delete(id); reject(new Error('原生接口响应超时，请重试')); }, 15000);
+    const timer = setTimeout(() => { pending.delete(id); reject(new Error('原生接口响应超时，请重试')); }, method === 'fetchProviderModels' ? 45000 : 15000);
     pending.set(id, { resolve: (value) => resolve(value as T), reject, timer });
-    try { window.AgentMHost!.postMessage(JSON.stringify({ id, method, params })); }
+    try {
+      const payload = JSON.stringify({ id, method, params });
+      if (new TextEncoder().encode(payload).length > 65536) throw new Error('配置内容超过接口大小限制，请精简后重试');
+      window.AgentMHost!.postMessage(payload);
+    }
     catch (error) { clearTimeout(timer); pending.delete(id); reject(error); }
   });
 }
