@@ -71,7 +71,7 @@ export function NativeEnvironment() {
     </ListGroup>
     <ListGroup title="诊断">
       <ListItem headline="运行日志" supporting="仅记录原生设备与生命周期事件" trailing={<MdChevronRight />} onClick={() => push({ name: 'logs' })} />
-      <ListItem headline="终端状态" supporting={native?.terminal.running ? `${native.terminal.kind === 'claude' ? 'Claude Code' : native.terminal.kind === 'linuxShell' ? 'Linux' : '设备'}会话运行中，返回后可继续使用` : '暂无运行中的会话'} />
+      <ListItem headline="终端状态" supporting={native?.terminal.running ? `${native.terminal.kind === 'claude' ? 'Claude Code' : native.terminal.kind === 'codex' ? 'Codex' : native.terminal.kind === 'linuxShell' ? 'Linux' : '设备'}会话运行中，返回后可继续使用` : '暂无运行中的会话'} />
     </ListGroup>
     {environment?.probeOutput && <ListGroup title="真实运行自检"><pre className="whitespace-pre-wrap break-all rounded-xl bg-surface-container-low p-4 font-mono text-xs text-on-surface">{environment.probeOutput}</pre></ListGroup>}
   </TabPage>;

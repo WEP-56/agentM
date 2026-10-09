@@ -1,0 +1,76 @@
+{
+  "version": "0.6.0-dev",
+  "date": "2026-10-09",
+  "baselineCommit": "9207dfa",
+  "device": {
+    "serial": "emulator-5554",
+    "androidApi": 35,
+    "abi": "x86_64"
+  },
+  "apk": "android/app/build/outputs/apk/debug/app-debug.apk",
+  "apkSha256": "6d126af0c2c6becf4aebf65f18fc23403127813fd605e5c6f3c1e9663d593238",
+  "frontend": "TypeScript strict and Vite production build passed",
+  "unitTests": {
+    "passed": 12,
+    "failed": 0
+  },
+  "instrumentation": {
+    "passed": 2,
+    "failed": 0,
+    "tests": [
+      "TerminalLifecycleTest.opensRealPtyAndRetainsShellAcrossActivityRecreation",
+      "CodexIntegrationTest.installsCodexRetainsSessionAndPreservesHomesOnRemoval"
+    ]
+  },
+  "compatibilityTrial": {
+    "result": "failed",
+    "reason": "Codex app-server socket mount isolation cannot be established; observed descriptor mount ID absent from mountinfo.",
+    "source": "docs/research/codex-compat/result.json",
+    "includedInFunctionalPassCount": false
+  },
+  "codex": {
+    "version": "0.161.0",
+    "programInstalledAndPtyVerified": true,
+    "defaultCommandSandboxAvailable": false,
+    "sandboxProbe": {
+      "status": "unavailable",
+      "exitCode": 1,
+      "output": "error building bubblewrap command: cannot establish app-server socket mount isolation\n\nbwrap 独立检查（退出 0）：\nAGENTM_BWRAP_OK",
+      "checkedAt": 1791509354665
+    },
+    "downloadAbisVerified": [
+      "x86_64",
+      "arm64-v8a"
+    ],
+    "runtimeAbisTested": [
+      "x86_64"
+    ]
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 23
+  },
+  "visualCheck": {
+    "loginSelectionScreen": true,
+    "sandboxLimitationShown": true,
+    "screenshots": [
+      "output/android/codex-home.png",
+      "output/android/codex-terminal.png",
+      "output/android/codex-environment.png"
+    ]
+  },
+  "newCrashEntries": 0,
+  "localEvidence": [
+    "output/android/codex-final-validation.log",
+    "output/android/codex-path-trial.log",
+    "output/android/codex-assets.log",
+    "output/android/codex-crash.log"
+  ],
+  "limitations": [
+    "Codex lifecycle management is available; default command sandbox did not pass in this emulator/runtime.",
+    "Read-only write denial and socket hiding assertions were not reached in the failed compatibility trial.",
+    "No bypass flags, forged mount metadata or experimental identity bind are included in production.",
+    "Codex GUI configuration and provider templates are not implemented.",
+    "No account authentication, model requests, voice features or arm64 runtime validation was performed."
+  ]
+}

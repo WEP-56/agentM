@@ -25,6 +25,7 @@ class PackageManager(private val app: AgentMApplication) {
     val busy get() = state.optBoolean("busy")
     val toolsReady get() = validRecord("node")
     val claudeReady get() = validRecord("claude")
+    val codexReady get() = validRecord("codex")
     private val slots get() = File(runtime.managed, "slots").apply { mkdirs() }
 
     private fun restore(): JSONObject = runCatching {
@@ -43,7 +44,7 @@ class PackageManager(private val app: AgentMApplication) {
     private fun asset(kind: String): JSONObject = catalog.getJSONObject(kind).getJSONObject(app.linux.abi ?: error("不支持该架构"))
     private fun slot(record: JSONObject): File {
         val name = record.getString("slot")
-        require(name.matches(Regex("(node|claude)-[a-f0-9-]{36}"))) { "无效受管槽位" }
+        require(ManagedPackagePaths.validSlot(name)) { "无效受管槽位" }
         val target = File(slots, name)
         require(!Files.isSymbolicLink(runtime.managed.toPath()) && !Files.isSymbolicLink(slots.toPath()) &&
             target.canonicalFile == File(slots.canonicalFile, name)) { "受管目录不能是符号链接" }
@@ -55,10 +56,19 @@ class PackageManager(private val app: AgentMApplication) {
         val entry = record.getString("entry")
         val executable = File(directory, entry)
         require(record.getString("slot").startsWith("$kind-") && record.getString("version").matches(Regex("[0-9]+\\.[0-9]+\\.[0-9]+")))
-        require(entry.matches(Regex(if (kind == "node") "node-v[0-9.]+-linux-(x64|arm64)/bin/node" else "package/claude")))
+        require(ManagedPackagePaths.validEntry(kind, entry))
         require(marker.getString("sha256") == record.getString("sha256") && marker.getString("slot") == record.getString("slot") &&
             marker.getString("entry") == entry && marker.getString("version") == record.getString("version")) { "安装来源记录不匹配，拒绝接管" }
         require(executable.isFile && executable.canonicalFile == File(directory.canonicalFile, entry)) { "受管可执行文件缺失或已被替换为链接" }
+        if (kind == "codex") {
+            val bundle = executable.parentFile!!.parentFile!!
+            for (name in listOf("bin/codex-code-mode-host", "codex-path/rg", "codex-resources/bwrap", "codex-package.json")) {
+                val resource = File(bundle, name)
+                require(resource.isFile && resource.canonicalFile == File(bundle.canonicalFile, name)) { "Codex 原生组件不完整" }
+            }
+            val metadata = JSONObject(File(bundle, "codex-package.json").readText())
+            require(metadata.getString("version") == record.getString("version") && metadata.getInt("layoutVersion") == 1) { "Codex 组件版本不匹配" }
+        }
         return directory
     }
     private fun validRecord(kind: String): Boolean = runCatching {
@@ -71,17 +81,20 @@ class PackageManager(private val app: AgentMApplication) {
         val dirs = mutableListOf<String>()
         if (toolsReady) dirs += guest(state.getJSONObject("node")).substringBeforeLast('/')
         if (claudeReady) dirs += guest(state.getJSONObject("claude")).substringBeforeLast('/')
+        if (codexReady) dirs += guest(state.getJSONObject("codex")).substringBeforeLast('/')
         return (dirs + listOf("/usr/local/sbin", "/usr/local/bin", "/usr/sbin", "/usr/bin", "/sbin", "/bin")).joinToString(":")
     }
-    fun claudeCommand(): List<String> {
-        check(!busy && claudeReady && toolsReady) { "请先准备工具并安装或检查 Claude Code" }
-        return listOf(guest(state.getJSONObject("claude")))
+    fun agentCommand(kind: String): List<String> {
+        require(kind in ManagedPackagePaths.agents) { "尚未接入该 Agent" }
+        check(!busy && validRecord(kind) && toolsReady) { "请先准备工具并安装或检查 ${ManagedPackagePaths.title(kind)}" }
+        val argv = listOf(guest(state.getJSONObject(kind)))
+        return if (kind == "codex") argv + listOf("-c", "check_for_update_on_startup=false") else argv
     }
-    fun snapshot(): JSONObject = JSONObject(state.toString()).put("toolsReady", toolsReady).put("claudeReady", claudeReady)
-        .put("nodeVersion", catalog.getString("nodeVersion")).put("claudeVersion", catalog.getString("claudeVersion"))
+    fun snapshot(): JSONObject = JSONObject(state.toString()).put("toolsReady", toolsReady).put("claudeReady", claudeReady).put("codexReady", codexReady)
+        .put("nodeVersion", catalog.getString("nodeVersion")).put("claudeVersion", catalog.getString("claudeVersion")).put("codexVersion", catalog.getString("codexVersion"))
 
     fun enqueue(action: String): String = synchronized(app.maintenance) {
-        require(action in setOf("installTools", "installClaude", "removeClaude", "checkPackages")) { "未知软件管理操作" }
+        require(action in setOf("installTools", "installClaude", "removeClaude", "installCodex", "removeCodex", "checkPackages")) { "未知软件管理操作" }
         check(!app.configs.busy) { "配置保存进行中，请稍后管理软件" }
         if (busy) {
             check(state.optString("action") == action) { "另一个软件管理任务正在执行" }
@@ -89,8 +102,8 @@ class PackageManager(private val app: AgentMApplication) {
         }
         check(app.linux.ready && !app.linux.busy) { "请先安装并检查 Ubuntu" }
         check(app.terminals.session?.isRunning != true) { "请先关闭当前终端，再管理软件" }
-        if (action == "installClaude") check(toolsReady) { "请先在环境页安装开发工具" }
-        if (action == "removeClaude") check(state.optJSONObject("claude") != null) { "没有受管的 Claude Code 安装" }
+        if (action in setOf("installClaude", "installCodex")) check(toolsReady) { "请先在环境页安装开发工具" }
+        if (action.startsWith("remove")) check(state.optJSONObject(if (action == "removeClaude") "claude" else "codex") != null) { "没有该 Agent 的受管安装" }
         if (action.startsWith("install")) check(StatFs(app.filesDir.absolutePath).availableBytes >= 1024L * 1024 * 1024) { "至少需要 1 GiB 可用空间" }
         val id = UUID.randomUUID().toString()
         update { it.put("busy", true).put("phase", "queued").put("action", action).put("operationId", id)
@@ -122,27 +135,32 @@ class PackageManager(private val app: AgentMApplication) {
                     install("node", ::phase)
                 }
                 "installClaude" -> install("claude", ::phase)
-                "removeClaude" -> {
-                    phase("removing", "卸载受管程序，保留 Claude 配置与会话")
-                    val record = state.getJSONObject("claude")
-                    val directory = ownedRecord("claude", record)
+                "installCodex" -> install("codex", ::phase)
+                "removeClaude", "removeCodex" -> {
+                    val kind = if (state.getString("action") == "removeClaude") "claude" else "codex"
+                    phase("removing", "卸载受管程序，保留 ${ManagedPackagePaths.title(kind)} 配置与会话")
+                    val record = state.getJSONObject(kind)
+                    val directory = ownedRecord(kind, record)
                     // Unpublish first. A crash during deletion cannot expose a half-removed install.
-                    update { it.remove("claude") }
+                    update { it.remove(kind) }
                     deleteSlot(directory)
                 }
                 "checkPackages" -> {
-                    phase("checking", "实际检查已安装工具与 Claude Code")
-                    for (kind in listOf("node", "claude")) {
+                    phase("checking", "实际检查已安装工具与 Agent")
+                    val failures = mutableListOf<String>()
+                    for (kind in ManagedPackagePaths.kinds) {
                         val record = state.optJSONObject(kind) ?: continue
                         try {
                             ownedRecord(kind, record)
                             val output = probe(kind, guest(record), record.getString("version"))
                             update { it.getJSONObject(kind).put("verified", true).put("probeOutput", output).put("checkedAt", System.currentTimeMillis()) }
+                            if (kind == "codex") { val sandbox = probeCodexSandbox(guest(record)); update { it.getJSONObject(kind).put("sandboxProbe", sandbox) } }
                         } catch (error: Exception) {
                             update { it.getJSONObject(kind).put("verified", false) }
-                            throw error
+                            failures += "${ManagedPackagePaths.title(kind)}：${error.message?.take(1000) ?: "检查失败"}"
                         }
                     }
+                    if (failures.isNotEmpty()) throw IOException(failures.joinToString("\n"))
                 }
             }
             update { it.put("busy", false).put("phase", "done").put("message", "软件管理任务已完成").put("error", JSONObject.NULL) }
@@ -161,7 +179,7 @@ class PackageManager(private val app: AgentMApplication) {
         check(!stage.exists() && !Files.isSymbolicLink(runtime.managed.toPath()) && !Files.isSymbolicLink(slots.toPath()))
         var published = false
         try {
-            phase("downloading", "下载 ${if (kind == "node") "Node.js" else "Claude Code"} ${definition.getString("version")}")
+            phase("downloading", "下载 ${ManagedPackagePaths.title(kind)} ${definition.getString("version")}")
             var previous = 0L
             val archive = VerifiedDownload(File(app.cacheDir, "agent-downloads")).fetch(definition) { current, total ->
                 if (System.currentTimeMillis() - previous >= 500 || current == total) {
@@ -170,22 +188,27 @@ class PackageManager(private val app: AgentMApplication) {
             }
             phase("extracting", "SHA-256 校验通过，正在解压")
             RootfsExtractor().extract(archive, stage, { Thread.currentThread().isInterrupted }) {}
-            val entry = definition.getString("archiveRoot") + if (kind == "node") "/bin/node" else "/claude"
+            val entry = when (kind) { "codex" -> definition.getString("executable"); "node" -> definition.getString("archiveRoot") + "/bin/node"; else -> definition.getString("archiveRoot") + "/claude" }
             val record = JSONObject().put("slot", name).put("entry", entry).put("version", definition.getString("version"))
                 .put("sha256", definition.getString("sha256")).put("source", definition.getString("url")).put("verified", true)
             File(stage, ".agentm-slot.json").writeText(record.toString())
+            ownedRecord(kind, record)
             phase("checking", "实际执行版本与运行检查")
             val output = probe(kind, guest(record), record.getString("version"))
             record.put("probeOutput", output).put("checkedAt", System.currentTimeMillis())
+            if (kind == "codex") {
+                phase("checking", "检查 Codex 命令沙箱兼容性")
+                record.put("sandboxProbe", probeCodexSandbox(guest(record)))
+            }
             update { it.put(kind, record) }
             published = true
             // Only a previously selected owned slot can be cleaned; no HOME/config directory is involved.
-            if (old != null) runCatching { deleteSlot(slot(old)) }
+            if (old != null) runCatching { deleteSlot(ownedRecord(kind, old)) }
         } finally { if (!published && stage.exists()) deleteSlot(stage) }
     }
 
     private fun probe(kind: String, executable: String, expectedVersion: String): String {
-        require(executable.matches(Regex("/opt/agentm/slots/(node|claude)-[a-f0-9-]{36}/[A-Za-z0-9./_-]+")))
+        require(ManagedPackagePaths.validGuest(executable))
         require(expectedVersion.matches(Regex("[0-9]+\\.[0-9]+\\.[0-9]+")))
         return if (kind == "node") {
             val bin = executable.substringBeforeLast('/')
@@ -200,9 +223,40 @@ class PackageManager(private val app: AgentMApplication) {
                 /usr/bin/dpkg-query -W git python3 ca-certificates
                 $executable -e 'const fs=require("fs"),cp=require("child_process");if(!fs.existsSync("/workspace")||cp.execFileSync("/bin/sh",["-c","printf child-ok"]).toString()!=="child-ok")process.exit(1);console.log("AGENTM_NODE_OK")'
             """.trimIndent(), 60).also { check(it.contains("AGENTM_NODE_OK")) }
+        } else if (kind == "codex") command("$executable --version", 60).also {
+            check(it.lineSequence().any { line -> line == "codex-cli $expectedVersion" }) { "Codex 版本不符合安装记录：${it.takeLast(500)}" }
         } else command("$executable --version", 60).also {
             check(it.lineSequence().any { line -> line == "$expectedVersion (Claude Code)" }) { "Claude Code 版本不符合安装记录：${it.takeLast(500)}" }
         }
+    }
+    private fun probeCodexSandbox(executable: String): JSONObject {
+        require(ManagedPackagePaths.validGuest(executable))
+        // Codex refuses helper aliases beneath /tmp. Use a disposable private slot instead,
+        // isolated from the user's CODEX_HOME and projects, with the same mount as installed binaries.
+        val probe = File(slots, "codex-${UUID.randomUUID()}")
+        Files.createDirectory(probe.toPath())
+        File(probe, "home").mkdirs(); File(probe, "workspace").mkdirs()
+        val guest = "/opt/agentm/slots/${probe.name}"
+        var engineOutput = ""
+        val result = try { runCatching { runtime.run(script = """
+            set -eu
+            export CODEX_HOME=$guest/home
+            cd $guest/workspace
+            $executable sandbox linux -- /bin/sh -c 'printf "AGENTM_CODEX_SANDBOX_OK\n"'
+        """.trimIndent(), timeoutSeconds = 30).also { result ->
+            if (result.code != 0) {
+                val bwrap = executable.substringBeforeLast('/').substringBeforeLast('/') + "/codex-resources/bwrap"
+                val engine = runtime.run(script = "$bwrap --unshare-user --ro-bind / / -- /bin/sh -c 'printf AGENTM_BWRAP_OK'", timeoutSeconds = 10)
+                engineOutput = "\nbwrap 独立检查（退出 ${engine.code}）：\n${engine.output.takeLast(1200)}"
+            }
+        } } }
+        finally { deleteSlot(probe) }
+        result.exceptionOrNull()?.let { if (it is InterruptedException) throw it }
+        val value = result.getOrNull()
+        val passed = value?.code == 0 && value.output.contains("AGENTM_CODEX_SANDBOX_OK")
+        return JSONObject().put("status", if (passed) "passed" else "unavailable").put("exitCode", value?.code ?: -1)
+            .put("output", (value?.output?.takeLast(1800) ?: "沙箱检查未完成：${result.exceptionOrNull()?.javaClass?.simpleName}") + engineOutput)
+            .put("checkedAt", System.currentTimeMillis())
     }
     private fun command(script: String, timeout: Long): String {
         val result = runtime.run(script = script, timeoutSeconds = timeout)
@@ -210,7 +264,7 @@ class PackageManager(private val app: AgentMApplication) {
         return result.output
     }
     private fun deleteSlot(directory: File) {
-        require(directory.parentFile!!.canonicalFile == slots.canonicalFile && directory.name.matches(Regex("(node|claude)-[a-f0-9-]{36}")))
+        require(directory.parentFile!!.canonicalFile == slots.canonicalFile && ManagedPackagePaths.validSlot(directory.name))
         Files.walkFileTree(directory.toPath(), object : SimpleFileVisitor<Path>() {
             override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult { Files.delete(file); return FileVisitResult.CONTINUE }
             override fun postVisitDirectory(dir: Path, exc: IOException?): FileVisitResult { if (exc != null) throw exc; Files.delete(dir); return FileVisitResult.CONTINUE }

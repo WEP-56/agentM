@@ -40,7 +40,7 @@ class LinuxRuntime(private val app: AgentMApplication) {
         }
         // Ubuntu binaries and package tools must not inherit Android linker/npm variables.
         args += listOf("/usr/bin/env", "-i", "HOME=/root", "USER=root", "LOGNAME=root", "TERM=xterm-256color",
-            "LANG=C.UTF-8", "PATH=${app.packages.path()}", "TMPDIR=/tmp", "DISABLE_AUTOUPDATER=1",
+            "LANG=C.UTF-8", "PATH=${app.packages.path()}", "TMPDIR=/tmp", "DISABLE_AUTOUPDATER=1", "CODEX_MANAGED_BY_NPM=1",
             "SHELL=/bin/bash", "PS1=agentM:\\w\\$ ")
         args += command
         val environment = mutableListOf("PATH=/system/bin", "HOME=${home.absolutePath}", "TMPDIR=${temp.absolutePath}",

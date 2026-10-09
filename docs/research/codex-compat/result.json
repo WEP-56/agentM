@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-09",
+  "version": "0.161.0",
+  "device": "emulator-5554",
+  "androidApi": 35,
+  "abi": "x86_64",
+  "programVersionProbe": "codex-cli 0.161.0\n",
+  "sandboxProbe": {
+    "status": "unavailable",
+    "exitCode": 1,
+    "output": "error building bubblewrap command: cannot establish app-server socket mount isolation\n\nbwrap 独立检查（退出 0）：\nAGENTM_BWRAP_OK",
+    "checkedAt": 1791509354665
+  },
+  "identityPathTrial": {
+    "result": "failed",
+    "adopted": false,
+    "descriptorDevice": "8:35",
+    "descriptorMountId": "3231",
+    "matchingMountinfoEntryFound": false,
+    "writeDenialAssertionReached": false,
+    "socketHidingAssertionReached": false,
+    "productionTmpMigrated": false,
+    "temporaryRootViewRemoved": true,
+    "source": "CodexPathTrialTest.kt",
+    "localLog": "output/android/codex-path-trial.log"
+  },
+  "interpretation": "Program lifecycle works; default Codex command sandbox cannot currently establish app-server socket mount isolation in this emulator/runtime combination. No bypass flags or forged mount data were adopted."
+}

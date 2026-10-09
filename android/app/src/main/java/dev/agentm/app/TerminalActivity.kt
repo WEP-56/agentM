@@ -33,6 +33,7 @@ class TerminalActivity : ComponentActivity() {
             status.text = if (manager.session?.isRunning == true) when (manager.kind) {
                 "linuxShell" -> "Linux 终端 · Ubuntu"
                 "claude" -> "Claude Code · Ubuntu"
+                "codex" -> "Codex · Ubuntu"
                 else -> "设备终端 · Android Shell"
             } else "会话已退出"
         }

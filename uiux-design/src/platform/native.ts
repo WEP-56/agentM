@@ -1,6 +1,7 @@
 export interface ManagedPackage {
   slot: string; entry: string; version: string; sha256: string; source: string;
   verified: boolean; probeOutput: string; checkedAt: number;
+  sandboxProbe?: { status: 'passed' | 'unavailable'; exitCode: number; output: string; checkedAt: number };
 }
 export interface NativeSnapshot {
   protocolVersion: 1;
@@ -15,10 +16,10 @@ export interface NativeSnapshot {
   };
   packages: {
     busy: boolean; phase: string; message: string; action?: string; operationId?: string; error?: string | null;
-    downloadedBytes?: number; totalBytes?: number; toolsReady: boolean; claudeReady: boolean;
-    nodeVersion: string; claudeVersion: string; node?: ManagedPackage; claude?: ManagedPackage;
+    downloadedBytes?: number; totalBytes?: number; toolsReady: boolean; claudeReady: boolean; codexReady: boolean;
+    nodeVersion: string; claudeVersion: string; codexVersion: string; node?: ManagedPackage; claude?: ManagedPackage; codex?: ManagedPackage;
   };
-  terminal: { id: string | null; running: boolean; stopping: boolean; kind: 'deviceShell' | 'linuxShell' | 'claude'; pid: number };
+  terminal: { id: string | null; running: boolean; stopping: boolean; kind: 'deviceShell' | 'linuxShell' | 'claude' | 'codex'; pid: number };
   permissions: { notifications: boolean; storage: boolean; battery: boolean };
   logs: { id: number; t: number; level: 'D' | 'I' | 'W' | 'E'; tag: string; msg: string }[];
 }

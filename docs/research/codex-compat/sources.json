@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-10-09T01:33:09.316Z",
+  "officialDocs": [
+    "https://developers.openai.com/codex/cli/",
+    "https://developers.openai.com/codex/cli/reference/",
+    "https://developers.openai.com/codex/agent-approvals-security/",
+    "https://developers.openai.com/codex/config-reference/"
+  ],
+  "wrapper": {
+    "metadataUrl": "https://registry.npmjs.org/@openai/codex/0.161.0",
+    "version": "0.161.0",
+    "tarball": "https://registry.npmjs.org/@openai/codex/-/codex-0.161.0.tgz",
+    "integrity": "sha512-+ZnJFGBbQBwYnjUTs+PoacgYVxmNyxMLiadIz6eSJ0AzQW0mRVxuuOQizSbz2qeNAJia9Syxag6j2uGf7guD2Q==",
+    "sha256": "4e472c1098f1162e1b46d4935e5f2264f7076182949b95bb47d839b35108c5f0"
+  },
+  "implementationSources": [
+    "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/linux-sandbox/src/daemon_mounts.rs",
+    "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/uds/src/daemon_directory.rs"
+  ]
+}

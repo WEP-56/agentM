@@ -14,7 +14,7 @@ export function nativeActions(set: StoreApi<AppState>['setState'], get: StoreApi
     }
   };
   const unavailable = () => {
-    get().showSnack(get().native?.environment.linuxReady ? 'Ubuntu 已就绪；Agent 包管理将在下一阶段接入' : '请先在环境页安装或检查 Ubuntu');
+    get().showSnack(get().native?.environment.linuxReady ? '此功能尚未接入，可在环境页查看已支持的程序' : '请先在环境页安装或检查 Ubuntu');
     get().setTab('env');
   };
   const configUnavailable = () => get().showSnack('配置文件管理尚未接入，未写入任何配置');
@@ -22,8 +22,8 @@ export function nativeActions(set: StoreApi<AppState>['setState'], get: StoreApi
     try { await nativeRequest('managePackages', { action }); await inspect(); get().setTab('env'); }
     catch (error) { get().showSnack(error instanceof Error ? error.message : '软件管理未完成'); }
   };
-  const openClaude = async () => {
-    try { await nativeRequest('openTerminal', { kind: 'claude' }); await inspect(); }
+  const openAgent = async (kind: 'claude' | 'codex') => {
+    try { await nativeRequest('openTerminal', { kind }); await inspect(); }
     catch (error) { get().showSnack(error instanceof Error ? error.message : '启动未完成'); }
   };
   return {
@@ -42,16 +42,16 @@ export function nativeActions(set: StoreApi<AppState>['setState'], get: StoreApi
       } else get().showSnack('当前没有运行中的 Linux 终端');
     },
     restartRuntime: async () => { await inspect('checkLinux'); get().setTab('env'); },
-    installAgent: async (id) => { if (id === 'claude') await manage('installClaude'); else unavailable(); },
-    uninstallAgent: async (id) => { if (id === 'claude') await manage('removeClaude'); else get().showSnack('未发现受管 Agent 安装'); },
-    launchAgent: async (id) => { if (id === 'claude') await openClaude(); else unavailable(); },
+    installAgent: async (id) => { if (id === 'claude' || id === 'codex') await manage(id === 'claude' ? 'installClaude' : 'installCodex'); else unavailable(); },
+    uninstallAgent: async (id) => { if (id === 'claude' || id === 'codex') await manage(id === 'claude' ? 'removeClaude' : 'removeCodex'); else get().showSnack('未发现受管 Agent 安装'); },
+    launchAgent: async (id) => { if (id === 'claude' || id === 'codex') await openAgent(id); else unavailable(); },
     stopAgent: async (id) => {
-      if (id === 'claude' && get().native?.terminal.kind === 'claude' && get().native?.terminal.running) {
+      if ((id === 'claude' || id === 'codex') && get().native?.terminal.kind === id && get().native?.terminal.running) {
         try { await nativeRequest('stopTerminal'); await inspect(); }
         catch (error) { get().showSnack(error instanceof Error ? error.message : '停止未完成'); }
       } else get().showSnack('当前没有运行中的该 Agent');
     },
-    openAgent: (id) => { if (id === 'claude') void openClaude(); else unavailable(); },
+    openAgent: (id) => { if (id === 'claude' || id === 'codex') void openAgent(id); else unavailable(); },
     checkSystem: () => inspect('checkLinux'),
     checkRuntimes: () => inspect('checkLinux'),
     reinstallSystem: async () => { unavailable(); },

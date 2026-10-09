@@ -7,6 +7,8 @@ import { Button, IconButton } from '@/components/md/Button';
 import { AgentIcon } from '@/components/Brand';
 import { ListGroup } from '@/components/md/Layout';
 
+const managedAgents = [{ id: 'claude', name: 'Claude Code', install: 'installClaude', remove: 'removeClaude' }, { id: 'codex', name: 'Codex', install: 'installCodex', remove: 'removeCodex' }] as const;
+
 export function NativeAgentCard({ def }: { def: AgentDef }) {
   const native = useApp(s => s.native);
   const launch = useApp(s => s.launchAgent);
@@ -14,23 +16,26 @@ export function NativeAgentCard({ def }: { def: AgentDef }) {
   const stop = useApp(s => s.stopAgent);
   const setTab = useApp(s => s.setTab);
   const packages = native?.packages;
-  const supported = def.id === 'claude';
-  const running = supported && native?.terminal.kind === 'claude' && native.terminal.running;
-  const ready = supported && packages?.claudeReady;
+  const supported = def.id === 'claude' || def.id === 'codex';
+  const record = def.id === 'claude' ? packages?.claude : def.id === 'codex' ? packages?.codex : undefined;
+  const candidate = def.id === 'codex' ? packages?.codexVersion : packages?.claudeVersion;
+  const running = supported && native?.terminal.kind === def.id && native.terminal.running;
+  const ready = def.id === 'claude' ? packages?.claudeReady : def.id === 'codex' ? packages?.codexReady : false;
   const busy = supported && packages?.busy;
   const message = !supported ? '尚未接入原生管理' : running ? (native?.terminal.stopping ? '正在停止…' : '终端运行中') :
-    busy ? packages.message : ready ? `已安装 · ${packages?.claude?.version}` : packages?.claude ? '需要重新检查安装' :
-    packages?.toolsReady ? `可安装 ${packages.claudeVersion}` : '请先准备开发工具';
+    busy ? packages.message : ready ? `已安装 · ${record?.version}` : record ? '需要重新检查安装' :
+    packages?.toolsReady ? `可安装 ${candidate}` : '请先准备开发工具';
   return <div className={`flex items-center gap-4 rounded-[28px] py-4 pl-4 pr-3 ${running ? 'bg-secondary-container/70' : 'bg-surface-container-low'}`}>
     <AgentIcon agent={def} size={48} />
     <div className="min-w-0 flex-1">
       <div className="type-title-medium">{def.name}</div>
       <div className="mt-0.5 type-body-medium text-on-surface-variant">{message}</div>
+      {record?.sandboxProbe?.status === 'unavailable' && <p className="mt-1 type-body-small text-tertiary">命令沙箱检查未通过</p>}
     </div>
     {supported && <div className="flex shrink-0 items-center gap-1">
-      {running && <IconButton aria-label="停止 Claude Code" disabled={native?.terminal.stopping} onClick={() => void stop('claude')}><MdStop /></IconButton>}
-      {ready ? <Button variant="tonal" icon={<MdPlayArrow />} disabled={busy || native?.terminal.stopping} onClick={() => void launch('claude')}>{running ? '打开' : '启动'}</Button> :
-        packages?.toolsReady && !packages.claude ? <Button variant="outlined" icon={<MdOutlineFileDownload />} disabled={busy} onClick={() => void install('claude')}>安装</Button> :
+      {running && <IconButton aria-label={`停止 ${def.name}`} disabled={native?.terminal.stopping} onClick={() => void stop(def.id)}><MdStop /></IconButton>}
+      {ready ? <Button variant="tonal" icon={<MdPlayArrow />} disabled={busy || native?.terminal.stopping} onClick={() => void launch(def.id)}>{running ? '打开' : '启动'}</Button> :
+        packages?.toolsReady && !record ? <Button variant="outlined" icon={<MdOutlineFileDownload />} disabled={busy} onClick={() => void install(def.id)}>安装</Button> :
         <Button variant="text" onClick={() => setTab('env')}>{busy ? '查看进度' : '准备'}</Button>}
     </div>}
   </div>;
@@ -40,7 +45,7 @@ export function NativePackages() {
   const native = useApp(s => s.native);
   const packages = native?.packages;
   const [submitting, setSubmitting] = useState(false);
-  const [confirmRemove, setConfirmRemove] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState<typeof managedAgents[number] | null>(null);
   const unavailable = submitting || packages?.busy || !native?.environment.linuxReady || native.terminal.running;
   const run = async (action: string) => {
     setSubmitting(true);
@@ -49,7 +54,7 @@ export function NativePackages() {
       const snapshot = await nativeRequest<NativeSnapshot>('inspect');
       useApp.setState({ native: snapshot, logs: snapshot.logs });
     } catch (error) { useApp.getState().showSnack(error instanceof Error ? error.message : '软件管理未完成'); }
-    finally { setSubmitting(false); setConfirmRemove(false); }
+    finally { setSubmitting(false); setConfirmRemove(null); }
   };
   return <ListGroup title="开发工具与 Agent">
     <div className="rounded-[24px] bg-surface-container-low p-5">
@@ -64,18 +69,20 @@ export function NativePackages() {
       {native?.terminal.running && <p className="mt-3 type-body-small text-on-surface-variant">软件管理前需关闭当前终端会话。</p>}
       <div className="mt-4 flex flex-wrap gap-2">
         {!packages?.toolsReady && <Button disabled={unavailable} onClick={() => void run('installTools')}>{packages?.phase === 'failed' || packages?.phase === 'interrupted' ? '重试准备工具' : '安装开发工具'}</Button>}
-        {packages?.toolsReady && !packages.claudeReady && <Button disabled={unavailable} onClick={() => void run('installClaude')}>安装 Claude Code</Button>}
+        {managedAgents.map(agent => packages?.toolsReady && !(agent.id === 'claude' ? packages.claudeReady : packages.codexReady) && <Button key={agent.id} disabled={unavailable} onClick={() => void run(agent.install)}>安装 {agent.name}</Button>)}
         <Button variant="tonal" disabled={unavailable} onClick={() => void run('checkPackages')}>检查版本</Button>
-        {packages?.claude && <Button variant="text" disabled={unavailable} onClick={() => setConfirmRemove(true)}>卸载 Claude Code</Button>}
+        {managedAgents.map(agent => packages?.[agent.id] && <Button key={agent.id} variant="text" disabled={unavailable} onClick={() => setConfirmRemove(agent)}>卸载 {agent.name}</Button>)}
       </div>
       {confirmRemove && <div className="mt-4 rounded-xl bg-surface-container-high p-4">
-        <p className="type-body-medium">卸载 Claude Code {packages?.claude?.version}？配置、登录信息、会话和工作区将保留。</p>
-        <div className="mt-3 flex gap-2"><Button variant="text" onClick={() => setConfirmRemove(false)}>取消</Button><Button disabled={unavailable} onClick={() => void run('removeClaude')}>确认卸载</Button></div>
+        <p className="type-body-medium">卸载 {confirmRemove.name} {packages?.[confirmRemove.id]?.version}？配置、登录信息、会话和工作区将保留。</p>
+        <div className="mt-3 flex gap-2"><Button variant="text" onClick={() => setConfirmRemove(null)}>取消</Button><Button disabled={unavailable} onClick={() => void run(confirmRemove.remove)}>确认卸载</Button></div>
       </div>}
-      <p className="mt-4 type-body-small text-on-surface-variant">当前使用固定版本。可在配置页管理 Claude 的连接与模型，原生登录仍在终端中完成。</p>
-      {[packages?.node, packages?.claude].map(record => record && <details key={record.slot} className="mt-4">
-        <summary className="cursor-pointer type-label-large">{record.entry.endsWith('/node') ? 'Node.js 与基础工具' : 'Claude Code'} · {record.version} · 检查结果</summary>
+      <p className="mt-4 type-body-small text-on-surface-variant">当前使用固定版本。Claude 支持工作台配置与模板；Codex 暂通过原生终端登录和配置。</p>
+      {packages?.codex?.sandboxProbe?.status === 'unavailable' && <p className="mt-4 rounded-xl bg-secondary-container p-4 type-body-medium text-on-secondary-container">Codex 的命令沙箱自检未通过。终端可用于登录和查看设置，当前环境的工具执行兼容性尚未确认。</p>}
+      {[packages?.node, packages?.claude, packages?.codex].map(record => record && <details key={record.slot} className="mt-4">
+        <summary className="cursor-pointer type-label-large">{record.entry.endsWith('/node') ? 'Node.js 与基础工具' : record.entry.endsWith('/codex') ? 'Codex' : 'Claude Code'} · {record.version} · 检查结果</summary>
         <pre className="mt-2 whitespace-pre-wrap break-all font-mono text-xs text-on-surface-variant">{record.probeOutput}</pre>
+        {record.sandboxProbe && <><p className="mt-3 type-body-small">命令沙箱：{record.sandboxProbe.status === 'passed' ? '自检通过' : '自检未通过'}</p><pre className="mt-2 whitespace-pre-wrap break-all font-mono text-xs text-on-surface-variant">{record.sandboxProbe.output}</pre></>}
       </details>)}
     </div>
   </ListGroup>;

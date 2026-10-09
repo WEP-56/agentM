@@ -2,6 +2,7 @@
   "schemaVersion": 1,
   "nodeVersion": "24.21.0",
   "claudeVersion": "2.1.293",
+  "codexVersion": "0.161.0",
   "node": {
     "x86_64": {
       "url": "https://nodejs.org/dist/v24.21.0/node-v24.21.0-linux-x64.tar.gz",
@@ -36,6 +37,30 @@
       "package": "@anthropic-ai/claude-code-linux-arm64",
       "integrity": "sha512-cTtIjy1TR2/E4jzh8jEPwkd7MoJTaCVRItsLQtVUKf/2DZSDLnA1x5G9WzwkgNQgmJHntbOrd1YSetjmZMV9og==",
       "version": "2.1.293"
+    }
+  },
+  "codex": {
+    "x86_64": {
+      "url": "https://registry.npmjs.org/@openai/codex/-/codex-0.161.0-linux-x64.tgz",
+      "bytes": 164668500,
+      "sha256": "d50e02c2755be551b576527b2b13c6b6a4af3340149afdf792d5491e5d899978",
+      "archiveRoot": "package",
+      "executable": "package/vendor/x86_64-unknown-linux-musl/bin/codex",
+      "package": "@openai/codex",
+      "packageVersion": "0.161.0-linux-x64",
+      "integrity": "sha512-AVkNzeJWyCHHPyg5vxD8UE6aFsYaOwq0/x6mtmkOKy6LdjvsyxLr7Q7UULlk+Ma3+PnrN8uIxG2/XGPQ936hgA==",
+      "version": "0.161.0"
+    },
+    "arm64-v8a": {
+      "url": "https://registry.npmjs.org/@openai/codex/-/codex-0.161.0-linux-arm64.tgz",
+      "bytes": 157136568,
+      "sha256": "afb97c576fdcde591cbe807a464f7e7cf36d9470aedc0ff0d2bc89eac3d513c8",
+      "archiveRoot": "package",
+      "executable": "package/vendor/aarch64-unknown-linux-musl/bin/codex",
+      "package": "@openai/codex",
+      "packageVersion": "0.161.0-linux-arm64",
+      "integrity": "sha512-SBu0n4C1Pby9rGKUNA02yHEg/ScbECgiTIiKiKhbYWiUWqGPV1hY0Br7joEntbz0dyNzSWqNPD8uOqxcOry/Fg==",
+      "version": "0.161.0"
     }
   }
 }

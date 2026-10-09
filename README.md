@@ -2,7 +2,7 @@
 
 安卓端开发工作台：安装 Linux 用户态环境，在手机上安装、配置和使用 Claude Code、Codex、OpenCode、Pi、DSH。
 
-当前 0.5.0-dev 已将 `uiux-design/` 的 Vite + React 19 + Tailwind v4 界面接入 Kotlin Android 壳，支持 Ubuntu 下载与安装、原生 Linux/设备 PTY、开发工具安装，以及 Claude Code 的程序管理、配置文件编辑和多提供商模板库。配置应用包含脱敏预览、文件与模板冲突检查及加密备份恢复。其他四个 Agent 仍在开发中。
+当前 0.6.0-dev 已将 `uiux-design/` 的 Vite + React 19 + Tailwind v4 界面接入 Kotlin Android 壳，支持 Ubuntu 下载与安装、原生 PTY、开发工具、Claude Code 程序与配置模板管理，以及 Codex 的安装、版本检测、终端启停和卸载。当前模拟器的 Codex 命令沙箱自检未通过，尚不算完整工具执行支持。OpenCode、Pi、DSH 仍在开发中。
 
 本机构建、安装与验证入口见 [本地开发与当前进度](docs/06-本地开发与当前进度.md)。
 
@@ -25,6 +25,7 @@
 9. [开发工具与首个 Agent](docs/08-开发工具与首个Agent.md)：0.3.0 的软件管理、固定版本、真实回归与边界。
 10. [Claude 配置文件管理](docs/09-Claude配置文件管理.md)：0.4.0 的受管字段、保留原文、冲突、密钥与恢复验证。
 11. [Claude 提供商模板](docs/10-Claude提供商模板.md)：0.5.0 的加密模板库、切换预览、密钥隔离和双 revision 验证。
+12. [Codex 程序管理与兼容性](docs/11-Codex程序管理与兼容性.md)：0.6.0 的第二个 Agent 管理与实际沙箱限制。
 
 原始想法保留在 [构思与调研.md](构思与调研.md)。调研日期：2026-10-08。
 

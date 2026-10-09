@@ -28,12 +28,12 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
     private fun changed() { observers.toList().forEach { it() } }
 
     fun requireOpenable(requestedKind: String) {
-        require(requestedKind in setOf("deviceShell", "linuxShell", "claude")) { "未知终端类型" }
+        require(requestedKind in setOf("deviceShell", "linuxShell", "claude", "codex")) { "未知终端类型" }
         check(!app.packages.busy) { "软件管理任务进行中，请完成后打开终端" }
         check(!app.configs.busy) { "配置保存进行中，请稍后打开终端" }
         check(session?.isRunning != true || kind == requestedKind) { "请先关闭当前终端，再切换终端类型" }
         if (requestedKind != "deviceShell") check(app.linux.ready) { "Ubuntu 尚未就绪，请先安装或检查系统" }
-        if (requestedKind == "claude") app.packages.claudeCommand()
+        if (requestedKind in dev.agentm.app.packages.ManagedPackagePaths.agents) app.packages.agentCommand(requestedKind)
     }
 
     fun open(requestedKind: String = "deviceShell"): TerminalSession = synchronized(app.maintenance) {
@@ -45,7 +45,7 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
             "LANG=C.UTF-8", "TMPDIR=${app.cacheDir.absolutePath}", "PS1=agentM \\$ ")
         val linux = when (requestedKind) {
             "linuxShell" -> app.linux.runtime.launch()
-            "claude" -> app.linux.runtime.launch(command = app.packages.claudeCommand())
+            "claude", "codex" -> app.linux.runtime.launch(command = app.packages.agentCommand(requestedKind))
             else -> null
         }
         val argv = linux?.argv ?: arrayOf("/system/bin/sh", "-i")
