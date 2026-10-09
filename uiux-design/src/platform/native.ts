@@ -3,6 +3,10 @@ export interface ManagedPackage {
   verified: boolean; probeOutput: string; checkedAt: number;
   sandboxProbe?: { status: 'passed' | 'unavailable'; exitCode: number; output: string; checkedAt: number };
 }
+export interface NativeWebSession {
+  id: string; kind: 'opencode' | 'dsh'; state: 'starting' | 'ready' | 'stopping' | 'stop-unconfirmed' | 'exited' | 'failed';
+  message: string; port: number; version: string; running: boolean; pid: number;
+}
 export interface NativeSnapshot {
   protocolVersion: 1;
   appVersion: string;
@@ -16,10 +20,12 @@ export interface NativeSnapshot {
   };
   packages: {
     busy: boolean; phase: string; message: string; action?: string; operationId?: string; error?: string | null;
-    downloadedBytes?: number; totalBytes?: number; toolsReady: boolean; claudeReady: boolean; codexReady: boolean;
-    nodeVersion: string; claudeVersion: string; codexVersion: string; node?: ManagedPackage; claude?: ManagedPackage; codex?: ManagedPackage;
+    downloadedBytes?: number; totalBytes?: number; toolsReady: boolean; claudeReady: boolean; codexReady: boolean; piReady: boolean;
+    nodeVersion: string; claudeVersion: string; codexVersion: string; piVersion: string; node?: ManagedPackage; claude?: ManagedPackage; codex?: ManagedPackage; pi?: ManagedPackage;
+    openCodeReady: boolean; dshReady: boolean; opencodeVersion: string; dshVersion: string; opencode?: ManagedPackage; dsh?: ManagedPackage;
   };
-  terminal: { id: string | null; running: boolean; stopping: boolean; kind: 'deviceShell' | 'linuxShell' | 'claude' | 'codex'; pid: number };
+  terminal: { id: string | null; running: boolean; stopping: boolean; kind: 'deviceShell' | 'linuxShell' | 'claude' | 'codex' | 'pi' | 'opencode'; pid: number };
+  webSessions: Partial<Record<'opencode' | 'dsh', NativeWebSession>>;
   permissions: { notifications: boolean; storage: boolean; battery: boolean };
   logs: { id: number; t: number; level: 'D' | 'I' | 'W' | 'E'; tag: string; msg: string }[];
 }

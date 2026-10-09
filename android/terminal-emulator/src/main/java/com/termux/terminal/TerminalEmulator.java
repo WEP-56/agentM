@@ -163,6 +163,18 @@ public final class TerminalEmulator {
     /** The current screen buffer, pointing at either {@link #mMainBuffer} or {@link #mAltBuffer}. */
     private TerminalBuffer mScreen;
 
+    // OSC 7 is display-only directory metadata; never used to execute a command.
+    private String mWorkingDirectoryUri;
+    public String getWorkingDirectoryUri() { return mWorkingDirectoryUri; }
+
+    /** User-requested display clear, without changing input modes or feeding the escape parser. */
+    public void clearVisibleScreen() {
+        mMainBuffer.clearTranscript();
+        mScreen.blockSet(0, 0, mColumns, mRows, ' ', getStyle());
+        mCursorCol = mCursorRow = 0;
+        mAboutToAutoWrap = false;
+    }
+
     /** The terminal session this emulator is bound to. */
     private final TerminalOutput mSession;
 
@@ -1901,6 +1913,9 @@ public final class TerminalEmulator {
         }
 
         switch (value) {
+            case 7:
+                mWorkingDirectoryUri = textParameter;
+                break;
             case 0: // Change icon name and window title to T.
             case 1: // Change icon name to T.
             case 2: // Change window title to T.

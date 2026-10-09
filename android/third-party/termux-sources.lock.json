@@ -29,7 +29,9 @@
     },
     {
       "file": "android/terminal-emulator/src/main/java/com/termux/terminal/TerminalEmulator.java",
-      "sha256": "65e38d48618afaac26997d2d5004193aabdd3f457fd2c5b71c535062740faafa"
+      "sha256": "9464af268b6594cf7104423810919ce9cbbd53b673a6b099d634ec3476f0b5dd",
+      "upstreamSha256": "65e38d48618afaac26997d2d5004193aabdd3f457fd2c5b71c535062740faafa",
+      "localModification": "Display-only OSC 7 directory metadata and direct visible-screen clear preserving PTY input modes"
     },
     {
       "file": "android/terminal-emulator/src/main/java/com/termux/terminal/TerminalOutput.java",

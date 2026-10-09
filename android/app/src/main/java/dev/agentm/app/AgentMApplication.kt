@@ -9,4 +9,5 @@ class AgentMApplication : Application() {
     val linux by lazy { dev.agentm.app.linux.LinuxManager(this) }
     val packages by lazy { dev.agentm.app.packages.PackageManager(this) }
     val configs by lazy { dev.agentm.app.config.ClaudeConfigManager(this) }
+    val webAgents by lazy { dev.agentm.app.web.WebAgentManager(this) }
 }

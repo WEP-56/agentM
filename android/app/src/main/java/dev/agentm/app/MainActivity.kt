@@ -135,6 +135,7 @@ class MainActivity : ComponentActivity() {
                         val background = body.optString("background")
                         require(background.matches(Regex("#[0-9a-fA-F]{6}")))
                         host.setBackgroundColor(android.graphics.Color.parseColor(background))
+                        dev.agentm.app.ui.SessionAppearance.save(this, body)
                         WindowCompat.getInsetsController(window, host).apply {
                             isAppearanceLightStatusBars = !body.optBoolean("dark")
                             isAppearanceLightNavigationBars = !body.optBoolean("dark")
@@ -149,6 +150,15 @@ class MainActivity : ComponentActivity() {
                             runOnUiThread { if (!isDestroyed) reply.postMessage(error(id, "INSPECTION_FAILED", "设备检查失败")) }
                         }
                     }
+                    "openWeb" -> {
+                        val kind = body.getString("kind")
+                        val session = app.webAgents.request(kind)
+                        try { dev.agentm.app.web.WebAgentService.start(this, session) }
+                        catch (failure: Exception) { app.webAgents.stop(kind); throw failure }
+                        startActivity(Intent(this, dev.agentm.app.web.AgentWebActivity::class.java).putExtra("kind", kind))
+                        respond(JSONObject().put("opened", true).put("sessionId", session.id))
+                    }
+                    "stopWeb" -> { val kind = body.getString("kind"); require(kind in dev.agentm.app.web.WebPolicy.kinds); app.webAgents.stop(kind); respond(JSONObject().put("requested", true)) }
                     "openTerminal" -> {
                         val kind = body.optString("kind", "deviceShell")
                         app.terminals.requireOpenable(kind)

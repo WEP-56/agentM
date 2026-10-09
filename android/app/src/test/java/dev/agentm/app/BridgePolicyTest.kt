@@ -5,7 +5,7 @@ import org.junit.Test
 
 class BridgePolicyTest {
     @Test fun onlyThePackagedMainFrameCanInvokeNativeActions() {
-        for (method in listOf("openTerminal", "readClaudeConfig", "applyClaudeConfig", "listClaudeProfiles", "saveClaudeProfile", "deleteClaudeProfile", "previewClaudeProfile")) {
+        for (method in listOf("openTerminal", "openWeb", "stopWeb", "readClaudeConfig", "applyClaudeConfig", "listClaudeProfiles", "saveClaudeProfile", "deleteClaudeProfile", "previewClaudeProfile")) {
             assertTrue(BridgePolicy.accepts(BridgePolicy.ORIGIN, true, method, "req_1", 80))
             for (origin in listOf("http://127.0.0.1:3080", "https://example.com", "${BridgePolicy.ORIGIN}.evil.test", "null")) {
                 assertFalse(BridgePolicy.accepts(origin, true, method, "req_1", 80))

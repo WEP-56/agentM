@@ -7,13 +7,18 @@ param(
     [switch]$ConfigTest,
     [switch]$ProfileTest,
     [switch]$CodexTest,
+    [switch]$PiTest,
+    [switch]$WebTest,
+    [switch]$WebUiTest,
+    [switch]$SessionUiTest,
+    [string]$SdkPath,
     [string]$Serial = 'emulator-5554',
     [switch]$UseNpmMirror
 )
 $ErrorActionPreference = 'Stop'
 $project = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $android = Join-Path $project 'android'
-$sdk = if ($env:ANDROID_HOME) { $env:ANDROID_HOME } elseif ($env:ANDROID_SDK_ROOT) { $env:ANDROID_SDK_ROOT } else { Join-Path $env:LOCALAPPDATA 'Android/Sdk' }
+$sdk = if ($SdkPath) { $SdkPath } elseif ($env:ANDROID_HOME) { $env:ANDROID_HOME } elseif ($env:ANDROID_SDK_ROOT) { $env:ANDROID_SDK_ROOT } else { Join-Path $env:LOCALAPPDATA 'Android/Sdk' }
 if (-not (Test-Path -LiteralPath (Join-Path $sdk 'platform-tools/adb.exe'))) { throw 'Android SDK not found. Set ANDROID_HOME to the SDK used by Flutter.' }
 $sdkProperty = $sdk.Replace('\', '/').Replace(':', '\:')
 [IO.File]::WriteAllText((Join-Path $android 'local.properties'), "sdk.dir=$sdkProperty`n", [Text.UTF8Encoding]::new($false))
@@ -33,17 +38,17 @@ Push-Location $android
 try {
     $tasks = @(':app:assembleDebug')
     if ($Test) { $tasks += @(':app:testDebugUnitTest', ':app:lintDebug') }
-    if ($DeviceTest -or $LinuxTest -or $PackageTest -or $ConfigTest -or $ProfileTest -or $CodexTest) { $tasks += ':app:assembleDebugAndroidTest' }
+    if ($DeviceTest -or $LinuxTest -or $PackageTest -or $ConfigTest -or $ProfileTest -or $CodexTest -or $PiTest -or $WebTest -or $WebUiTest -or $SessionUiTest) { $tasks += ':app:assembleDebugAndroidTest' }
     & .\gradlew.bat @tasks --console=plain
     if ($LASTEXITCODE -ne 0) { throw 'Android build/check failed.' }
 } finally { Pop-Location }
 
 $apk = Join-Path $android 'app/build/outputs/apk/debug/app-debug.apk'
-if ($Install -or $DeviceTest -or $LinuxTest -or $PackageTest -or $ConfigTest -or $ProfileTest -or $CodexTest) {
+if ($Install -or $DeviceTest -or $LinuxTest -or $PackageTest -or $ConfigTest -or $ProfileTest -or $CodexTest -or $PiTest -or $WebTest -or $WebUiTest -or $SessionUiTest) {
     & $adb -s $Serial install -r $apk
     if ($LASTEXITCODE -ne 0) { throw 'APK installation failed.' }
 }
-if ($DeviceTest -or $LinuxTest -or $PackageTest -or $ConfigTest -or $ProfileTest -or $CodexTest) {
+if ($DeviceTest -or $LinuxTest -or $PackageTest -or $ConfigTest -or $ProfileTest -or $CodexTest -or $PiTest -or $WebTest -or $WebUiTest -or $SessionUiTest) {
     & $adb -s $Serial install -r (Join-Path $android 'app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk')
     if ($LASTEXITCODE -ne 0) { throw 'Test APK installation failed.' }
     $classes = @()
@@ -53,6 +58,10 @@ if ($DeviceTest -or $LinuxTest -or $PackageTest -or $ConfigTest -or $ProfileTest
     if ($ConfigTest) { $classes += 'dev.agentm.app.ClaudeConfigIntegrationTest' }
     if ($ProfileTest) { $classes += 'dev.agentm.app.ClaudeProfilesIntegrationTest' }
     if ($CodexTest) { $classes += 'dev.agentm.app.CodexIntegrationTest' }
+    if ($PiTest) { $classes += 'dev.agentm.app.PiIntegrationTest' }
+    if ($WebTest) { $classes += 'dev.agentm.app.WebAgentsIntegrationTest' }
+    if ($WebUiTest) { $classes += @('dev.agentm.app.OpenCodeWebUiTest', 'dev.agentm.app.DshWebUiTest') }
+    if ($SessionUiTest) { $classes += 'dev.agentm.app.SessionChromeTest' }
     foreach ($class in $classes) {
         $result = & $adb -s $Serial shell am instrument -w -r -e class $class dev.agentm.app.test/androidx.test.runner.AndroidJUnitRunner
         $result | Write-Output

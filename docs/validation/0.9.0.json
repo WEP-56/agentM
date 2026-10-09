@@ -1,0 +1,59 @@
+{
+  "version": "0.9.0-dev",
+  "versionCode": 11,
+  "date": "2026-10-09",
+  "apk": "android/app/build/outputs/apk/debug/app-debug.apk",
+  "apkSha256": "508f9a1bd25ec44abb38f655286664b271f6e08e487a5f41e9ffb24a8b0dfbb6",
+  "frontend": "TypeScript strict and Vite production build passed",
+  "unitTests": {
+    "passed": 19,
+    "failed": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 36
+  },
+  "instrumentation": {
+    "passed": 3,
+    "failed": 0,
+    "device": {
+      "serial": "emulator-5554",
+      "api": 35,
+      "abi": "x86_64"
+    },
+    "tests": [
+      "OpenCodeWebUiTest.rendersBeyondDocumentLoadAndAuthenticatedHealth",
+      "DshWebUiTest.listsWorkspaceDirectoryWithComposedAbortSignal",
+      "SessionChromeTest.directoryClearAndRestartKeepPtyOwnership"
+    ],
+    "evidence": "output/android/session-chrome-regression.log",
+    "checks": [
+      "actual OpenCode home rendering",
+      "retained Map.groupBy and Promise.withResolvers compatibility",
+      "DSH real authenticated directory RPC with AbortSignal.any",
+      "no AgentMHost in Agent pages",
+      "desktop UA retains Chromium version and viewport width >= 1200",
+      "OpenCode owned process restart and WebView reconnect",
+      "Linux OSC 7 cwd updates",
+      "view-only screen clear preserves shell variables",
+      "terminal recreation preserves PID",
+      "terminal restart replaces only the owned PTY",
+      "recreating a stopped terminal does not start it"
+    ]
+  },
+  "visualReview": [
+    "output/android/terminal-chrome.png",
+    "output/android/web-chrome.png"
+  ],
+  "userConfirmation": "All five Agents usable before the 0.9.0 UI changes; new toolbar interaction acceptance pending",
+  "manualAcceptancePending": [
+    "overflow menus and touch feel",
+    "address entry and back/forward navigation",
+    "external default browser login",
+    "live desktop toggle",
+    "theme variants, landscape and IME",
+    "arm64 physical devices"
+  ],
+  "buildEvidence": "output/android/session-chrome-build.log",
+  "codexSandbox": "Previous standalone sandbox probe failure remains unresolved"
+}

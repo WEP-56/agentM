@@ -1,0 +1,109 @@
+{
+  "sourceCommit": "70e37a7dbcae83b32fc92a8a37b33af88befc0e0",
+  "sourceBase": "https://github.com/DSH-APP/DSHA/tree/70e37a7dbcae83b32fc92a8a37b33af88befc0e0/",
+  "inputs": {
+    "tools/build-dsh-runtime.py": "aec054ae1202db8715508ce9235fbbe602379aabca1d3e00670bf90bd46aab15",
+    "tools/source_text.py": "fbe5428810615989be55f00b944c2cd98a03c087992630ecb9fff03e91edc23c",
+    "tools/dsh-runtime/package.json": "4885ec233c3786b2ce17c396f64b3e922d3202b8a50a67a60e199c7d9e130b61",
+    "tools/dsh-runtime/package-lock.json": "a3cf19ad8320ca415ae4eeff288d649645c3637dd9d08b1dd8588d3013c2ea2d",
+    "app/src/main/assets/runtime-fs/index.js": "7aa2e88bbd4e081d134e71418a481f6f830e5504d99961c91bdf3f2dbab2809d",
+    "app/src/main/assets/runtime-fs/package.json": "9b7081bc29038465263ec0084d1b35634cac7f700b6f36187a37fd1e3734d89c",
+    "app/src/main/assets/session-compat/index.js": "0baae8496c8c40eb67cfbe6df06b415bb2919b9c25a790334fbb718d4d35c46c",
+    "app/src/main/assets/session-compat/package.json": "7d415807c05506c6a4e426b362195f710715bce2d47dc8b6cc285809f29654ef",
+    "app/src/main/assets/client-combo-cache/index.js": "982c0cdce192d71274b679983ee19549d0089f88a22bdd6177857124ab6de0e7",
+    "app/src/main/assets/client-combo-cache/package.json": "1e172bf5348e5dc8694b0b6b46b764ecd8327ef172216e1577c25cdeb5a9cc0d",
+    "app/src/main/assets/client-combo-patch.json": "ac7c518516eb53be4e5651cae659b1a72b47cc3e95b99a1c680e4e7758bc1292",
+    "app/src/main/assets/deepseek-messages-compat-patch.json": "2459e4db37eebf9f20d5bfbb1be9ddfb1b8bf66a7f1bfaf57c60b88f8c3cc1c6",
+    "app/src/main/assets/lexical-claim-patch.json": "1960ce792523971a503d56cf1b9fd5e729e9bbbe853d79bfbb6ee04ad705576c",
+    "app/src/main/assets/conversation-materialized-patch.json": "acbebf46a72a62bb3b4386e951292349ce777abf378abbb776ea006eb254ea59",
+    "app/src/main/assets/rc1-settings-migration-patch.json": "0312818b319cff794809a44911da61830235acce5efea3304763388b6b97bac2",
+    "app/src/main/assets/workspace-directory-policy-patch.json": "9667a40ff5706798843dd774be0423e78487707900ce1e9f9839079455c741c1",
+    "app/src/main/assets/dsha-deepseek-messages-compat.js": "ecaed254bff32b497112d524984aa5b58f3cdbf6fb9ee2b77876e1197f132f37"
+  },
+  "overlays": [
+    {
+      "path": "node_modules/@deepseek-ai/dsh-api-workspace-controller/lib/index.js",
+      "asset": "dsh-overlays/0.js",
+      "beforeSha256": "8a6e3b407ff9a445358cee97183452c3ca391d8ff10dab53f5416fd4ad37ead5",
+      "sha256": "aed14ce146bba06dc24a2a0cdf459d245431c4abd45cee309cfa283b3bf13ee5"
+    },
+    {
+      "path": "node_modules/@deepseek-ai/dsh-attachment-local/lib/index.js",
+      "asset": "dsh-overlays/1.js",
+      "beforeSha256": "cd39685581b4573a453c6126f8ce73da0bf1257c378827ebb431d6d4064f7662",
+      "sha256": "de294581be9a8901aa1f62b8ee4eed1a735f8c62447b8eb5a98a0b73ea8cb96d"
+    },
+    {
+      "path": "node_modules/@deepseek-ai/dsh-client-modules/lib/index.js",
+      "asset": "dsh-overlays/2.js",
+      "beforeSha256": "03ea21df556256a61289bae762bd1831fff43d035d49b8926d6c0f0b30b0e073",
+      "sha256": "278678f63be9e32293fba3196234b55cd5ea04591e5999463a9ac3f1ad6dd36b"
+    },
+    {
+      "path": "node_modules/@deepseek-ai/dsh-client-ui-conversation/lib/client.js",
+      "asset": "dsh-overlays/3.js",
+      "beforeSha256": "8d5c8223197d52d69eb0587f88a8a051fc172985553915f1de361544653a68b0",
+      "sha256": "033437a7a4199a7ff67c715456a0848cb46f176e1291c51aa787dde1d3d95de4"
+    },
+    {
+      "path": "node_modules/@deepseek-ai/dsh-fs-local/lib/index.js",
+      "asset": "dsh-overlays/4.js",
+      "beforeSha256": "63fbb41d2c33e07111884b798be507e68c2752acab8249c821c20ade436e894f",
+      "sha256": "5dd5e0647851884ce450bcbc3aa4c429097bd04cf87ab1c129cab964c20f831e"
+    },
+    {
+      "path": "node_modules/@deepseek-ai/dsh-llm-deepseek/lib/index.js",
+      "asset": "dsh-overlays/5.js",
+      "beforeSha256": "226e2047b843f954d8478207613f3e44448671c6f98f8edee77008d0fe005484",
+      "sha256": "2024e8788a274b3f5d4e1cf76d0943611ef7a56351296c0a067c51ed546a9635"
+    },
+    {
+      "path": "node_modules/@deepseek-ai/dsh-session-format-v2-to-v3/lib/index.js",
+      "asset": "dsh-overlays/6.js",
+      "beforeSha256": "0dc56fb447e9046fc25995bcd08dbac26e832eba6e9eb583ef49d26467c27cd7",
+      "sha256": "014867458a819a3746df8d34146f1a49161e03e70520166a6a0c0a2c9061ad52"
+    },
+    {
+      "path": "node_modules/@deepseek-ai/dsh-session-persistence-jsonl/lib/index.js",
+      "asset": "dsh-overlays/7.js",
+      "beforeSha256": "0845707017acc2b4a8a75eab2244fa3fd88587b8094ab32014321dce7ca1e31b",
+      "sha256": "8b30ba815d2f5bee20084cebf064301e6b3985982812f32be40b14ee059ac90a"
+    },
+    {
+      "path": "node_modules/@deepseek-ai/dsh-storage-json/lib/index.js",
+      "asset": "dsh-overlays/8.js",
+      "beforeSha256": "0a6b75d5569db3379edd93e863570170e1f4121b6c9fabd856f5b476cffe8df4",
+      "sha256": "92f36fa6270329e520c151e07cadcf2c7ec63869425347e8e0d086fdf28961ab"
+    },
+    {
+      "path": "node_modules/dsha-runtime-fs/index.js",
+      "asset": "dsh-overlays/dsha-runtime-fs-index.js",
+      "sha256": "7aa2e88bbd4e081d134e71418a481f6f830e5504d99961c91bdf3f2dbab2809d"
+    },
+    {
+      "path": "node_modules/dsha-runtime-fs/package.json",
+      "asset": "dsh-overlays/dsha-runtime-fs-package.json",
+      "sha256": "9b7081bc29038465263ec0084d1b35634cac7f700b6f36187a37fd1e3734d89c"
+    },
+    {
+      "path": "node_modules/dsha-session-compat/index.js",
+      "asset": "dsh-overlays/dsha-session-compat-index.js",
+      "sha256": "0baae8496c8c40eb67cfbe6df06b415bb2919b9c25a790334fbb718d4d35c46c"
+    },
+    {
+      "path": "node_modules/dsha-session-compat/package.json",
+      "asset": "dsh-overlays/dsha-session-compat-package.json",
+      "sha256": "7d415807c05506c6a4e426b362195f710715bce2d47dc8b6cc285809f29654ef"
+    },
+    {
+      "path": "node_modules/dsha-client-combo-cache/index.js",
+      "asset": "dsh-overlays/dsha-client-combo-cache-index.js",
+      "sha256": "982c0cdce192d71274b679983ee19549d0089f88a22bdd6177857124ab6de0e7"
+    },
+    {
+      "path": "node_modules/dsha-client-combo-cache/package.json",
+      "asset": "dsh-overlays/dsha-client-combo-cache-package.json",
+      "sha256": "1e172bf5348e5dc8694b0b6b46b764ecd8327ef172216e1577c25cdeb5a9cc0d"
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "url": "https://registry.npmjs.org/quickjs-wasi/3.6.2",
+  "metadata": {
+    "bugs": {
+      "url": "https://github.com/vercel-labs/quickjs-wasi/issues"
+    },
+    "dist": {
+      "shasum": "6ab7ed689997a9013b49ea7bbce3e88896bd80d9",
+      "tarball": "https://registry.npmjs.org/quickjs-wasi/-/quickjs-wasi-3.6.2.tgz",
+      "fileCount": 25,
+      "integrity": "sha512-FCqGtGOrMgzUiIrMNMA2YnsOxCNwo31dzqXvclXUC6xeT35NJLKXQJsvbeCTjvoFAwZgEAPg8U6+KAPDGXn8Mg==",
+      "signatures": [
+        {
+          "sig": "MEUCIDQpDs8DrvHgdIPG8M6vN/Eg7gJ7SwObjaunKnwSMKUJAiEAtTZfJZv1ZZW0OlK3JAmZoDVvlrMeFgAG4ahC9Kag328=",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        },
+        {
+          "sig": "MEUCIQDvUondQKFW6leZZ56ZJUhWaEy6GKo+oLZAfqUHa6uuVgIgczuVc3r5BL4iBL80OXwKpk8ZbcbnJH8USK1uEvWPfa0=",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        }
+      ],
+      "attestations": {
+        "url": "https://registry.npmjs.org/-/npm/v1/attestations/quickjs-wasi@3.6.2",
+        "provenance": {
+          "predicateType": "https://slsa.dev/provenance/v1"
+        }
+      },
+      "unpackedSize": 1524119
+    },
+    "main": "dist/index.js",
+    "name": "quickjs-wasi",
+    "type": "module",
+    "_from": "file:quickjs-wasi-3.6.2.tgz",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./url.so": "./extensions/url/url.so",
+      "./crypto.so": "./extensions/crypto/crypto.so",
+      "./headers.so": "./extensions/headers/headers.so",
+      "./encoding.so": "./extensions/encoding/encoding.so",
+      "./package.json": "./package.json",
+      "./quickjs.wasm": "./quickjs.wasm",
+      "./structured-clone.so": "./extensions/structured-clone/structured-clone.so"
+    },
+    "license": "MIT",
+    "scripts": {
+      "test": "vitest run",
+      "bench": "pnpm run bench:url && pnpm run bench:encoding && pnpm run bench:headers && pnpm run bench:emscripten",
+      "build": "pnpm run build:wasm && pnpm run build:ts",
+      "setup": "make setup",
+      "build:ts": "tsc",
+      "bench:url": "bun run bench/url-benchmark.ts",
+      "changeset": "changeset",
+      "build:wasm": "make",
+      "ci:publish": "git submodule update --init --recursive && make setup && pnpm run build && changeset publish",
+      "ci:version": "changeset version && node -e \"fs.writeFileSync('src/version.ts', '// Auto-synced with package.json version. Do not edit manually.\\nexport const VERSION = ' + JSON.stringify(require('./package.json').version) + ';\\n')\"",
+      "bench:headers": "bun run bench/headers-benchmark.ts",
+      "bench:encoding": "bun run bench/encoding-benchmark.ts",
+      "bench:opt-level": "make clean >/dev/null && make OPT=-O2 quickjs.wasm && cp quickjs.wasm /tmp/qjs-O2.wasm && make clean >/dev/null && make OPT=-Oz quickjs.wasm && cp quickjs.wasm /tmp/qjs-Oz.wasm && QJS_O2_WASM=/tmp/qjs-O2.wasm QJS_OZ_WASM=/tmp/qjs-Oz.wasm bun run bench/opt-level-benchmark.ts",
+      "bench:emscripten": "bun run bench/emscripten-benchmark.ts"
+    },
+    "_npmUser": {
+      "name": "GitHub Actions",
+      "email": "npm-oidc-no-reply@github.com",
+      "trustedPublisher": {
+        "id": "github",
+        "oidcConfigId": "oidc:d4316768-2b23-40c9-bfb9-77c0375b5476"
+      }
+    },
+    "homepage": "https://github.com/vercel-labs/quickjs-wasi#readme",
+    "_resolved": "/tmp/2bd2ce71ff91a36bfd7f943a7553f8eb/quickjs-wasi-3.6.2.tgz",
+    "_integrity": "sha512-FCqGtGOrMgzUiIrMNMA2YnsOxCNwo31dzqXvclXUC6xeT35NJLKXQJsvbeCTjvoFAwZgEAPg8U6+KAPDGXn8Mg==",
+    "repository": {
+      "url": "git://github.com/vercel-labs/quickjs-wasi.git",
+      "type": "git"
+    },
+    "_npmVersion": "11.19.0",
+    "description": "Snapshotable JavaScript runtime via WebAssembly. QuickJS-NG compiled to WASM with snapshot/restore support.",
+    "directories": {},
+    "maintainers": [
+      {
+        "name": "tootallnate",
+        "email": "nathan@tootallnate.net"
+      },
+      {
+        "name": "adamdong",
+        "email": "adam.dong@vercel.com"
+      }
+    ],
+    "_nodeVersion": "24.20.0",
+    "publishConfig": {
+      "access": "public"
+    },
+    "_hasShrinkwrap": false,
+    "devDependencies": {
+      "bun": "^1.3.14",
+      "vite": "^7.3.5",
+      "vitest": "^4.1.9",
+      "devalue": "^5.9.0",
+      "esbuild": "^0.28.1",
+      "binaryen": "^130.0.0",
+      "tinybench": "^6.0.2",
+      "typescript": "^5.9.3",
+      "@types/node": "^22.20.0",
+      "@vercel/nft": "^1.10.2",
+      "degenerator": "^5.0.1",
+      "core-js-pure": "^3.49.0",
+      "whatwg-fetch": "^3.6.20",
+      "@changesets/cli": "^2.31.0",
+      "fast-text-encoding": "^1.0.6",
+      "quickjs-emscripten": "^0.32.0",
+      "@changesets/changelog-github": "^0.6.0"
+    },
+    "_npmOperationalInternal": {
+      "tmp": "tmp/quickjs-wasi_3.6.2_1789793659709_0.10602353898188865",
+      "host": "s3://npm-registry-packages-npm-production"
+    },
+    "_id": "quickjs-wasi@3.6.2",
+    "version": "3.6.2"
+  }
+}

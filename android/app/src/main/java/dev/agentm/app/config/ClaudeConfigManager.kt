@@ -78,7 +78,7 @@ class ClaudeConfigManager(
             .put("baseUrl", current[ClaudeSettings.BASE].orEmpty()).put("model", current[ClaudeSettings.MODEL].orEmpty())
             .put("authMode", if (hasKey && hasToken) "conflict" else if (hasToken) "authToken" else if (hasKey) "apiKey" else "native")
             .put("hasApiKey", hasKey).put("hasAuthToken", hasToken).put("canRestore", backupRecord()?.optString("afterRevision") == file.revision)
-            .put("overrides", warnings()).put("busy", app.packages.busy || app.terminals.session?.isRunning == true || busy)
+            .put("overrides", warnings()).put("busy", app.packages.busy || app.terminals.session?.isRunning == true || app.webAgents.active || busy)
     }
     @Synchronized fun preview(params: JSONObject): JSONObject {
         val before = nativeFile()
@@ -151,7 +151,7 @@ class ClaudeConfigManager(
 
     @Synchronized fun apply(token: String): JSONObject = synchronized(app.maintenance) {
         expire()
-        if (!app.linux.ready || app.packages.busy || app.terminals.session?.isRunning == true)
+        if (!app.linux.ready || app.packages.busy || app.terminals.session?.isRunning == true || app.webAgents.active)
             throw ConfigFailure("CONFIG_BUSY", "请先关闭当前终端并等待软件管理完成，再应用配置")
         val selected = plans.remove(token) ?: throw ConfigFailure("CONFIG_EXPIRED", "预览已过期或已使用，请重新预览")
         busy = true

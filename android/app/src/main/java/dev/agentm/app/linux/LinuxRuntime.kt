@@ -26,7 +26,7 @@ class LinuxRuntime(private val app: AgentMApplication) {
         finally { linked.delete(); original.delete() }
     }
 
-    fun launch(root: File = rootfs, command: List<String> = listOf("/bin/bash", "--noprofile", "--norc", "-i")): LinuxLaunch {
+    fun launch(root: File = rootfs, command: List<String> = listOf("/bin/bash", "--noprofile", "--norc", "-i"), guestEnvironment: Map<String, String> = emptyMap()): LinuxLaunch {
         require(proot.isFile) { "APK 缺少 proot 执行引擎" }
         home.mkdirs(); workspace.mkdirs(); temp.mkdirs(); managed.mkdirs()
         val args = mutableListOf(proot.absolutePath, "-L", "--kill-on-exit", "-0",
@@ -42,6 +42,9 @@ class LinuxRuntime(private val app: AgentMApplication) {
         args += listOf("/usr/bin/env", "-i", "HOME=/root", "USER=root", "LOGNAME=root", "TERM=xterm-256color",
             "LANG=C.UTF-8", "PATH=${app.packages.path()}", "TMPDIR=/tmp", "DISABLE_AUTOUPDATER=1", "CODEX_MANAGED_BY_NPM=1",
             "SHELL=/bin/bash", "PS1=agentM:\\w\\$ ")
+        require(guestEnvironment.keys.all { it in setOf("DSH_HOME", "BROWSER", "OPENCODE_SERVER_USERNAME", "OPENCODE_SERVER_PASSWORD", "OPENCODE_DISABLE_AUTOUPDATE", "PROMPT_COMMAND") })
+        require(guestEnvironment.values.none { it.contains('\u0000') })
+        args += guestEnvironment.map { (key, value) -> "$key=$value" }
         args += command
         val environment = mutableListOf("PATH=/system/bin", "HOME=${home.absolutePath}", "TMPDIR=${temp.absolutePath}",
             "PROOT_TMP_DIR=${temp.absolutePath}", "PROOT_LOADER=${File(native, "libprootloader.so").absolutePath}",

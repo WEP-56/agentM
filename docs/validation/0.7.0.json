@@ -1,0 +1,100 @@
+{
+  "version": "0.7.0-dev",
+  "date": "2026-10-09",
+  "baselineCommit": "ddc60bd",
+  "device": {
+    "serial": "emulator-5554",
+    "androidApi": 35,
+    "abi": "x86_64"
+  },
+  "apk": "android/app/build/outputs/apk/debug/app-debug.apk",
+  "apkSha256": "68a0e0500fa3be3d2dbe8cd57b9402e9fc900f0b8fcb6ed09acdefcf99e55695",
+  "frontend": "TypeScript strict and Vite production build passed",
+  "unitTests": {
+    "passed": 13,
+    "failed": 0
+  },
+  "instrumentation": {
+    "passed": 2,
+    "tests": [
+      {
+        "name": "TerminalLifecycleTest.opensRealPtyAndRetainsShellAcrossActivityRecreation",
+        "result": "passed",
+        "evidence": "output/android/pi-validation.log"
+      },
+      {
+        "name": "PiIntegrationTest.installsPiChecksLocalToolsAndPreservesDataAcrossReinstall",
+        "result": "passed",
+        "evidence": "output/android/pi-recheck.log"
+      }
+    ]
+  },
+  "resolvedProbeFailure": "Initial Pi probe used legacy edit arguments; updated to 1.1.0 edits[] schema. Initial failed slot was not published; full Pi regression subsequently passed.",
+  "pi": {
+    "version": "1.1.0",
+    "probeOutput": "1.1.0\nripgrep 14.1.0\nfdfind 9.0.0\nAGENTM_PI_TOOLS_OK: read/write/edit/bash/grep/find\nAGENTM_PI_WASM_OK: QuickJS evaluation / Photon image\n",
+    "checkedAt": 1791513196648,
+    "packageSha256": "09cd8a0a43dbb1d81a67346b09400b439ce71d818caba4e963ea958846a1aed4",
+    "runtimeAbisTested": [
+      "x86_64"
+    ],
+    "localToolsVerified": [
+      "read",
+      "write",
+      "edit",
+      "bash",
+      "grep",
+      "find"
+    ],
+    "wasmVerified": [
+      "QuickJS evaluation",
+      "Photon image"
+    ],
+    "lifecycleVerified": [
+      "install",
+      "missing WASM refusal",
+      "PTY",
+      "activity recreation",
+      "same-process re-entry",
+      "maintenance exclusion",
+      "stop",
+      "uninstall/reinstall",
+      "Pi home and workspace retention",
+      "Claude/Codex slot preservation"
+    ],
+    "modelRequestVerified": false
+  },
+  "codexSandboxStatus": "unavailable",
+  "lint": {
+    "errors": 0,
+    "warnings": 23
+  },
+  "visualCheck": {
+    "mechanism": "Playwright CLI over Android WebView CDP, and native Android screenshots",
+    "homePiVersion": true,
+    "launchButton": true,
+    "nativeTerminalVersion": true,
+    "nativeBangShellCommand": "printf AGENTM_PI_TUI_OK",
+    "nativeBangShellResult": "AGENTM_PI_TUI_OK",
+    "returnButtonRetainsProcess": true,
+    "stopButton": true,
+    "screenshots": [
+      "output/android/pi-home.png",
+      "output/android/pi-home-active.png",
+      "output/android/pi-terminal.png",
+      "output/android/pi-terminal-tools.png"
+    ]
+  },
+  "limitations": [
+    "No model request or OAuth login performed.",
+    "No arm64 real-device runtime validation.",
+    "Third-party Pi extensions and optional provider dependencies are not certified.",
+    "Pi GUI configuration/provider templates are deferred until remaining agents and user testing/polish are complete.",
+    "Codex sandbox isolation remains unavailable in this emulator/runtime."
+  ],
+  "nextSteps": [
+    "Connect OpenCode and DSH lifecycle/Web UI.",
+    "User-led full application testing and joint polish; developer handles builds and automated regression.",
+    "After user testing/polish, expand CC Switch-related configuration management."
+  ]
+}

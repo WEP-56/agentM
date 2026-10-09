@@ -1,0 +1,115 @@
+{
+  "version": "0.8.0-dev",
+  "date": "2026-10-09",
+  "baseline": "0.7.0-dev working tree (previous Pi work preserved)",
+  "device": {
+    "serial": "emulator-5554",
+    "androidApi": 35,
+    "abi": "x86_64"
+  },
+  "apk": "android/app/build/outputs/apk/debug/app-debug.apk",
+  "apkSha256": "d41b45b587d35068046eab16acb2071c3961533dadbb43a0f282e481a0dcb4e1",
+  "frontend": "TypeScript strict and Vite production build passed",
+  "unitTests": {
+    "passed": 17,
+    "failed": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 24
+  },
+  "instrumentation": {
+    "passed": 1,
+    "failed": 0,
+    "tests": [
+      "WebAgentsIntegrationTest.installsBothAndSeparatesAuthenticatedWebLifecycles"
+    ],
+    "evidence": "output/android/web-release-validation.log",
+    "checks": [
+      "real package installation",
+      "anonymous HTTP denial",
+      "OpenCode authenticated health and exact version",
+      "DSH token exchange and authenticated HTML",
+      "busy preferred port",
+      "independent concurrent services",
+      "duplicate start idempotency",
+      "selective stop and restart",
+      "maintenance exclusion",
+      "credentials absent from workbench snapshots",
+      "authenticated native WebView fetch for both agents",
+      "no AgentMHost in either native WebView",
+      "Activity recreation retains Web PID",
+      "OpenCode TUI startup/recreation/stop",
+      "DSH uninstall/reinstall preserves data",
+      "Claude/Codex/Pi slots unchanged"
+    ]
+  },
+  "opencode": {
+    "version": "1.18.35",
+    "probeOutput": "1.18.35\n",
+    "packageSha256": "01584b673166de064eb637904eb370fd8861ef51f7fe0f9bbe8c5bd5783a2265",
+    "interfaces": [
+      "tui",
+      "webui"
+    ]
+  },
+  "dsh": {
+    "version": "0.2.0-rc.2",
+    "probeOutput": "0.2.0-rc.2\n",
+    "interfaces": [
+      "webui"
+    ],
+    "sourceCommit": "70e37a7dbcae83b32fc92a8a37b33af88befc0e0",
+    "lockSha256": "a3cf19ad8320ca415ae4eeff288d649645c3637dd9d08b1dd8588d3013c2ea2d",
+    "architecturePackageCounts": {
+      "x86_64": 615,
+      "arm64-v8a": 615
+    },
+    "overlays": 15,
+    "workspaceAdaptation": "DSHA explicit default-directory override mapped to /workspace under AGENTM_DSH_WORKSPACE",
+    "recipeStampVerified": true
+  },
+  "userReportedPriorTesting": {
+    "date": "2026-10-09",
+    "agents": [
+      "claude",
+      "codex",
+      "pi"
+    ],
+    "report": "User reports actual login/testing without issues.",
+    "independentlyReproducedThisTurn": false,
+    "codexSandboxProbeChanged": false
+  },
+  "runtimeAbisTested": [
+    "x86_64"
+  ],
+  "packageAbisVerified": [
+    "x86_64",
+    "arm64-v8a"
+  ],
+  "manualUiTesting": {
+    "delegatedToUser": true,
+    "completedThisTurn": false,
+    "requested": [
+      "OpenCode TUI/WebUI login and model tool use",
+      "DSH login/workspace/chat/file operations",
+      "Chinese input and responsive layout",
+      "return/re-entry and selective stopping"
+    ]
+  },
+  "limitations": [
+    "No OpenCode/DSH account login or model request by the agent.",
+    "arm64 real devices and prolonged background operation remain unverified.",
+    "No dedicated WebView download manager; complete upload/download behavior requires user testing.",
+    "Third-party plugins and media features are outside this validation.",
+    "No automatic Web process replay after app termination.",
+    "Configuration management expansion remains deferred until user testing and polish."
+  ],
+  "localEvidence": [
+    "output/android/web-assets.log",
+    "output/android/web-integration.log",
+    "output/android/web-final-validation.log",
+    "output/android/web-release-validation.log",
+    "output/android/web-delivery-build.log"
+  ]
+}

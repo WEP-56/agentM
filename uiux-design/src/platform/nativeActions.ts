@@ -1,6 +1,7 @@
 import type { StoreApi } from 'zustand';
 import type { AppState } from '@/store/useApp';
 import { nativeRequest, type NativeSnapshot } from './native';
+import { managedAgent, type ManagedAgentId } from './managedAgents';
 
 /** Overrides every simulated platform mutation in the Android build. */
 export function nativeActions(set: StoreApi<AppState>['setState'], get: StoreApi<AppState>['getState']): Partial<AppState> {
@@ -22,8 +23,8 @@ export function nativeActions(set: StoreApi<AppState>['setState'], get: StoreApi
     try { await nativeRequest('managePackages', { action }); await inspect(); get().setTab('env'); }
     catch (error) { get().showSnack(error instanceof Error ? error.message : '软件管理未完成'); }
   };
-  const openAgent = async (kind: 'claude' | 'codex') => {
-    try { await nativeRequest('openTerminal', { kind }); await inspect(); }
+  const openAgent = async (kind: ManagedAgentId) => {
+    try { await nativeRequest(kind === 'opencode' || kind === 'dsh' ? 'openWeb' : 'openTerminal', { kind }); await inspect(); }
     catch (error) { get().showSnack(error instanceof Error ? error.message : '启动未完成'); }
   };
   return {
@@ -42,16 +43,21 @@ export function nativeActions(set: StoreApi<AppState>['setState'], get: StoreApi
       } else get().showSnack('当前没有运行中的 Linux 终端');
     },
     restartRuntime: async () => { await inspect('checkLinux'); get().setTab('env'); },
-    installAgent: async (id) => { if (id === 'claude' || id === 'codex') await manage(id === 'claude' ? 'installClaude' : 'installCodex'); else unavailable(); },
-    uninstallAgent: async (id) => { if (id === 'claude' || id === 'codex') await manage(id === 'claude' ? 'removeClaude' : 'removeCodex'); else get().showSnack('未发现受管 Agent 安装'); },
-    launchAgent: async (id) => { if (id === 'claude' || id === 'codex') await openAgent(id); else unavailable(); },
+    installAgent: async (id) => { const agent = managedAgent(id); if (agent) await manage(agent.install); else unavailable(); },
+    uninstallAgent: async (id) => { const agent = managedAgent(id); if (agent) await manage(agent.remove); else get().showSnack('未发现受管 Agent 安装'); },
+    launchAgent: async (id) => { const agent = managedAgent(id); if (agent) await openAgent(agent.id); else unavailable(); },
     stopAgent: async (id) => {
-      if ((id === 'claude' || id === 'codex') && get().native?.terminal.kind === id && get().native?.terminal.running) {
+      if ((id === 'opencode' || id === 'dsh') && get().native?.webSessions?.[id]?.running) {
+        try { await nativeRequest('stopWeb', { kind: id }); await inspect(); }
+        catch (error) { get().showSnack(error instanceof Error ? error.message : '停止未完成'); }
+        return;
+      }
+      if (managedAgent(id) && get().native?.terminal.kind === id && get().native?.terminal.running) {
         try { await nativeRequest('stopTerminal'); await inspect(); }
         catch (error) { get().showSnack(error instanceof Error ? error.message : '停止未完成'); }
       } else get().showSnack('当前没有运行中的该 Agent');
     },
-    openAgent: (id) => { if (id === 'claude' || id === 'codex') void openAgent(id); else unavailable(); },
+    openAgent: (id) => { const agent = managedAgent(id); if (agent) void openAgent(agent.id); else unavailable(); },
     checkSystem: () => inspect('checkLinux'),
     checkRuntimes: () => inspect('checkLinux'),
     reinstallSystem: async () => { unavailable(); },

@@ -21,4 +21,14 @@ class ManagedPackagePathsTest {
         for (path in listOf("$guest;id", "$guest --help", "/opt/agentm/slots/$slot/../../bin/sh", "$guest\n"))
             assertFalse(ManagedPackagePaths.validGuest(path))
     }
+    @Test fun piActionsAndEntrypointStayWithinTheirOwnSlot() {
+        assertEquals("pi", ManagedPackagePaths.installActions["installPi"])
+        assertEquals("pi", ManagedPackagePaths.removeActions["removePi"])
+        assertNull(ManagedPackagePaths.removeActions["removePi;id"])
+        assertTrue(ManagedPackagePaths.validEntry("pi", "bin/pi"))
+        assertTrue(ManagedPackagePaths.validSlot("pi-12345678-1234-1234-1234-123456789abc"))
+        for (entry in listOf("bin/pi;id", "package/dist/bundle/cli.js", "bin/../bin/pi", "package/claude"))
+            assertFalse(ManagedPackagePaths.validEntry("pi", entry))
+        for (kind in listOf("node", "claude", "codex")) assertFalse(ManagedPackagePaths.validEntry(kind, "bin/pi"))
+    }
 }

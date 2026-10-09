@@ -26,6 +26,10 @@ class PackageManager(private val app: AgentMApplication) {
     val toolsReady get() = validRecord("node")
     val claudeReady get() = validRecord("claude")
     val codexReady get() = validRecord("codex")
+    val piReady get() = validRecord("pi")
+    val openCodeReady get() = validRecord("opencode")
+    val dshReady get() = validRecord("dsh")
+    private val dsh by lazy { DshPackage(app.assets, app.linux.abi ?: error("不支持该架构")) }
     private val slots get() = File(runtime.managed, "slots").apply { mkdirs() }
 
     private fun restore(): JSONObject = runCatching {
@@ -41,7 +45,9 @@ class PackageManager(private val app: AgentMApplication) {
         try { stream.write(next.toString().toByteArray()); journal.finishWrite(stream); state = next }
         catch (error: Exception) { journal.failWrite(stream); throw error }
     }
-    private fun asset(kind: String): JSONObject = catalog.getJSONObject(kind).getJSONObject(app.linux.abi ?: error("不支持该架构"))
+    private fun asset(kind: String): JSONObject = if (kind == "dsh") JSONObject().put("version", dsh.version).put("sha256", dsh.sha256)
+        .put("url", "https://github.com/DSH-APP/DSHA/tree/70e37a7dbcae83b32fc92a8a37b33af88befc0e0/tools/dsh-runtime")
+        else catalog.getJSONObject(kind).getJSONObject(app.linux.abi ?: error("不支持该架构"))
     private fun slot(record: JSONObject): File {
         val name = record.getString("slot")
         require(ManagedPackagePaths.validSlot(name)) { "无效受管槽位" }
@@ -50,17 +56,17 @@ class PackageManager(private val app: AgentMApplication) {
             target.canonicalFile == File(slots.canonicalFile, name)) { "受管目录不能是符号链接" }
         return target
     }
-    private fun ownedRecord(kind: String, record: JSONObject): File {
+    private fun ownedRecord(kind: String, record: JSONObject, checkRuntime: Boolean = true): File {
         val directory = slot(record)
         val marker = JSONObject(File(directory, ".agentm-slot.json").readText())
         val entry = record.getString("entry")
         val executable = File(directory, entry)
-        require(record.getString("slot").startsWith("$kind-") && record.getString("version").matches(Regex("[0-9]+\\.[0-9]+\\.[0-9]+")))
+        require(record.getString("slot").startsWith("$kind-") && ManagedPackagePaths.validVersion(record.getString("version")))
         require(ManagedPackagePaths.validEntry(kind, entry))
         require(marker.getString("sha256") == record.getString("sha256") && marker.getString("slot") == record.getString("slot") &&
             marker.getString("entry") == entry && marker.getString("version") == record.getString("version")) { "安装来源记录不匹配，拒绝接管" }
         require(executable.isFile && executable.canonicalFile == File(directory.canonicalFile, entry)) { "受管可执行文件缺失或已被替换为链接" }
-        if (kind == "codex") {
+        if (kind == "codex" && checkRuntime) {
             val bundle = executable.parentFile!!.parentFile!!
             for (name in listOf("bin/codex-code-mode-host", "codex-path/rg", "codex-resources/bwrap", "codex-package.json")) {
                 val resource = File(bundle, name)
@@ -69,6 +75,8 @@ class PackageManager(private val app: AgentMApplication) {
             val metadata = JSONObject(File(bundle, "codex-package.json").readText())
             require(metadata.getString("version") == record.getString("version") && metadata.getInt("layoutVersion") == 1) { "Codex 组件版本不匹配" }
         }
+        if (kind == "pi" && checkRuntime) PiPackage.verifyLayout(directory, record.getString("version"), asset("pi"))
+        if (kind == "dsh" && checkRuntime) dsh.verify(directory, record.getString("version"))
         return directory
     }
     private fun validRecord(kind: String): Boolean = runCatching {
@@ -82,6 +90,9 @@ class PackageManager(private val app: AgentMApplication) {
         if (toolsReady) dirs += guest(state.getJSONObject("node")).substringBeforeLast('/')
         if (claudeReady) dirs += guest(state.getJSONObject("claude")).substringBeforeLast('/')
         if (codexReady) dirs += guest(state.getJSONObject("codex")).substringBeforeLast('/')
+        if (piReady) dirs += guest(state.getJSONObject("pi")).substringBeforeLast('/')
+        if (openCodeReady) dirs += guest(state.getJSONObject("opencode")).substringBeforeLast('/')
+        if (dshReady) dirs += guest(state.getJSONObject("dsh")).substringBeforeLast('/')
         return (dirs + listOf("/usr/local/sbin", "/usr/local/bin", "/usr/sbin", "/usr/bin", "/sbin", "/bin")).joinToString(":")
     }
     fun agentCommand(kind: String): List<String> {
@@ -90,11 +101,12 @@ class PackageManager(private val app: AgentMApplication) {
         val argv = listOf(guest(state.getJSONObject(kind)))
         return if (kind == "codex") argv + listOf("-c", "check_for_update_on_startup=false") else argv
     }
-    fun snapshot(): JSONObject = JSONObject(state.toString()).put("toolsReady", toolsReady).put("claudeReady", claudeReady).put("codexReady", codexReady)
-        .put("nodeVersion", catalog.getString("nodeVersion")).put("claudeVersion", catalog.getString("claudeVersion")).put("codexVersion", catalog.getString("codexVersion"))
+    fun snapshot(): JSONObject = JSONObject(state.toString()).put("toolsReady", toolsReady).put("claudeReady", claudeReady).put("codexReady", codexReady).put("piReady", piReady)
+        .put("nodeVersion", catalog.getString("nodeVersion")).put("claudeVersion", catalog.getString("claudeVersion")).put("codexVersion", catalog.getString("codexVersion")).put("piVersion", catalog.getString("piVersion"))
+        .put("openCodeReady", openCodeReady).put("dshReady", dshReady).put("opencodeVersion", catalog.getString("opencodeVersion")).put("dshVersion", dsh.version)
 
     fun enqueue(action: String): String = synchronized(app.maintenance) {
-        require(action in setOf("installTools", "installClaude", "removeClaude", "installCodex", "removeCodex", "checkPackages")) { "未知软件管理操作" }
+        require(action in ManagedPackagePaths.installActions || action in ManagedPackagePaths.removeActions || action in setOf("installTools", "checkPackages")) { "未知软件管理操作" }
         check(!app.configs.busy) { "配置保存进行中，请稍后管理软件" }
         if (busy) {
             check(state.optString("action") == action) { "另一个软件管理任务正在执行" }
@@ -102,9 +114,11 @@ class PackageManager(private val app: AgentMApplication) {
         }
         check(app.linux.ready && !app.linux.busy) { "请先安装并检查 Ubuntu" }
         check(app.terminals.session?.isRunning != true) { "请先关闭当前终端，再管理软件" }
-        if (action in setOf("installClaude", "installCodex")) check(toolsReady) { "请先在环境页安装开发工具" }
-        if (action.startsWith("remove")) check(state.optJSONObject(if (action == "removeClaude") "claude" else "codex") != null) { "没有该 Agent 的受管安装" }
+        check(!app.webAgents.active) { "请先停止 Web 服务，再管理软件" }
+        if (action in ManagedPackagePaths.installActions) check(toolsReady) { "请先在环境页安装开发工具" }
+        ManagedPackagePaths.removeActions[action]?.let { check(state.optJSONObject(it) != null) { "没有该 Agent 的受管安装" } }
         if (action.startsWith("install")) check(StatFs(app.filesDir.absolutePath).availableBytes >= 1024L * 1024 * 1024) { "至少需要 1 GiB 可用空间" }
+        if (action == "installDsh") check(StatFs(app.filesDir.absolutePath).availableBytes >= 3L * 1024 * 1024 * 1024) { "DSH 安装至少需要 3 GiB 可用空间（含依赖、缓存与旧版本）" }
         val id = UUID.randomUUID().toString()
         update { it.put("busy", true).put("phase", "queued").put("action", action).put("operationId", id)
             .put("message", "准备软件管理任务").put("error", JSONObject.NULL).put("downloadedBytes", 0).put("totalBytes", 0) }
@@ -134,13 +148,12 @@ class PackageManager(private val app: AgentMApplication) {
                     """.trimIndent(), 900)
                     install("node", ::phase)
                 }
-                "installClaude" -> install("claude", ::phase)
-                "installCodex" -> install("codex", ::phase)
-                "removeClaude", "removeCodex" -> {
-                    val kind = if (state.getString("action") == "removeClaude") "claude" else "codex"
+                in ManagedPackagePaths.installActions -> install(ManagedPackagePaths.installActions.getValue(state.getString("action")), ::phase)
+                in ManagedPackagePaths.removeActions -> {
+                    val kind = ManagedPackagePaths.removeActions.getValue(state.getString("action"))
                     phase("removing", "卸载受管程序，保留 ${ManagedPackagePaths.title(kind)} 配置与会话")
                     val record = state.getJSONObject(kind)
-                    val directory = ownedRecord(kind, record)
+                    val directory = ownedRecord(kind, record, checkRuntime = false)
                     // Unpublish first. A crash during deletion cannot expose a half-removed install.
                     update { it.remove(kind) }
                     deleteSlot(directory)
@@ -179,8 +192,27 @@ class PackageManager(private val app: AgentMApplication) {
         check(!stage.exists() && !Files.isSymbolicLink(runtime.managed.toPath()) && !Files.isSymbolicLink(slots.toPath()))
         var published = false
         try {
+            if (kind == "pi") {
+                phase("packages", "准备 Pi 的文件搜索工具")
+                command("""
+                    set -e
+                    if ! test -x /usr/bin/rg || ! test -x /usr/bin/fdfind; then
+                        export DEBIAN_FRONTEND=noninteractive
+                        /usr/bin/dpkg --configure -a
+                        /usr/bin/apt-get update -o Acquire::Retries=1 -o Acquire::http::Timeout=25 -o APT::Update::Error-Mode=any
+                        /usr/bin/apt-get -y --no-install-recommends -o Dpkg::Options::=--force-confold install ripgrep fd-find
+                    fi
+                """.trimIndent(), 600)
+            }
             phase("downloading", "下载 ${ManagedPackagePaths.title(kind)} ${definition.getString("version")}")
             var previous = 0L
+            if (kind == "dsh") {
+                dsh.install(stage, VerifiedDownload(File(app.cacheDir, "agent-downloads"))) { message, current, total ->
+                    if (System.currentTimeMillis() - previous >= 500 || current == total) {
+                        update { it.put("message", message).put("downloadedBytes", current).put("totalBytes", total) }; previous = System.currentTimeMillis()
+                    }
+                }
+            } else {
             val archive = VerifiedDownload(File(app.cacheDir, "agent-downloads")).fetch(definition) { current, total ->
                 if (System.currentTimeMillis() - previous >= 500 || current == total) {
                     update { it.put("downloadedBytes", current).put("totalBytes", total) }; previous = System.currentTimeMillis()
@@ -188,7 +220,14 @@ class PackageManager(private val app: AgentMApplication) {
             }
             phase("extracting", "SHA-256 校验通过，正在解压")
             RootfsExtractor().extract(archive, stage, { Thread.currentThread().isInterrupted }) {}
-            val entry = when (kind) { "codex" -> definition.getString("executable"); "node" -> definition.getString("archiveRoot") + "/bin/node"; else -> definition.getString("archiveRoot") + "/claude" }
+            }
+            if (kind == "pi") {
+                phase("downloading", "下载并校验 Pi 的代码执行与图片处理组件")
+                PiPackage.prepare(stage, definition, VerifiedDownload(File(app.cacheDir, "agent-downloads"))) { current, total ->
+                    update { it.put("downloadedBytes", current).put("totalBytes", total) }
+                }
+            }
+            val entry = when (kind) { "codex", "opencode" -> definition.getString("executable"); "dsh" -> "bin/dsh"; "pi" -> "bin/pi"; "node" -> definition.getString("archiveRoot") + "/bin/node"; else -> definition.getString("archiveRoot") + "/claude" }
             val record = JSONObject().put("slot", name).put("entry", entry).put("version", definition.getString("version"))
                 .put("sha256", definition.getString("sha256")).put("source", definition.getString("url")).put("verified", true)
             File(stage, ".agentm-slot.json").writeText(record.toString())
@@ -203,13 +242,13 @@ class PackageManager(private val app: AgentMApplication) {
             update { it.put(kind, record) }
             published = true
             // Only a previously selected owned slot can be cleaned; no HOME/config directory is involved.
-            if (old != null) runCatching { deleteSlot(ownedRecord(kind, old)) }
+            if (old != null) runCatching { deleteSlot(ownedRecord(kind, old, checkRuntime = false)) }
         } finally { if (!published && stage.exists()) deleteSlot(stage) }
     }
 
     private fun probe(kind: String, executable: String, expectedVersion: String): String {
         require(ManagedPackagePaths.validGuest(executable))
-        require(expectedVersion.matches(Regex("[0-9]+\\.[0-9]+\\.[0-9]+")))
+        require(ManagedPackagePaths.validVersion(expectedVersion))
         return if (kind == "node") {
             val bin = executable.substringBeforeLast('/')
             command("""
@@ -223,11 +262,37 @@ class PackageManager(private val app: AgentMApplication) {
                 /usr/bin/dpkg-query -W git python3 ca-certificates
                 $executable -e 'const fs=require("fs"),cp=require("child_process");if(!fs.existsSync("/workspace")||cp.execFileSync("/bin/sh",["-c","printf child-ok"]).toString()!=="child-ok")process.exit(1);console.log("AGENTM_NODE_OK")'
             """.trimIndent(), 60).also { check(it.contains("AGENTM_NODE_OK")) }
-        } else if (kind == "codex") command("$executable --version", 60).also {
+        } else if (kind == "pi") probePi(executable, expectedVersion)
+        else if (kind == "opencode" || kind == "dsh") command("$executable --version", 90).also {
+            check(it.lineSequence().any { line -> line.trim() == expectedVersion || line.trim() == "$kind $expectedVersion" }) { "${ManagedPackagePaths.title(kind)} 版本不匹配：${it.takeLast(500)}" }
+        }
+        else if (kind == "codex") command("$executable --version", 60).also {
             check(it.lineSequence().any { line -> line == "codex-cli $expectedVersion" }) { "Codex 版本不符合安装记录：${it.takeLast(500)}" }
         } else command("$executable --version", 60).also {
             check(it.lineSequence().any { line -> line == "$expectedVersion (Claude Code)" }) { "Claude Code 版本不符合安装记录：${it.takeLast(500)}" }
         }
+    }
+    private fun probePi(executable: String, expectedVersion: String): String {
+        val probe = File(slots, "pi-${UUID.randomUUID()}")
+        Files.createDirectory(probe.toPath())
+        val guestProbe = "/opt/agentm/slots/${probe.name}"
+        val packagePath = executable.removeSuffix("/bin/pi") + "/package"
+        try {
+            File(probe, "home").mkdirs(); File(probe, "workspace").mkdirs()
+            app.assets.open("pi-probe.mjs").use { input -> File(probe, "probe.mjs").outputStream().use { input.copyTo(it) } }
+            return command("""
+                set -eu
+                export PI_CODING_AGENT_DIR=$guestProbe/home PI_OFFLINE=1 PI_SKIP_VERSION_CHECK=1
+                cd $guestProbe/workspace
+                test "${'$'}($executable --version)" = "$expectedVersion"
+                $executable --version
+                /usr/bin/rg --version | head -n 1
+                /usr/bin/fdfind --version
+                node $guestProbe/probe.mjs $packagePath
+            """.trimIndent(), 90).also {
+                check(it.contains("AGENTM_PI_TOOLS_OK") && it.contains("AGENTM_PI_WASM_OK")) { "Pi 本地工具检查未完成" }
+            }
+        } finally { deleteSlot(probe) }
     }
     private fun probeCodexSandbox(executable: String): JSONObject {
         require(ManagedPackagePaths.validGuest(executable))

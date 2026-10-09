@@ -7,8 +7,8 @@ android {
         applicationId = "dev.agentm.app"
         minSdk = 30
         targetSdk = 36
-        versionCode = 6
-        versionName = "0.6.0-dev"
+        versionCode = 12
+        versionName = "0.9.1-dev"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { buildConfig = true }
@@ -37,7 +37,10 @@ val syncWorkbench by tasks.registering(Sync::class) {
 val verifyRuntimeAssets by tasks.registering(Exec::class) {
     commandLine("node", rootProject.file("../tools/prepare-linux-runtime.mjs").absolutePath)
 }
-tasks.named("preBuild") { dependsOn(syncWorkbench, verifyRuntimeAssets) }
+val verifyWebCompatibility by tasks.registering(Exec::class) {
+    commandLine("node", rootProject.file("../tools/opencode-web-compat/verify.mjs").absolutePath)
+}
+tasks.named("preBuild") { dependsOn(syncWorkbench, verifyRuntimeAssets, verifyWebCompatibility) }
 
 dependencies {
     implementation("androidx.activity:activity-ktx:1.10.1")

@@ -56,3 +56,5 @@ fs.writeFileSync(path.join(root, 'android/app/src/main/assets/agent-catalog.json
 fs.mkdirSync(path.join(root, 'docs/research/agent-packages'), { recursive: true });
 fs.writeFileSync(path.join(root, 'docs/research/agent-packages/metadata.json'), JSON.stringify({ checkedAt: new Date().toISOString(), sumsUrl, sums, packages: metadata }, null, 2) + '\n');
 fs.writeFileSync(path.join(root, 'docs/research/agent-packages/codex.json'), JSON.stringify({ checkedAt: new Date().toISOString(), packages: codexMetadata }, null, 2) + '\n');
+await import('./prepare-pi-catalog.mjs');
+await import('./prepare-web-agents.mjs');

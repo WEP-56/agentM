@@ -1,104 +1,148 @@
 package dev.agentm.app
 
 import android.app.AlertDialog
-import android.graphics.Color
 import android.graphics.Typeface
+import android.net.Uri
 import android.os.Bundle
+import android.text.TextUtils
+import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MotionEvent
+import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
+import com.termux.terminal.TerminalColors
 import com.termux.terminal.TerminalSession
+import com.termux.terminal.TextStyle
 import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
+import dev.agentm.app.ui.SessionAppearance
+import dev.agentm.app.ui.SessionChrome
 
 class TerminalActivity : ComponentActivity() {
     private val manager get() = (application as AgentMApplication).terminals
     private lateinit var terminal: TerminalView
-    private lateinit var status: TextView
+    private lateinit var path: TextView
+    private lateinit var chrome: SessionChrome
+    private lateinit var ctrlKey: TextView
+    private val preferences by lazy { getSharedPreferences("terminal-view", MODE_PRIVATE) }
     private var fontSize = 14f
     private var ctrl = false
     private val kind get() = intent.getStringExtra("kind") ?: manager.kind
+    private val agentName get() = when (manager.kind) {
+        "linuxShell" -> "Linux 终端"; "claude" -> "Claude Code"; "codex" -> "Codex"; "pi" -> "Pi"; "opencode" -> "OpenCode"; else -> "设备终端"
+    }
+    private var attached: TerminalSession? = null
     private val observer: () -> Unit = {
         if (::terminal.isInitialized) {
-            manager.session?.let { terminal.attachSession(it) }
+            manager.session?.let { if (attached !== it) { terminal.attachSession(it); attached = it } }
             terminal.onScreenUpdated()
-            status.text = if (manager.session?.isRunning == true) when (manager.kind) {
-                "linuxShell" -> "Linux 终端 · Ubuntu"
-                "claude" -> "Claude Code · Ubuntu"
-                "codex" -> "Codex · Ubuntu"
-                else -> "设备终端 · Android Shell"
-            } else "会话已退出"
+            path.text = directory()
+            path.contentDescription = "$agentName · ${path.text} · ${sessionStatus()}"
+            path.setTextColor(if (manager.session?.isRunning == true) chrome.colors.foreground else chrome.colors.muted)
         }
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
-        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = false
-        val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(Color.rgb(20, 18, 24)) }
-        val bar = LinearLayout(this).apply { gravity = android.view.Gravity.CENTER_VERTICAL }
-        bar.addView(button("返回") { finish() })
-        status = TextView(this).apply { setTextColor(Color.WHITE); textSize = 15f; text = "设备终端 · Android Shell" }
-        bar.addView(status, LinearLayout.LayoutParams(0, dp(52), 1f))
-        bar.addView(button("关闭") {
-            AlertDialog.Builder(this).setTitle("关闭终端会话？").setMessage("当前终端中的任务将被终止。返回工作台会保留会话。")
-                .setNegativeButton("取消", null).setPositiveButton("关闭") { _, _ -> manager.stop() }.show()
-        })
-        root.addView(bar)
-        root.addView(TextView(this).apply {
-            text = if (kind != "deviceShell") "Ubuntu · /workspace 为持久工作区" else "Android 设备 Shell · 不需要启动 Linux"
-            setTextColor(Color.rgb(187, 177, 205)); textSize = 12f; setPadding(dp(12), dp(4), dp(12), dp(8))
-        })
+        chrome = SessionChrome(this, SessionAppearance(this, terminal = true))
+        fontSize = preferences.getFloat("fontSize", 14f)
+        val colors = chrome.colors
+        // Only change defaults; applications retain their own OSC/ANSI colors.
+        mapOf(TextStyle.COLOR_INDEX_BACKGROUND to colors.background, TextStyle.COLOR_INDEX_FOREGROUND to colors.foreground, TextStyle.COLOR_INDEX_CURSOR to colors.accent).forEach { (role, color) ->
+            val previous = TerminalColors.COLOR_SCHEME.mDefaultColors[role]
+            manager.session?.emulator?.mColors?.mCurrentColors?.let { if (it[role] == previous) it[role] = color }
+            TerminalColors.COLOR_SCHEME.mDefaultColors[role] = color
+        }
+        val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(colors.bar) }
+        val bar = chrome.bar()
+        bar.addView(chrome.button("back", "返回工作台") { finish() })
+        path = chrome.label(directory(), 14f).apply {
+            typeface = Typeface.MONOSPACE; setSingleLine(); ellipsize = TextUtils.TruncateAt.MIDDLE
+            setPadding(chrome.dp(8), 0, chrome.dp(8), 0); background = chrome.ripple()
+            setOnClickListener { chrome.show(AlertDialog.Builder(this@TerminalActivity).setTitle(agentName)
+                .setMessage("${directory()}\n\n${sessionStatus()}").setPositiveButton("知道了", null).create()) }
+        }
+        bar.addView(path, LinearLayout.LayoutParams(0, chrome.dp(48), 1f))
+        val more = chrome.button("more", "终端菜单") {}
+        more.setOnClickListener { showMenu(more) }; bar.addView(more); root.addView(bar)
         terminal = TerminalView(this, null).apply {
-            // Termux creates its renderer in setTextSize; setTypeface reads that renderer.
-            setTextSize((fontSize * resources.displayMetrics.scaledDensity).toInt())
-            setTypeface(Typeface.MONOSPACE)
-            setTerminalViewClient(InputClient())
-            isFocusableInTouchMode = true
+            setTextSize((fontSize * resources.displayMetrics.scaledDensity).toInt()); setTypeface(Typeface.MONOSPACE)
+            setTerminalViewClient(InputClient()); isFocusableInTouchMode = true; setBackgroundColor(colors.background)
         }
         root.addView(terminal, LinearLayout.LayoutParams(-1, 0, 1f))
-        val keys = LinearLayout(this)
-        listOf("ESC" to "\u001b", "TAB" to "\t", "Ctrl-C" to "\u0003", "↑" to "\u001b[A", "↓" to "\u001b[B", "←" to "\u001b[D", "→" to "\u001b[C").forEach { (label, bytes) ->
-            keys.addView(button(label) { manager.session?.write(bytes) })
-        }
-        keys.addView(button("Ctrl") { ctrl = !ctrl; (it as Button).isSelected = ctrl })
-        keys.addView(button("键盘") { keyboard() })
-        root.addView(HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; addView(keys) })
-        setContentView(root)
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
-            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
-            view.setPadding(bars.left, bars.top, bars.right, maxOf(bars.bottom, ime.bottom)); insets
-        }
-        // Usually already started by the bridge; notification and service own the shell.
-        TerminalService.start(this, kind)
-        terminal.post { manager.session?.let { terminal.attachSession(it) }; terminal.requestFocus(); observer() }
+        val keys = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL; setPadding(chrome.dp(4), 0, chrome.dp(4), 0) }
+        listOf("ESC" to "\u001b", "TAB" to "\t").forEach { (label, bytes) -> keys.addView(key(label) { manager.session?.write(bytes) }) }
+        ctrlKey = key("CTRL") { setCtrl(!ctrl) }; keys.addView(ctrlKey)
+        listOf("^C" to "\u0003", "↑" to "\u001b[A", "↓" to "\u001b[B", "←" to "\u001b[D", "→" to "\u001b[C").forEach { (label, bytes) -> keys.addView(key(label) { manager.session?.write(bytes) }) }
+        val keyBar = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        keyBar.addView(HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false; addView(keys) }, LinearLayout.LayoutParams(0, chrome.dp(52), 1f))
+        keyBar.addView(chrome.button("keyboard", "显示键盘") { keyboard() }); root.addView(keyBar)
+        setContentView(root); chrome.insets(root)
+        if (savedInstanceState == null || manager.session == null) TerminalService.start(this, kind)
+        terminal.post { terminal.requestFocus(); observer() }
+    }
+    private fun directory(): String {
+        val session = manager.session
+        val reported = session?.emulator?.workingDirectoryUri?.let { runCatching { Uri.parse(it) }.getOrNull() }
+            ?.takeIf { it.scheme == "file" && it.host in listOf("", "localhost", "127.0.0.1") }?.path
+        return reported?.takeIf { it.startsWith('/') && it.length <= 4096 && it.none(Char::isISOControl) }
+            ?: if (kind == "deviceShell") session?.cwd ?: java.io.File(filesDir, "workspaces").absolutePath else "/workspace"
+    }
+    private fun sessionStatus(): String = when {
+        manager.snapshot().optBoolean("stopping") -> "正在结束当前任务…"
+        manager.session?.isRunning == true -> if (kind == "deviceShell") "Android Shell · 运行中" else "Ubuntu · 运行中"
+        else -> "会话已退出 · 可在菜单重新启动"
+    }
+    private fun showMenu(anchor: View) {
+        val running = manager.session?.isRunning == true
+        val stopping = manager.snapshot().optBoolean("stopping")
+        chrome.menu(anchor, agentName, sessionStatus(), listOf(
+            SessionChrome.Item("copy", "粘贴", running && !stopping) { manager.session?.let { manager.onPasteTextFromClipboard(it) } },
+            SessionChrome.Item("clear", "清空屏幕", attached != null) {
+                // View-only: never write a shell command or Ctrl-L into an agent's input.
+                manager.session?.emulator?.let { emulator ->
+                    emulator.clearVisibleScreen(); terminal.onScreenUpdated()
+                }
+            },
+            SessionChrome.Item("text", "终端字号") { fontDialog() },
+            SessionChrome.Item("refresh", "重启 $agentName", !stopping) {
+                chrome.confirm("重启 $agentName？", "当前终端任务会结束，并从启动目录新建会话。", "重启") { setCtrl(false); TerminalService.restart(this) }
+            },
+            SessionChrome.Item("stop", "终止会话", running && !stopping, danger = true) {
+                chrome.confirm("终止当前会话？", "当前终端中的任务将被终止。", "终止") { manager.stop() }
+            }
+        ))
+    }
+    private fun fontDialog() {
+        val label = chrome.label("${fontSize.toInt()} sp", 16f).apply { gravity = Gravity.CENTER }
+        val content = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(chrome.dp(24), chrome.dp(12), chrome.dp(24), 0); addView(label) }
+        content.addView(SeekBar(this).apply {
+            max = 18; progress = fontSize.toInt() - 10
+            progressTintList = android.content.res.ColorStateList.valueOf(chrome.colors.accent); thumbTintList = progressTintList
+            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(bar: SeekBar?, progress: Int, fromUser: Boolean) { if (fromUser) { resizeFont((progress + 10).toFloat()); label.text = "${fontSize.toInt()} sp" } }
+                override fun onStartTrackingTouch(bar: SeekBar?) {}
+                override fun onStopTrackingTouch(bar: SeekBar?) {}
+            })
+        })
+        chrome.show(AlertDialog.Builder(this).setTitle("终端字号").setView(content).setPositiveButton("完成", null).create())
+    }
+    private fun resizeFont(size: Float) { fontSize = size.coerceIn(10f, 28f); terminal.setTextSize((fontSize * resources.displayMetrics.scaledDensity).toInt()); preferences.edit().putFloat("fontSize", fontSize).apply() }
+    private fun setCtrl(value: Boolean) { ctrl = value; ctrlKey.isSelected = value; ctrlKey.setTextColor(if (value) chrome.colors.background else chrome.colors.muted); ctrlKey.background = chrome.ripple(if (value) chrome.colors.accent else chrome.colors.container, 12) }
+    private fun key(label: String, action: () -> Unit) = chrome.label(label, 12f, chrome.colors.muted).apply {
+        gravity = Gravity.CENTER; typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL); background = chrome.ripple(chrome.colors.container, 12)
+        layoutParams = LinearLayout.LayoutParams(chrome.dp(48), chrome.dp(48)).apply { setMargins(chrome.dp(2), 0, chrome.dp(2), 0) }
+        contentDescription = if (label == "^C") "中断 Ctrl-C" else label; setOnClickListener { action() }
     }
     override fun onStart() { super.onStart(); manager.observe(observer); observer() }
     override fun onStop() { manager.unobserve(observer); super.onStop() }
-    private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
-    private fun button(label: String, action: (android.view.View) -> Unit): Button = Button(this).apply {
-        text = label; textSize = 12f; isAllCaps = false; minWidth = dp(48); minimumWidth = dp(48)
-        layoutParams = LinearLayout.LayoutParams(-2, dp(48)); setOnClickListener(action)
-    }
-    private fun keyboard() {
-        terminal.requestFocus()
-        getSystemService(InputMethodManager::class.java).showSoftInput(terminal, InputMethodManager.SHOW_IMPLICIT)
-    }
+    private fun keyboard() { terminal.requestFocus(); getSystemService(InputMethodManager::class.java).showSoftInput(terminal, InputMethodManager.SHOW_IMPLICIT) }
     private inner class InputClient : TerminalViewClient {
-        override fun onScale(scale: Float): Float {
-            fontSize = (fontSize * scale).coerceIn(10f, 28f)
-            terminal.setTextSize((fontSize * resources.displayMetrics.scaledDensity).toInt())
-            return 1f
-        }
+        override fun onScale(scale: Float): Float { resizeFont(fontSize * scale); return 1f }
         override fun onSingleTapUp(e: MotionEvent) = keyboard()
         override fun shouldBackButtonBeMappedToEscape() = false
         override fun shouldEnforceCharBasedInput() = true
@@ -108,7 +152,7 @@ class TerminalActivity : ComponentActivity() {
         override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession) = false
         override fun onKeyUp(keyCode: Int, e: KeyEvent) = false
         override fun onLongPress(event: MotionEvent) = false
-        override fun readControlKey(): Boolean = ctrl.also { ctrl = false }
+        override fun readControlKey(): Boolean = ctrl.also { setCtrl(false) }
         override fun readAltKey() = false
         override fun readShiftKey() = false
         override fun readFnKey() = false

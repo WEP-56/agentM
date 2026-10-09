@@ -1,0 +1,19 @@
+{
+  "package": "core-js",
+  "version": "3.41.0",
+  "license": "MIT",
+  "url": "https://registry.npmjs.org/core-js/-/core-js-3.41.0.tgz",
+  "integrity": "sha512-SJ4/EHwS36QMJd6h/Rg+GyR4A5xE0FSI3eZ+iBVpfqf1x0eTSg1smWLHrA+2jQThZSh97fmSgFSU8B61nxosxA==",
+  "apis": [
+    "Map.groupBy",
+    "Promise.withResolvers",
+    "AbortSignal.any"
+  ],
+  "esbuildVersion": "0.27.7",
+  "target": "chrome110",
+  "entrySha256": "253a0307b749d0aac61f56fd190a350ddae6753ef42ec162a29e3a51a6189961",
+  "assetSha256": "56b329ff725720fad356b0e1a3404ca92cf0e9ec3bfef37b03141e63ed7b1cd5",
+  "assetBytes": 40066,
+  "abortSignalSourceSha256": "fb5aa661e52f9d4acc8fad9299491c211a734b88b78ffc10bcf8e99b96d407cc",
+  "scope": "Document-start script, exact active OpenCode or DSH loopback origin, no native bridge, no override of existing native APIs"
+}

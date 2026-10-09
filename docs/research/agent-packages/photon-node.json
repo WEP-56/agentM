@@ -1,0 +1,55 @@
+{
+  "url": "https://registry.npmjs.org/@silvia-odwyer/photon-node/0.3.4",
+  "metadata": {
+    "bugs": {
+      "url": "https://github.com/silvia-odwyer/photon/issues"
+    },
+    "dist": {
+      "shasum": "ffccfd794abb203b24a793db94bca72748326726",
+      "tarball": "https://registry.npmjs.org/@silvia-odwyer/photon-node/-/photon-node-0.3.4.tgz",
+      "fileCount": 7,
+      "integrity": "sha512-bnly4BKB3KDTFxrUIcgCLbaeVVS8lrAkri1pEzskpmxu9MdfGQTy8b8EgcD83ywD3RPMsIulY8xJH5Awa+t9fA==",
+      "signatures": [
+        {
+          "sig": "MEYCIQCFLEbp9gRpvKY0mvuyNc5l95MDcR6LASTyO8hjYEqUZwIhAItHXnA46a8C8yvy/kV0gW+8maWjZ/L1YWQber3vMyvy",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        }
+      ],
+      "unpackedSize": 2265687
+    },
+    "main": "photon_rs.js",
+    "name": "@silvia-odwyer/photon-node",
+    "types": "photon_rs.d.ts",
+    "gitHead": "685f5b155b36c5611c08ca678bb78ddbab3edbac",
+    "license": "Apache-2.0",
+    "_npmUser": {
+      "name": "silvia-odwyer",
+      "email": "silviaodwyerdev@gmail.com"
+    },
+    "homepage": "https://silvia-odwyer.github.io/photon/",
+    "repository": {
+      "url": "git+https://github.com/silvia-odwyer/photon.git",
+      "type": "git"
+    },
+    "_npmVersion": "7.24.2",
+    "description": "High-performance image processing library for native use and the web",
+    "directories": {},
+    "maintainers": [
+      {
+        "name": "silvia-odwyer",
+        "email": "silviaodwyerdev@gmail.com"
+      }
+    ],
+    "_nodeVersion": "22.11.0",
+    "collaborators": [
+      "Silvia O'Dwyer <silviaodwyerdev@gmail.com>"
+    ],
+    "_hasShrinkwrap": false,
+    "_npmOperationalInternal": {
+      "tmp": "tmp/photon-node_0.3.4_1746902661307_0.5024812189360275",
+      "host": "s3://npm-registry-packages-npm-production"
+    },
+    "_id": "@silvia-odwyer/photon-node@0.3.4",
+    "version": "0.3.4"
+  }
+}

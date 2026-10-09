@@ -31,7 +31,9 @@ class TerminalService : Service() {
         if (intent?.action == "stop") {
             manager.stop()
             if (manager.session?.isRunning != true) stopSelf()
-        } else try { manager.open(intent?.getStringExtra("kind") ?: manager.kind) } catch (e: Exception) {
+        } else try {
+            if (intent?.action == "restart") manager.restart() else manager.open(intent?.getStringExtra("kind") ?: manager.kind)
+        } catch (e: Exception) {
             (application as AgentMApplication).logs.add("terminal", "PTY 创建失败：${e.javaClass.simpleName}", "E")
             stopSelf()
         }
@@ -41,6 +43,7 @@ class TerminalService : Service() {
     override fun onDestroy() { (application as AgentMApplication).terminals.stop(); super.onDestroy() }
     override fun onBind(intent: Intent?): IBinder? = null
     companion object {
+        fun restart(context: Context) = ContextCompat.startForegroundService(context, Intent(context, TerminalService::class.java).setAction("restart"))
         fun start(context: Context, kind: String = "deviceShell") = ContextCompat.startForegroundService(context, Intent(context, TerminalService::class.java).putExtra("kind", kind))
     }
 }

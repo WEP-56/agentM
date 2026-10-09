@@ -8,13 +8,17 @@
 
 0.6.0 接入 Codex 0.161.0 安装、版本检测、原生 PTY 和卸载。当前模拟器在 Codex 的套接字挂载隔离检查处失败，不能宣称工具执行通过，详见 [Codex 兼容性记录](11-Codex程序管理与兼容性.md)。Codex 配置表单仍未接入。
 
+0.7.0 接入 Pi 1.1.0 的发布 CLI bundle、固定 WASM 依赖、程序管理和本地工具探针，详见 [Pi 开发记录](12-Pi程序管理与本地工具验证.md)。Pi 原生配置表单与模型调用仍待验收。
+
+0.8.0 接入 OpenCode 1.18.35 的 TUI / WebUI，以及 DSH 0.2.0-rc.2 的 WebUI，详见 [接入记录](13-OpenCode与DSH接入.md)。用户已反馈前三个 CLI 实际登录测试无问题；两项 WebUI 进入用户完整测试，配置管理扩展继续后置。
+
 ## 1. 包与执行矩阵
 
 | Agent ID | npm 包 | 当日 latest 候选 | npm 声明 Node | 使用形态 |
 | --- | --- | --- | --- | --- |
 | claude | @anthropic-ai/claude-code | 2.1.293 | >=22.0.0 | PTY 中 claude |
 | codex | @openai/codex | 0.161.0 | >=16 | PTY 中 codex |
-| opencode | opencode-ai | 1.18.35 | 元数据未声明 | opencode web |
+| opencode | opencode-ai | 1.18.35 | 元数据未声明 | opencode TUI / opencode web |
 | pi | @earendil-works/pi-coding-agent | 1.1.0 | >=22.19.0 | PTY 中 pi |
 | dsh | @deepseek-ai/dsh | 0.2.0-rc.2 | 元数据未声明 | dsh web |
 

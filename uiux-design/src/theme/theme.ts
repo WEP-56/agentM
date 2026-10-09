@@ -111,7 +111,7 @@ export function applyTheme(seed: string, dark: boolean) {
   root.classList.toggle("dark", dark);
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute("content", vars["--md-surface"]);
-  if (isNative) void nativeRequest('setAppearance', { dark, background: vars['--md-surface'] }).catch(() => {});
+  if (isNative) void nativeRequest('setAppearance', { dark, background: vars['--md-surface'], colors: vars }).catch(() => {});
 }
 
 /** Three-tone swatch (primary / secondary / tertiary) like Android's "Wallpaper & style" picker. */

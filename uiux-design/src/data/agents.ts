@@ -1,5 +1,5 @@
 export const APP_NAME = "agentM";
-export const APP_VERSION = "0.6.0-dev";
+export const APP_VERSION = "0.9.1-dev";
 export const GITHUB_URL = "";
 export const PROJECT_DIR = "~/projects/demo";
 
@@ -175,7 +175,6 @@ export const AGENTS: AgentDef[] = [
     color: "#4D6BFE",
     glyph: "wave",
     view: "webui",
-    altView: "terminal",
     port: 8080,
     configPath: "~/.dsh/profiles/web",
     presets: [P.deepseek, P.openrouter, P.openai],

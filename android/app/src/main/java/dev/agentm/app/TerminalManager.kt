@@ -18,6 +18,7 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
     @Volatile var session: TerminalSession? = null; private set
     @Volatile private var id: String? = null
     @Volatile private var stopping = false
+    private var restartRequested = false
     private var birth: ProcessIdentity? = null
     @Volatile var kind: String = "deviceShell"; private set
     private val main = Handler(Looper.getMainLooper())
@@ -28,9 +29,10 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
     private fun changed() { observers.toList().forEach { it() } }
 
     fun requireOpenable(requestedKind: String) {
-        require(requestedKind in setOf("deviceShell", "linuxShell", "claude", "codex")) { "未知终端类型" }
+        require(requestedKind in setOf("deviceShell", "linuxShell") || requestedKind in dev.agentm.app.packages.ManagedPackagePaths.terminals) { "未知终端类型" }
         check(!app.packages.busy) { "软件管理任务进行中，请完成后打开终端" }
         check(!app.configs.busy) { "配置保存进行中，请稍后打开终端" }
+        check(app.webAgents.current(requestedKind)?.active != true) { "请先停止该 Agent 的 Web 服务，再打开终端" }
         check(session?.isRunning != true || kind == requestedKind) { "请先关闭当前终端，再切换终端类型" }
         if (requestedKind != "deviceShell") check(app.linux.ready) { "Ubuntu 尚未就绪，请先安装或检查系统" }
         if (requestedKind in dev.agentm.app.packages.ManagedPackagePaths.agents) app.packages.agentCommand(requestedKind)
@@ -44,8 +46,8 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
         val env = arrayOf("HOME=${workspace.absolutePath}", "PATH=/system/bin:/system/xbin", "TERM=xterm-256color",
             "LANG=C.UTF-8", "TMPDIR=${app.cacheDir.absolutePath}", "PS1=agentM \\$ ")
         val linux = when (requestedKind) {
-            "linuxShell" -> app.linux.runtime.launch()
-            "claude", "codex" -> app.linux.runtime.launch(command = app.packages.agentCommand(requestedKind))
+            "linuxShell" -> app.linux.runtime.launch(guestEnvironment = mapOf("PROMPT_COMMAND" to "printf '\\033]7;file://localhost%s\\007' \"\$PWD\""))
+            in dev.agentm.app.packages.ManagedPackagePaths.agents -> app.linux.runtime.launch(command = app.packages.agentCommand(requestedKind))
             else -> null
         }
         val argv = linux?.argv ?: arrayOf("/system/bin/sh", "-i")
@@ -63,6 +65,19 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
     }
 
     fun stop() {
+        restartRequested = false
+        stopOwnedSession()
+    }
+
+    fun restart() {
+        if (restartRequested || stopping) return
+        requireOpenable(kind)
+        if (session?.isRunning != true) { open(kind); return }
+        restartRequested = true
+        stopOwnedSession()
+    }
+
+    private fun stopOwnedSession() {
         val current = session ?: return
         if (!current.isRunning || stopping) return
         stopping = true
@@ -71,6 +86,12 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
         main.postDelayed({
             if (session === current && owns(current)) current.finishIfRunning()
         }, 1500)
+        main.postDelayed({
+            if (session === current && current.isRunning) {
+                restartRequested = false; stopping = false
+                app.logs.add("terminal", "尚未确认终端退出，请重试终止", "W"); changed()
+            }
+        }, 4500)
         app.logs.add("terminal", "已请求关闭 $kind 终端")
         changed()
     }
@@ -92,6 +113,11 @@ class TerminalManager(private val app: AgentMApplication) : TerminalSessionClien
         if (session !== finishedSession) return
         stopping = false
         app.logs.add("terminal", "$kind PTY 已退出 · code=${finishedSession.exitStatus}")
+        if (restartRequested) {
+            restartRequested = false
+            try { open(kind); return }
+            catch (error: Exception) { app.logs.add("terminal", "终端重启失败：${error.javaClass.simpleName}", "E") }
+        }
         changed()
         app.stopService(Intent(app, TerminalService::class.java))
     }
