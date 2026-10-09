@@ -41,7 +41,7 @@ class CodexIntegrationTest {
         awaitMain { app.terminals.session?.isRunning != true }
         val claudeBefore = app.packages.snapshot().optJSONObject("claude")?.getString("slot")
         if (!app.packages.codexReady) perform("installCodex")
-        perform("checkPackages")
+        perform("checkCodex")
         val installed = app.packages.snapshot().getJSONObject("codex")
         val capability = installed.getJSONObject("sandboxProbe")
         println("CODEX_SANDBOX_PROBE $capability")

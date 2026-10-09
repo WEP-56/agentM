@@ -1,0 +1,59 @@
+{
+  "version": "0.10.0-dev",
+  "versionCode": 13,
+  "date": "2026-10-09",
+  "apk": "android/app/build/outputs/apk/debug/app-debug.apk",
+  "apkSha256": "f2aba13f6bf2daca84a2dc52b59717f4f60b4725cd6cda4dbfddf41f1b473bc8",
+  "apkBytes": 12034649,
+  "installedOnDevice": true,
+  "installation": { "device": "emulator-5554", "method": "adb install -r", "result": "Success", "launched": true, "dataCleared": false, "authorization": "User explicitly requested updating the emulator" },
+  "frontend": "TypeScript strict and Vite production build passed",
+  "unitTests": {
+    "passed": 33,
+    "failed": 0,
+    "skipped": 0,
+    "newSuites": ["UpdatePolicyTest", "PackageUpdatesTest", "VerifiedDownloadTest", "SlotTransactionTest", "StoragePathsTest"]
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 38,
+    "notes": "WebView RequiresFeature, KTX suggestions, resource/localization warnings; new storage reply has the same RequiresFeature warning category"
+  },
+  "browserRegression": {
+    "passed": 4,
+    "failed": 0,
+    "scope": "Real native React branch with isolated bridge fixtures; no device installations or sessions",
+    "script": "tools/verify-native-management.js",
+    "evidence": "output/playwright/native-management-regression.log",
+    "cases": [
+      "320px: all five absent Agent tabs, native action dispatch and operationId progress, failure, page responsibilities, storage links",
+      "480px dark: offline check, retry, update action, retained installed version and uninstall confirmation",
+      "360px onboarding: persisted step, existing environment reuse, optional Agent failure and denied optional permissions",
+      "360px fresh onboarding: dependency gating, Linux/tools actions, skip all Agents and manual guide reentry without clearing data"
+    ],
+    "screenshots": [
+      "output/playwright/native-management-config-320.png",
+      "output/playwright/native-management-storage-320.png",
+      "output/playwright/native-management-update-dark.png",
+      "output/playwright/native-management-onboarding.png"
+    ]
+  },
+  "upstreamDiscovery": {
+    "method": "Development host Node HTTPS fetch with normal TLS validation; all five npm latest endpoints returned HTTP 200",
+    "versions": { "claude": "2.1.295", "codex": "0.162.0", "opencode": "1.18.35", "pi": "1.1.0", "dsh": "0.2.0-rc.2" },
+    "claudePlatformMetadata": "2.1.295 linux-x64 and linux-arm64 returned matching package names, versions and SHA-512 integrity",
+    "codexBoundary": "0.162.0 is discovered but outside the APK 0.161.x recipe"
+  },
+  "buildEvidence": "output/android/phase-010-build.log",
+  "instrumentation": { "run": false, "reason": "User performs interactive acceptance; only the explicitly requested APK update and app launch were performed, without data clearing or explicit session termination" },
+  "userAcceptance": "Partial: user reinstalled the app for onboarding, saw connection closed at zero download bytes, then reported recovery after restarting. Native journal confirms Ubuntu ready with full download and Bash/apt probe success. Remaining 0.10.0 flows pending.",
+  "freshUbuntuVerification": { "downloadedBytes": 30028293, "phase": "ready", "probe": "AGENTM_LINUX_OK", "networkFollowup": "Android network probe returned valid HTTP 206 data twice from the official image URL", "evidence": "output/android/ubuntu-network-probe.log", "productionCodeChangedForIncident": false },
+  "limitations": [
+    "Real device update download/install and native onboarding are pending user validation",
+    "Dynamic native recipes accept only stable patches in the APK minor series; Pi and DSH require a new APK adaptation catalog",
+    "Dynamic candidate verification does not establish the full device/model/plugin/WebUI compatibility matrix",
+    "Storage reports bounded ordinary-file logical sizes, with partial-result indicators; not allocated filesystem blocks",
+    "Existing Codex standalone sandbox probe failure remains",
+    "No new arm64, 16 KB page, multi-device or long-running background acceptance"
+  ]
+}

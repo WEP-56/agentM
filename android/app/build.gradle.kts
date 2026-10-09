@@ -7,8 +7,8 @@ android {
         applicationId = "dev.agentm.app"
         minSdk = 30
         targetSdk = 36
-        versionCode = 12
-        versionName = "0.9.1-dev"
+        versionCode = 13
+        versionName = "0.10.0-dev"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { buildConfig = true }
@@ -49,6 +49,7 @@ dependencies {
     implementation(project(":terminal-view"))
     implementation("org.apache.commons:commons-compress:1.27.1")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test:runner:1.6.2")
 }

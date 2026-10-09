@@ -3,6 +3,10 @@ export interface ManagedPackage {
   verified: boolean; probeOutput: string; checkedAt: number;
   sandboxProbe?: { status: 'passed' | 'unavailable'; exitCode: number; output: string; checkedAt: number };
 }
+export interface PackageUpdate {
+  status: 'checking' | 'checked' | 'failed'; upstreamVersion?: string; supportedVersion?: string;
+  checkedAt?: number; attemptedAt?: number; error?: string; policy?: string; source?: string; updateAvailable?: boolean;
+}
 export interface NativeWebSession {
   id: string; kind: 'opencode' | 'dsh'; state: 'starting' | 'ready' | 'stopping' | 'stop-unconfirmed' | 'exited' | 'failed';
   message: string; port: number; version: string; running: boolean; pid: number;
@@ -19,6 +23,7 @@ export interface NativeSnapshot {
     probes: { name: string; detail: string; status: string }[];
   };
   packages: {
+    updates?: Partial<Record<'claude' | 'codex' | 'opencode' | 'pi' | 'dsh', PackageUpdate>>;
     busy: boolean; phase: string; message: string; action?: string; operationId?: string; error?: string | null;
     downloadedBytes?: number; totalBytes?: number; toolsReady: boolean; claudeReady: boolean; codexReady: boolean; piReady: boolean;
     nodeVersion: string; claudeVersion: string; codexVersion: string; piVersion: string; node?: ManagedPackage; claude?: ManagedPackage; codex?: ManagedPackage; pi?: ManagedPackage;

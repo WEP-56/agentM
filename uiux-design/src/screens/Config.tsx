@@ -22,7 +22,7 @@ import { Ripple } from "@/components/md/Ripple";
 import { AgentIcon, Shape } from "@/components/Brand";
 import { hostOf, uid } from "@/utils/format";
 import { isNative } from '@/platform/native';
-import { NativeClaudeConfig } from './NativeClaudeConfig';
+import { NativeConfig } from './NativeConfig';
 
 export const isInstalled = (s: AgentStatus) => s !== "not_installed" && s !== "installing";
 const needsKey = (p: Provider) => !p.apiKey && p.presetId !== "ollama";
@@ -31,7 +31,7 @@ const needsKey = (p: Provider) => !p.apiKey && p.presetId !== "ollama";
 export function ConfigScreen() {
   const agents = useApp((s) => s.agents);
   const installed = AGENTS.filter((a) => isInstalled(agents[a.id].status));
-  if (isNative) return <NativeClaudeConfig />;
+  if (isNative) return <NativeConfig />;
   return (
     <TabPage title="配置">
       {installed.length === 0 ? (

@@ -53,7 +53,8 @@ class PackageIntegrationTest {
         awaitMain { app.terminals.session?.isRunning != true }
         if (!app.packages.toolsReady) perform("installTools")
         if (!app.packages.claudeReady) perform("installClaude")
-        perform("checkPackages")
+        perform("checkTools")
+        perform("checkClaude")
         // A version command alone must not reclaim a slot with mismatched ownership metadata.
         val record = app.packages.snapshot().getJSONObject("claude")
         val provenance = File(app.linux.runtime.managed, "slots/${record.getString("slot")}/.agentm-slot.json")
@@ -61,12 +62,12 @@ class PackageIntegrationTest {
         try {
             provenance.writeText(org.json.JSONObject(original).put("sha256", "invalid").toString())
             assertFalse(app.packages.claudeReady)
-            instrumentation.runOnMainSync { app.packages.enqueue("checkPackages") }
+            instrumentation.runOnMainSync { app.packages.enqueue("checkClaude") }
             app.packages.execute {}
             assertEquals("failed", app.packages.snapshot().getString("phase"))
             assertFalse(app.packages.claudeReady)
         } finally { provenance.writeText(original) }
-        perform("checkPackages")
+        perform("checkClaude")
         val output = app.linux.runtime.run(script = "node --version; npm --version; git --version; python3 --version; claude --version", timeoutSeconds = 60)
         assertEquals(output.output, 0, output.code)
         println("PACKAGE_SHELL ${output.output}")

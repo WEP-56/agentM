@@ -41,7 +41,7 @@ class PiIntegrationTest {
         awaitMain { app.terminals.session?.isRunning != true }
         val before = listOf("claude", "codex").associateWith { app.packages.snapshot().optJSONObject(it)?.getString("slot") }
         if (!app.packages.piReady) perform("installPi")
-        perform("checkPackages")
+        perform("checkPi")
         val installed = app.packages.snapshot().getJSONObject("pi")
         assertTrue(installed.getString("probeOutput").contains("AGENTM_PI_TOOLS_OK"))
         assertTrue(installed.getString("probeOutput").contains("AGENTM_PI_WASM_OK"))

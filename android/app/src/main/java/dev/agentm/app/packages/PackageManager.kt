@@ -15,7 +15,7 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 
-/** APK-pinned packages. An atomic manifest selects a verified slot; home/workspaces are never removed. */
+/** An atomic manifest selects a verified slot; home/workspaces are never removed. */
 class PackageManager(private val app: AgentMApplication) {
     private val runtime get() = app.linux.runtime
     private val journal = AtomicFile(File(app.filesDir, "packages.json"))
@@ -35,6 +35,9 @@ class PackageManager(private val app: AgentMApplication) {
     private fun restore(): JSONObject = runCatching {
         JSONObject(journal.openRead().bufferedReader().use { it.readText() }).apply {
             if (optBoolean("busy")) put("phase", "interrupted").put("message", "上次软件管理任务中断，请重试；已发布版本保留")
+            optJSONObject("updates")?.let { updates -> updates.keys().forEach { kind ->
+                updates.getJSONObject(kind).let { if (it.optString("status") == "checking") it.put("status", "failed").put("error", "上次在线检查中断，请重试") }
+            } }
             put("busy", false)
         }
     }.getOrElse { JSONObject().put("busy", false).put("phase", "idle").put("message", "尚未准备开发工具") }
@@ -104,9 +107,18 @@ class PackageManager(private val app: AgentMApplication) {
     fun snapshot(): JSONObject = JSONObject(state.toString()).put("toolsReady", toolsReady).put("claudeReady", claudeReady).put("codexReady", codexReady).put("piReady", piReady)
         .put("nodeVersion", catalog.getString("nodeVersion")).put("claudeVersion", catalog.getString("claudeVersion")).put("codexVersion", catalog.getString("codexVersion")).put("piVersion", catalog.getString("piVersion"))
         .put("openCodeReady", openCodeReady).put("dshReady", dshReady).put("opencodeVersion", catalog.getString("opencodeVersion")).put("dshVersion", dsh.version)
+        .also { snapshot -> snapshot.optJSONObject("updates")?.let { updates -> updates.keys().forEach { kind ->
+            val info = updates.getJSONObject(kind)
+            info.remove("candidate")
+            info.put("updateAvailable", runCatching {
+                val installed = state.optJSONObject(kind) ?: return@runCatching false
+                UpdatePolicy.newer(updateDefinition(kind).getString("version"), installed.getString("version"))
+            }.getOrDefault(false))
+        } } }
 
     fun enqueue(action: String): String = synchronized(app.maintenance) {
-        require(action in ManagedPackagePaths.installActions || action in ManagedPackagePaths.removeActions || action in setOf("installTools", "checkPackages")) { "未知软件管理操作" }
+        require(action in ManagedPackagePaths.installActions || action in ManagedPackagePaths.removeActions || action in ManagedPackagePaths.checkActions ||
+            action in ManagedPackagePaths.updateCheckActions || action in ManagedPackagePaths.updateActions || action == "installTools") { "未知软件管理操作" }
         check(!app.configs.busy) { "配置保存进行中，请稍后管理软件" }
         if (busy) {
             check(state.optString("action") == action) { "另一个软件管理任务正在执行" }
@@ -115,19 +127,34 @@ class PackageManager(private val app: AgentMApplication) {
         check(app.linux.ready && !app.linux.busy) { "请先安装并检查 Ubuntu" }
         check(app.terminals.session?.isRunning != true) { "请先关闭当前终端，再管理软件" }
         check(!app.webAgents.active) { "请先停止 Web 服务，再管理软件" }
-        if (action in ManagedPackagePaths.installActions) check(toolsReady) { "请先在环境页安装开发工具" }
+        if (action in ManagedPackagePaths.installActions || action in ManagedPackagePaths.updateActions) check(toolsReady) { "请先在环境页安装开发工具" }
+        ManagedPackagePaths.updateActions[action]?.let { kind ->
+            val installed = state.optJSONObject(kind) ?: error("请先安装该 Agent")
+            val supported = updateDefinition(kind)
+            check(UpdatePolicy.newer(supported.getString("version"), installed.getString("version"))) { "当前没有可适配的更新；请先在线检查" }
+        }
         ManagedPackagePaths.removeActions[action]?.let { check(state.optJSONObject(it) != null) { "没有该 Agent 的受管安装" } }
-        if (action.startsWith("install")) check(StatFs(app.filesDir.absolutePath).availableBytes >= 1024L * 1024 * 1024) { "至少需要 1 GiB 可用空间" }
-        if (action == "installDsh") check(StatFs(app.filesDir.absolutePath).availableBytes >= 3L * 1024 * 1024 * 1024) { "DSH 安装至少需要 3 GiB 可用空间（含依赖、缓存与旧版本）" }
+        if (action.startsWith("install") || action in ManagedPackagePaths.updateActions) check(StatFs(app.filesDir.absolutePath).availableBytes >= 1024L * 1024 * 1024) { "至少需要 1 GiB 可用空间" }
+        if (action == "installDsh" || action == "updateDsh") check(StatFs(app.filesDir.absolutePath).availableBytes >= 3L * 1024 * 1024 * 1024) { "DSH 安装至少需要 3 GiB 可用空间（含依赖、缓存与旧版本）" }
         val id = UUID.randomUUID().toString()
         update { it.put("busy", true).put("phase", "queued").put("action", action).put("operationId", id)
-            .put("message", "准备软件管理任务").put("error", JSONObject.NULL).put("downloadedBytes", 0).put("totalBytes", 0) }
+            .put("message", "准备软件管理任务").put("error", JSONObject.NULL).put("downloadedBytes", 0).put("totalBytes", 0)
+            ManagedPackagePaths.updateCheckActions[action]?.let { kind ->
+                val updates = it.optJSONObject("updates") ?: JSONObject().also { value -> it.put("updates", value) }
+                val check = updates.optJSONObject(kind) ?: JSONObject().also { value -> updates.put(kind, value) }
+                check.put("status", "checking").put("attemptedAt", System.currentTimeMillis()).put("error", JSONObject.NULL).remove("candidate")
+            }
+        }
         id
     }
 
     fun failure(error: Exception) {
         val message = error.message?.take(2000) ?: error.javaClass.simpleName
-        runCatching { update { it.put("busy", false).put("phase", "failed").put("message", "操作未完成，可重试").put("error", message) } }
+        runCatching { update { it.put("busy", false).put("phase", "failed").put("message", "操作未完成，可重试").put("error", message)
+            ManagedPackagePaths.updateCheckActions[it.optString("action")]?.let { kind ->
+                it.optJSONObject("updates")?.optJSONObject(kind)?.put("status", "failed")?.put("error", message)
+            }
+        } }
             .onFailure { state = JSONObject(state.toString()).put("busy", false).put("phase", "failed").put("error", message) }
         app.logs.add("packages", message, "E")
     }
@@ -149,6 +176,16 @@ class PackageManager(private val app: AgentMApplication) {
                     install("node", ::phase)
                 }
                 in ManagedPackagePaths.installActions -> install(ManagedPackagePaths.installActions.getValue(state.getString("action")), ::phase)
+                in ManagedPackagePaths.updateActions -> {
+                    val kind = ManagedPackagePaths.updateActions.getValue(state.getString("action"))
+                    install(kind, ::phase, updateDefinition(kind))
+                }
+                in ManagedPackagePaths.updateCheckActions -> {
+                    val kind = ManagedPackagePaths.updateCheckActions.getValue(state.getString("action"))
+                    phase("checking-update", "正在查询 ${ManagedPackagePaths.title(kind)} 上游版本")
+                    val result = PackageUpdates().check(kind, asset(kind))
+                    update { it.getJSONObject("updates").put(kind, result) }
+                }
                 in ManagedPackagePaths.removeActions -> {
                     val kind = ManagedPackagePaths.removeActions.getValue(state.getString("action"))
                     phase("removing", "卸载受管程序，保留 ${ManagedPackagePaths.title(kind)} 配置与会话")
@@ -158,18 +195,18 @@ class PackageManager(private val app: AgentMApplication) {
                     update { it.remove(kind) }
                     deleteSlot(directory)
                 }
-                "checkPackages" -> {
-                    phase("checking", "实际检查已安装工具与 Agent")
+                in ManagedPackagePaths.checkActions -> {
+                    phase("checking", "实际检查已安装程序")
                     val failures = mutableListOf<String>()
-                    for (kind in ManagedPackagePaths.kinds) {
-                        val record = state.optJSONObject(kind) ?: continue
+                    for (kind in listOf(ManagedPackagePaths.checkActions.getValue(state.getString("action")))) {
+                        val record = state.optJSONObject(kind) ?: error("尚未安装 ${ManagedPackagePaths.title(kind)}")
                         try {
                             ownedRecord(kind, record)
                             val output = probe(kind, guest(record), record.getString("version"))
                             update { it.getJSONObject(kind).put("verified", true).put("probeOutput", output).put("checkedAt", System.currentTimeMillis()) }
                             if (kind == "codex") { val sandbox = probeCodexSandbox(guest(record)); update { it.getJSONObject(kind).put("sandboxProbe", sandbox) } }
                         } catch (error: Exception) {
-                            update { it.getJSONObject(kind).put("verified", false) }
+                            update { it.getJSONObject(kind).put("verified", false).put("probeOutput", error.message?.take(2000) ?: "检查失败").put("checkedAt", System.currentTimeMillis()) }
                             failures += "${ManagedPackagePaths.title(kind)}：${error.message?.take(1000) ?: "检查失败"}"
                         }
                     }
@@ -182,15 +219,23 @@ class PackageManager(private val app: AgentMApplication) {
         finally { executing.set(false) }
     }
 
-    private fun install(kind: String, phase: (String, String) -> Unit) {
-        val definition = asset(kind)
+    private fun updateDefinition(kind: String): JSONObject {
+        val check = state.optJSONObject("updates")?.optJSONObject(kind) ?: error("请先在线检查更新")
+        check(check.optString("status") == "checked" && System.currentTimeMillis() - check.getLong("checkedAt") in 0..86400000L) { "更新检查已过期或失败，请重新检查" }
+        val pinned = asset(kind)
+        val candidate = check.optJSONObject("candidate") ?: return pinned
+        require(UpdatePolicy.accepts(kind, pinned.getString("version"), candidate.getString("version"))) { "此版本需要新的适配 recipe" }
+        return JSONObject(candidate.toString())
+    }
+
+    private fun install(kind: String, phase: (String, String) -> Unit, definition: JSONObject = asset(kind)) {
         val old = state.optJSONObject(kind)
         val id = UUID.randomUUID().toString()
         val name = "$kind-$id"
         val stage = File(slots, name)
         // Unique unselected slot. Publishing happens only through the final AtomicFile write.
         check(!stage.exists() && !Files.isSymbolicLink(runtime.managed.toPath()) && !Files.isSymbolicLink(slots.toPath()))
-        var published = false
+        val transaction = SlotTransaction { if (stage.exists()) deleteSlot(stage) }
         try {
             if (kind == "pi") {
                 phase("packages", "准备 Pi 的文件搜索工具")
@@ -218,7 +263,7 @@ class PackageManager(private val app: AgentMApplication) {
                     update { it.put("downloadedBytes", current).put("totalBytes", total) }; previous = System.currentTimeMillis()
                 }
             }
-            phase("extracting", "SHA-256 校验通过，正在解压")
+            phase("extracting", "软件包摘要校验通过，正在解压")
             RootfsExtractor().extract(archive, stage, { Thread.currentThread().isInterrupted }) {}
             }
             if (kind == "pi") {
@@ -239,11 +284,11 @@ class PackageManager(private val app: AgentMApplication) {
                 phase("checking", "检查 Codex 命令沙箱兼容性")
                 record.put("sandboxProbe", probeCodexSandbox(guest(record)))
             }
-            update { it.put(kind, record) }
-            published = true
-            // Only a previously selected owned slot can be cleaned; no HOME/config directory is involved.
-            if (old != null) runCatching { deleteSlot(ownedRecord(kind, old, checkRuntime = false)) }
-        } finally { if (!published && stage.exists()) deleteSlot(stage) }
+            transaction.publish(select = { update { it.put(kind, record) } }, retire = {
+                // Only a previously selected owned slot can be cleaned; no HOME/config directory is involved.
+                if (old != null) deleteSlot(ownedRecord(kind, old, checkRuntime = false))
+            })
+        } finally { transaction.close() }
     }
 
     private fun probe(kind: String, executable: String, expectedVersion: String): String {

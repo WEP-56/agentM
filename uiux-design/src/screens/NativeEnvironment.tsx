@@ -4,9 +4,9 @@ import { useApp } from '@/store/useApp';
 import { nativeRequest } from '@/platform/native';
 import { Button } from '@/components/md/Button';
 import { ListGroup, ListItem, TabPage } from '@/components/md/Layout';
-import { AppLogo } from '@/components/Brand';
 import type { NativeSnapshot } from '@/platform/native';
-import { NativePackages } from './NativePackages';
+import { NativeTools } from './NativePackages';
+import { NativeStorage } from './NativeStorage';
 import { managedAgent } from '@/platform/managedAgents';
 
 export async function openDeviceTerminal() {
@@ -18,10 +18,9 @@ export async function openLinuxTerminal() {
   catch (error) { useApp.getState().showSnack(error instanceof Error ? error.message : '无法打开 Linux 终端'); }
 }
 
-export function NativeEnvironment() {
+export function NativeLinuxSetup() {
   const native = useApp((s) => s.native);
   const check = useApp((s) => s.checkSystem);
-  const push = useApp((s) => s.push);
   const [checking, setChecking] = useState(false);
   const [starting, setStarting] = useState(false);
   const environment = native?.environment;
@@ -39,8 +38,7 @@ export function NativeEnvironment() {
     catch (error) { useApp.getState().showSnack(error instanceof Error ? error.message : '取消未完成'); }
   };
   const refresh = async () => { setChecking(true); try { await check(); } finally { setChecking(false); } };
-  return <TabPage title="环境">
-    <div className="rounded-[28px] bg-primary-container p-5">
+  return <div className="rounded-[28px] bg-primary-container p-5">
       <h2 className="type-title-large text-on-primary-container">{native?.environment.distribution ?? 'Ubuntu 环境'}</h2>
       <p className="mt-2 type-body-medium text-on-primary-container">{native?.environment.reason ?? '正在读取 Android 设备信息…'}</p>
       {environment && <p className="mt-2 type-body-small text-on-primary-container">{environment.architecture} · proot {environment.engineVersion} · 镜像 {(environment.downloadSize / 1024 ** 2).toFixed(1)} MiB</p>}
@@ -57,8 +55,17 @@ export function NativeEnvironment() {
         <Button variant="tonal" icon={<MdRefresh />} disabled={checking || environment?.busy} onClick={() => void refresh()}>{checking ? '检查中…' : '重新检查'}</Button>
         <Button variant="tonal" icon={<MdOutlineTerminal />} onClick={() => void openDeviceTerminal()}>设备终端</Button>
       </div>
-    </div>
-    <NativePackages />
+    </div>;
+}
+
+export function NativeEnvironment() {
+  const native = useApp(s => s.native);
+  const push = useApp(s => s.push);
+  const environment = native?.environment;
+  return <TabPage title="环境" actions={<Button variant="text" onClick={() => useApp.setState({ onboarded: false, onboardingStep: 1, stack: [] })}>设置向导</Button>}>
+    <NativeLinuxSetup />
+    <NativeTools />
+    <NativeStorage />
     <ListGroup title="设备信息">
       <ListItem headline={native?.device.model ?? '等待连接'} supporting={native ? `Android ${native.device.androidVersion} · API ${native.device.sdk}` : 'Android 原生接口'} />
       <ListItem headline="CPU 架构" supporting={native?.device.abis.join(' / ') ?? '读取中'} />
@@ -76,27 +83,4 @@ export function NativeEnvironment() {
     </ListGroup>
     {environment?.probeOutput && <ListGroup title="真实运行自检"><pre className="whitespace-pre-wrap break-all rounded-xl bg-surface-container-low p-4 font-mono text-xs text-on-surface">{environment.probeOutput}</pre></ListGroup>}
   </TabPage>;
-}
-
-export function NativeWelcome() {
-  const native = useApp((s) => s.native);
-  const complete = useApp((s) => s.completeOnboarding);
-  const check = useApp((s) => s.checkSystem);
-  return <div className="absolute inset-0 flex flex-col justify-between overflow-y-auto bg-surface px-6 pb-[calc(24px+var(--sab))] pt-[calc(64px+var(--sat))]">
-    <div>
-      <AppLogo size={96} />
-      <h1 className="mt-8 type-display-small">agentM</h1>
-      <p className="mt-3 type-body-large text-on-surface-variant">你的移动开发工作台</p>
-      <div className="mt-8 rounded-[24px] bg-surface-container-low p-5">
-        <h2 className="type-title-medium">Android 开发版已连接</h2>
-        <p className="mt-2 type-body-medium text-on-surface-variant">{native ? `${native.device.model} · Android ${native.device.androidVersion}` : '设备信息暂不可用，请重试检查。'}</p>
-        <p className="mt-4 type-body-medium text-on-surface-variant">进入工作台后可安装 Ubuntu、开发工具与 Claude Code，并使用真实 Linux 终端。</p>
-        {!native && <Button variant="text" onClick={() => void check()}>重试检查</Button>}
-      </div>
-    </div>
-    <div className="mt-8 flex flex-col gap-3">
-      <Button size="lg" onClick={() => complete([], 'auto', [])}>进入工作台</Button>
-      <Button size="lg" variant="tonal" icon={<MdOutlineTerminal />} onClick={() => void openDeviceTerminal()}>试用设备终端</Button>
-    </div>
-  </div>;
 }

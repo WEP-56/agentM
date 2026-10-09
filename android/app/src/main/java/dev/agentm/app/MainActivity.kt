@@ -29,6 +29,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var web: WebView
     private val app get() = application as AgentMApplication
     private val inspector by lazy { EnvironmentInspector(app) }
+    private val storage by lazy { StorageInspector(app) }
+    private val storageWorker = ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, ArrayBlockingQueue(2))
     private val worker = ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, ArrayBlockingQueue(32))
     private val replies = object : LinkedHashMap<String, Pair<String, String>>() {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Pair<String, String>>) = size > 128
@@ -93,6 +95,14 @@ class MainActivity : ComponentActivity() {
             }
             try {
                 when (method) {
+                    "storageUsage", "listStorage" -> storageWorker.execute {
+                        try {
+                            val result = if (method == "storageUsage") storage.usage() else storage.list(body.getString("root"), body.optString("path"), body.optInt("offset", 0))
+                            runOnUiThread { if (!isDestroyed) respond(result) }
+                        } catch (failure: Exception) {
+                            runOnUiThread { if (!isDestroyed) reply.postMessage(error(id, "STORAGE_READ_FAILED", failure.message ?: "目录读取失败")) }
+                        }
+                    }
                     "readClaudeConfig", "previewClaudeConfig", "previewClaudeRestore", "applyClaudeConfig",
                     "listClaudeProfiles", "saveClaudeProfile", "deleteClaudeProfile", "previewClaudeProfile" -> worker.execute {
                         try {
@@ -208,6 +218,7 @@ class MainActivity : ComponentActivity() {
         if (::web.isInitialized) web.evaluateJavascript("window.dispatchEvent(new Event('agentm:resume'))", null)
     }
     override fun onDestroy() {
+        storageWorker.shutdownNow()
         worker.shutdownNow()
         if (::web.isInitialized) { WebViewCompat.removeWebMessageListener(web, "AgentMHost"); web.destroy() }
         super.onDestroy()

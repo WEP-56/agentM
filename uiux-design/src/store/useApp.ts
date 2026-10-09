@@ -167,6 +167,8 @@ function progressLoop(total: number, onTick: (p: number) => void) {
 interface Data {
   native: NativeSnapshot | null;
   onboarded: boolean;
+  configAgent: AgentId;
+  onboardingStep: number;
   agents: Record<AgentId, AgentRt>;
   configs: Record<AgentId, AgentConfig>;
   settings: { themeMode: ThemeMode; seed: string; autoStartRuntime: boolean };
@@ -228,6 +230,8 @@ export type AppState = Data & Actions;
 const baseData = (): Data => ({
   native: null,
   onboarded: false,
+  configAgent: 'claude',
+  onboardingStep: 0,
   agents: initialAgents(),
   configs: initialConfigs(),
   settings: { themeMode: "system", seed: "#6750A4", autoStartRuntime: true },
@@ -542,7 +546,7 @@ export const useApp = create<AppState>()(
     },
     {
       name: isNative ? "agentm-native-ui-v1" : "agentm-preview-v1",
-      partialize: (s) => isNative ? { settings: s.settings, onboarded: s.onboarded } : ({
+      partialize: (s) => isNative ? { settings: s.settings, onboarded: s.onboarded, onboardingStep: s.onboardingStep } : ({
         onboarded: s.onboarded,
         agents: Object.fromEntries(
           AGENT_IDS.map((id) => {

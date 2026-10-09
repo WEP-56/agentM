@@ -7,6 +7,9 @@ object ManagedPackagePaths {
     val terminals = agents - "dsh"
     val installActions = mapOf("installClaude" to "claude", "installCodex" to "codex", "installPi" to "pi", "installOpenCode" to "opencode", "installDsh" to "dsh")
     val removeActions = mapOf("removeClaude" to "claude", "removeCodex" to "codex", "removePi" to "pi", "removeOpenCode" to "opencode", "removeDsh" to "dsh")
+    val checkActions = installActions.mapKeys { it.key.replaceFirst("install", "check") } + ("checkTools" to "node")
+    val updateCheckActions = installActions.mapKeys { it.key.replaceFirst("install", "checkUpdate") }
+    val updateActions = installActions.mapKeys { it.key.replaceFirst("install", "update") }
     fun title(kind: String) = when (kind) { "node" -> "Node.js"; "claude" -> "Claude Code"; "codex" -> "Codex"; "pi" -> "Pi"; "opencode" -> "OpenCode"; "dsh" -> "DSH"; else -> error("未知软件") }
     fun validSlot(slot: String) = slot.matches(Regex("(node|claude|codex|pi|opencode|dsh)-[a-f0-9-]{36}"))
     fun validVersion(version: String) = version.matches(Regex("[0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-zA-Z0-9.-]+)?"))

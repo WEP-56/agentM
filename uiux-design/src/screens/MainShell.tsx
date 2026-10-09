@@ -21,7 +21,8 @@ import { SettingsScreen } from "./Settings";
 import { SessionScreen } from "./Session";
 import { Onboarding } from "./Onboarding";
 import { isNative, nativeRequest, type NativeSnapshot } from "@/platform/native";
-import { NativeEnvironment, NativeWelcome } from "./NativeEnvironment";
+import { NativeEnvironment } from "./NativeEnvironment";
+import { NativeOnboarding } from "./NativeOnboarding";
 
 const NAV: NavItem<Tab>[] = [
   { key: "home", label: "首页", icon: <MdOutlineHome />, activeIcon: <MdHome /> },
@@ -55,6 +56,17 @@ export function MainShell() {
       if (state.tab !== 'home') { state.setTab('home'); return true; }
       return false;
     };
+    return () => { delete window.agentMBack; };
+  }, []);
+
+  return (
+    <MainShellContent tab={tab} setTab={setTab} stack={stack} />
+  );
+}
+
+function useNativePolling() {
+  useEffect(() => {
+    if (!isNative) return;
     const refresh = () => { void useApp.getState().checkSystem(); };
     let disposed = false;
     let fetching = false;
@@ -68,9 +80,11 @@ export function MainShell() {
       finally { fetching = false; }
     }, 1500);
     window.addEventListener('agentm:resume', refresh);
-    return () => { disposed = true; clearInterval(interval); delete window.agentMBack; window.removeEventListener('agentm:resume', refresh); };
+    return () => { disposed = true; clearInterval(interval); window.removeEventListener('agentm:resume', refresh); };
   }, []);
+}
 
+function MainShellContent({ tab, setTab, stack }: { tab: Tab; setTab: (tab: Tab) => void; stack: Route[] }) {
   return (
     <motion.div
       className="absolute inset-0 flex flex-col bg-surface"
@@ -141,6 +155,7 @@ function Splash() {
 
 /** The whole Android app, rendered inside the phone frame (or full-screen on mobile). */
 export function AppRoot() {
+  useNativePolling();
   const [overlay, setOverlay] = useState<HTMLDivElement | null>(null);
   const booting = useApp((s) => s.booting);
   const onboarded = useApp((s) => s.onboarded);
@@ -159,7 +174,7 @@ export function AppRoot() {
     <OverlayCtx.Provider value={overlay}>
       <div className="relative h-full w-full overflow-hidden bg-surface text-on-surface">
         <AnimatePresence mode="wait">
-          {booting ? <Splash key="splash" /> : onboarded ? <MainShell key="main" /> : isNative ? <NativeWelcome key="native-welcome" /> : <Onboarding key="onboarding" />}
+          {booting ? <Splash key="splash" /> : onboarded ? <MainShell key="main" /> : isNative ? <NativeOnboarding key="native-onboarding" /> : <Onboarding key="onboarding" />}
         </AnimatePresence>
         <SnackbarHost bottom={snackBottom} />
         <div ref={setOverlay} className="pointer-events-none absolute inset-0 z-50" />

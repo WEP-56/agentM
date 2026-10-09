@@ -20,7 +20,7 @@ export function nativeActions(set: StoreApi<AppState>['setState'], get: StoreApi
   };
   const configUnavailable = () => get().showSnack('配置文件管理尚未接入，未写入任何配置');
   const manage = async (action: string) => {
-    try { await nativeRequest('managePackages', { action }); await inspect(); get().setTab('env'); }
+    try { await nativeRequest('managePackages', { action }); await inspect(); }
     catch (error) { get().showSnack(error instanceof Error ? error.message : '软件管理未完成'); }
   };
   const openAgent = async (kind: ManagedAgentId) => {

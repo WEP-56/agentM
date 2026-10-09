@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { MdRefresh, MdOutlineTune } from 'react-icons/md';
 import { useApp } from '@/store/useApp';
 import { nativeRequest, NativeError } from '@/platform/native';
-import { TabPage } from '@/components/md/Layout';
 import { Button } from '@/components/md/Button';
 import { TextField } from '@/components/md/Controls';
 import { BottomSheet } from '@/components/md/Overlay';
@@ -86,7 +85,7 @@ export function NativeClaudeConfig() {
   const blocked = working || !native?.environment.linuxReady || native.packages.busy || native.terminal.running;
   const hasSelectedSecret = mode === 'apiKey' ? config?.hasApiKey : config?.hasAuthToken;
   const changed = () => { setDirty(true); setPreview(null); };
-  return <TabPage title="配置">
+  return <div className="space-y-5">
     <NativeClaudeProfiles nativeRevision={config?.revision} blocked={blocked} onApply={profile => void prepareProfile(profile)} />
     <div className="rounded-[28px] bg-surface-container-low p-5">
       <div className="flex items-center gap-3"><MdOutlineTune className="text-2xl text-primary" /><h2 className="type-title-large">Claude Code</h2></div>
@@ -144,5 +143,5 @@ export function NativeClaudeConfig() {
         </div>)}
       </div>
     </BottomSheet>
-  </TabPage>;
+  </div>;
 }
