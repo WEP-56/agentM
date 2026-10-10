@@ -7,6 +7,8 @@ gradlew text eol=lf
 *.jar binary
 *.png binary
 *.webp binary
+# Installer hashes the exact overlay bytes and manifest recipe across platforms.
+android/app/src/main/assets/dsh-overlays/** text eol=lf
 examples/** -text
 android/terminal-emulator/src/** -text
 android/terminal-view/src/** -text

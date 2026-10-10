@@ -15,7 +15,7 @@ import { fmtMB, sleep, uid } from "@/utils/format";
 import { isNative, type NativeSnapshot } from "@/platform/native";
 import { nativeActions } from "@/platform/nativeActions";
 
-export type Tab = "home" | "config" | "env" | "settings";
+export type Tab = "home" | "config" | "env" | "files" | "settings";
 export type Route =
   | { name: "session"; agentId: AgentId; view: ViewKind }
   | { name: "agentConfig"; agentId: AgentId }

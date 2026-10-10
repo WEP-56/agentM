@@ -1,6 +1,6 @@
 export const APP_NAME = "agentM";
-export const APP_VERSION = "0.14.1";
-export const GITHUB_URL = "";
+export const APP_VERSION = "0.15.1";
+export const GITHUB_URL = "https://github.com/WEP-56/agentM";
 export const PROJECT_DIR = "~/projects/demo";
 
 export type AgentId = "claude" | "codex" | "opencode" | "pi" | "dsh";

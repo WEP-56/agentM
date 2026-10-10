@@ -15,6 +15,12 @@ paths = ['tools/build-dsh-runtime.py', 'tools/source_text.py', 'tools/dsh-runtim
 paths += [ASSETS + directory + '/' + name for directory in ('runtime-fs', 'session-compat', 'client-combo-cache') for name in ('index.js', 'package.json')]
 paths += [ASSETS + name for name in ('client-combo-patch.json', 'deepseek-messages-compat-patch.json', 'lexical-claim-patch.json', 'conversation-materialized-patch.json', 'rc1-settings-migration-patch.json', 'workspace-directory-policy-patch.json')]
 provenance = {}
+def lf_bytes(data):
+    # The pinned DSHA Messages recipe inserts CRLF in two replacements. Canonicalize
+    # generated text before writing AND hashing so Git checkouts preserve the bytes.
+    # Keep upstream recipe/archive bytes unchanged for provenance and beforeSha256.
+    return data.replace(b'\r\n', b'\n')
+
 def acquire(name):
     local = SOURCE / name
     if not local.exists():
@@ -27,7 +33,7 @@ def acquire(name):
     return local
 for name in paths:
     acquire(name)
-messages = json.loads((SOURCE / (ASSETS + 'deepseek-messages-compat-patch.json')).read_text())
+messages = json.loads((SOURCE / (ASSETS + 'deepseek-messages-compat-patch.json')).read_text(encoding='utf-8'))
 for patch in messages['patches']:
     if 'prependAsset' in patch:
         acquire(ASSETS + patch['prependAsset'])
@@ -35,7 +41,7 @@ sys.path.insert(0, str(SOURCE / 'tools'))
 spec = importlib.util.spec_from_file_location('dsha_builder', SOURCE / 'tools/build-dsh-runtime.py')
 builder = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(builder)
-lock = json.loads((SOURCE / 'tools/dsh-runtime/package-lock.json').read_text())
+lock = json.loads((SOURCE / 'tools/dsh-runtime/package-lock.json').read_text(encoding='utf-8'))
 targets = set(builder.PATCHES) | {builder.COMBO_MODULE, builder.DEEPSEEK_MESSAGES_MODULE, builder.LEXICAL_CLAIM_MODULE,
     builder.STORAGE_JSON_MODULE, builder.WORKSPACE_DIRECTORY_MODULE, builder.SESSION_PERSISTENCE_JSONL_MODULE,
     '@deepseek-ai/dsh-session-format-v2-to-v3/lib/index.js'}
@@ -56,17 +62,18 @@ for target in sorted(targets):
         if source.count(anchor) != 1:
             raise ValueError('DSHA workspace override anchor changed')
         result = source.replace(anchor, 'process.env.AGENTM_DSH_WORKSPACE === "/workspace"\n\t\t&& (internals.home ?? homedir()) === "/root") directory = "/workspace";').encode()
+    result = lf_bytes(result)
     name = str(len(overlays)) + '.js'
     (destination / name).write_bytes(result)
     overlays.append({'path': 'node_modules/' + target, 'asset': 'dsh-overlays/' + name,
         'beforeSha256': hashlib.sha256(data).hexdigest(), 'sha256': hashlib.sha256(result).hexdigest()})
 for directory, package in [(builder.HOOKS, 'dsha-runtime-fs'), (builder.SESSION_HOOKS, 'dsha-session-compat'), (builder.COMBO_HOOKS, 'dsha-client-combo-cache')]:
     for name in ('index.js', 'package.json'):
-        data = (directory / name).read_bytes()
+        data = lf_bytes((directory / name).read_bytes())
         asset = package + '-' + name
         (destination / asset).write_bytes(data)
         overlays.append({'path': 'node_modules/' + package + '/' + name, 'asset': 'dsh-overlays/' + asset,
             'sha256': hashlib.sha256(data).hexdigest()})
-(destination / 'manifest.json').write_text(json.dumps({'version': '0.2.0-rc.2', 'sourceCommit': COMMIT, 'files': overlays}, indent=2) + '\n')
-(ROOT / 'docs/research/agent-packages/dsh-adaptations.json').write_text(json.dumps({'sourceCommit': COMMIT, 'sourceBase': f'https://github.com/DSH-APP/DSHA/tree/{COMMIT}/', 'inputs': provenance, 'overlays': overlays}, indent=2) + '\n')
+(destination / 'manifest.json').write_bytes((json.dumps({'version': '0.2.0-rc.2', 'sourceCommit': COMMIT, 'files': overlays}, indent=2) + '\n').encode('utf-8'))
+(ROOT / 'docs/research/agent-packages/dsh-adaptations.json').write_bytes((json.dumps({'sourceCommit': COMMIT, 'sourceBase': f'https://github.com/DSH-APP/DSHA/tree/{COMMIT}/', 'inputs': provenance, 'overlays': overlays}, indent=2) + '\n').encode('utf-8'))
 print(f'Generated {len(overlays)} verified DSHA runtime overlays')

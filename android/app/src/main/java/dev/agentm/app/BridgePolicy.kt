@@ -4,9 +4,10 @@ package dev.agentm.app
 object BridgePolicy {
     const val ORIGIN = "https://appassets.androidplatform.net"
     const val MAX_BYTES = 65536
-    val methods = setOf("inspect", "openTerminal", "stopTerminal", "openPermission", "clearLogs", "setAppearance", "installLinux", "cancelLinuxInstall", "checkLinux", "managePackages",
+    val methods = setOf("inspect", "checkAppUpdate", "openProjectPage", "openTerminal", "stopTerminal", "openPermission", "clearLogs", "setAppearance", "installLinux", "cancelLinuxInstall", "checkLinux", "managePackages",
         "readClaudeConfig", "previewClaudeConfig", "previewClaudeRestore", "applyClaudeConfig",
-        "listClaudeProfiles", "saveClaudeProfile", "deleteClaudeProfile", "previewClaudeProfile", "openWeb", "stopWeb", "storageUsage", "listStorage",
+        "listClaudeProfiles", "saveClaudeProfile", "deleteClaudeProfile", "previewClaudeProfile", "openWeb", "stopWeb", "storageUsage",
+        "filesList", "filesCreate", "filesMove", "filesDelete", "filesTransfer", "filesTransferStatus",
         "listProviders", "readProvider", "saveProvider", "copyProvider", "deleteProvider", "switchProvider", "fetchProviderModels",
         "listWorkingDirectories", "setWorkingDirectory", "createWorkingDirectory")
     fun accepts(origin: String, mainFrame: Boolean, method: String, requestId: String, bytes: Int): Boolean =

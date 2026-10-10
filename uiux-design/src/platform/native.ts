@@ -68,7 +68,7 @@ export function nativeRequest<T = { opened: boolean }>(method: string, params: R
   if (pending.size >= 16) return Promise.reject(new Error('操作较多，请稍后重试'));
   const id = crypto.randomUUID();
   return new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(() => { pending.delete(id); reject(new Error('原生接口响应超时，请重试')); }, method === 'fetchProviderModels' ? 45000 : 15000);
+    const timer = setTimeout(() => { pending.delete(id); reject(new Error('原生接口响应超时，请重试')); }, method === 'checkAppUpdate' ? 35000 : method === 'fetchProviderModels' ? 45000 : method === 'filesDelete' || method === 'filesMove' ? 300000 : 15000);
     pending.set(id, { resolve: (value) => resolve(value as T), reject, timer });
     try {
       const payload = JSON.stringify({ id, method, params });

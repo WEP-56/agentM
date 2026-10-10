@@ -31,6 +31,8 @@ agentM 是一个无需 root 的 Android 开发工作台。通过 proot 和 Ubunt
 - **统一启动**：内置真实 PTY 终端，支持 Agent 会话重进；OpenCode 和 DSH 可在内嵌 WebUI 中使用。
 - **安装与更新**：引导安装 Ubuntu、Node.js、Git、Python，并管理五种 Agent 的程序版本。
 - **原生提供商配置**：管理 Claude Code、Codex、OpenCode、Pi 的提供商、模型和原生配置源码；内置 Claude Official、OpenAI Official。
+- **文件管理**：在「文件」分栏浏览真实 Ubuntu 文件树，创建、上传、搜索、重命名、移动、多选删除文件；另存为和分享使用 Android 系统授权。
+- **应用更新**：设置页按 GitHub 正式 Release 的 tag 检查新版本，并打开发布页下载。
 - **项目目录选择**：首页直接浏览 `/workspace` 和 `/root`，新建目录并设置新终端的启动位置。
 - **配置保护**：提供商库和备份使用 Android Keystore 加密；保存后再确认应用，保留无关的原生设置。
 - **移动与桌面操作**：终端快捷工具栏、WebUI 导航和桌面模式，适应不同的输入方式。
@@ -50,7 +52,7 @@ agentM 是一个无需 root 的 Android 开发工作台。通过 proot 和 Ubunt
 需要 **Android 11 或更高版本**，支持 **arm64-v8a / x86_64**；不支持 32 位设备。首次安装 Linux 和工具需要联网，请预留数 GB 可用空间，并保持下载所需服务可达。
 
 1. 从 [Releases](https://github.com/WEP-56/agentM/releases/latest) 下载 `agentM-版本号-universal.apk`，允许当前下载来源安装应用后安装。
-2. 按应用引导安装 Ubuntu 与开发工具，在「配置」页安装需要的 Agent。
+2. 按应用引导设置通知和后台运行权限、安装 Ubuntu 与开发工具，在「配置」页安装需要的 Agent。
 3. 在「配置」页选择官方配置或添加自己的提供商。官方账号按 Agent 原生流程登录，第三方服务需要自行提供有效凭据。
 4. 在首页紫色 Ubuntu 组件中选择工作目录。可先打开 Linux 终端，通过 Git 克隆项目到 `/workspace`。
 5. 启动 Agent 开始工作；OpenCode / DSH 的项目也可以在各自 WebUI 内选择。

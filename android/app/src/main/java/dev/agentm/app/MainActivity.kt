@@ -30,7 +30,10 @@ class MainActivity : ComponentActivity() {
     private val app get() = application as AgentMApplication
     private val inspector by lazy { EnvironmentInspector(app) }
     private val storage by lazy { StorageInspector(app) }
+    private val ubuntuFiles by lazy { dev.agentm.app.files.UbuntuFiles.fromAppFiles(app.filesDir) }
+    private lateinit var fileTransfers: dev.agentm.app.files.FileTransfers
     private val storageWorker = ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, ArrayBlockingQueue(2))
+    private val updateWorker = ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, ArrayBlockingQueue(1))
     private val modelWorker = ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, ArrayBlockingQueue(2))
     private val worker = ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, ArrayBlockingQueue(32))
     private val replies = object : LinkedHashMap<String, Pair<String, String>>() {
@@ -39,6 +42,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        fileTransfers = dev.agentm.app.files.FileTransfers(this, ubuntuFiles, storageWorker)
         if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
             setContentView(TextView(this).apply { text = "请先更新 Android System WebView 后使用 agentM。" })
             return
@@ -96,6 +100,25 @@ class MainActivity : ComponentActivity() {
             }
             try {
                 when (method) {
+                    "checkAppUpdate" -> updateWorker.execute {
+                        try {
+                            val result = AppUpdates().check(BuildConfig.VERSION_NAME)
+                            runOnUiThread { if (!isDestroyed) respond(result) }
+                        } catch (failure: Exception) {
+                            val detail = when (failure) {
+                                is org.json.JSONException -> "GitHub 发布信息格式无效，请直接查看发布页"
+                                is javax.net.ssl.SSLException -> "无法建立 GitHub 安全连接，请检查网络和系统时间"
+                                else -> failure.message?.take(250) ?: "更新检查失败，请检查网络后重试"
+                            }
+                            runOnUiThread { if (!isDestroyed) reply.postMessage(error(id, "APP_UPDATE_FAILED", detail)) }
+                        }
+                    }
+                    "openProjectPage" -> {
+                        val url = AppUpdates.projectUrl(body.getString("page"), body.optString("tag"))
+                        try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addCategory(Intent.CATEGORY_BROWSABLE)) }
+                        catch (_: android.content.ActivityNotFoundException) { throw IllegalStateException("未找到可打开链接的浏览器") }
+                        respond(JSONObject().put("opened", true))
+                    }
                     "listWorkingDirectories", "setWorkingDirectory", "createWorkingDirectory" -> storageWorker.execute {
                         try {
                             val directories = app.workingDirectories
@@ -129,12 +152,36 @@ class MainActivity : ComponentActivity() {
                             } finally { body.remove("source") }
                         }
                     }
-                    "storageUsage", "listStorage" -> storageWorker.execute {
+                    "storageUsage" -> storageWorker.execute {
                         try {
-                            val result = if (method == "storageUsage") storage.usage() else storage.list(body.getString("root"), body.optString("path"), body.optInt("offset", 0))
+                            val result = storage.usage()
                             runOnUiThread { if (!isDestroyed) respond(result) }
                         } catch (failure: Exception) {
                             runOnUiThread { if (!isDestroyed) reply.postMessage(error(id, "STORAGE_READ_FAILED", failure.message ?: "目录读取失败")) }
+                        }
+                    }
+                    "filesTransferStatus" -> respond(fileTransfers.snapshot())
+                    "filesTransfer" -> {
+                        check(app.linux.ready && !app.linux.busy) { "请先准备好 Ubuntu" }
+                        respond(fileTransfers.start(body.getString("kind"), body.getString("path")))
+                    }
+                    "filesList", "filesCreate", "filesMove", "filesDelete" -> storageWorker.execute {
+                        try {
+                            check(app.linux.ready && !app.linux.busy) { "请先准备好 Ubuntu" }
+                            fun paths(): List<String> {
+                                val entries = body.getJSONArray("paths")
+                                require(entries.length() in 1..100)
+                                return (0 until entries.length()).map { entries.getString(it) }
+                            }
+                            val result = when (method) {
+                                "filesList" -> ubuntuFiles.list(body.getString("path"), body.optInt("offset", 0), body.optString("query"))
+                                "filesCreate" -> ubuntuFiles.create(body.getString("path"), body.getString("name"), body.getBoolean("directory"))
+                                "filesMove" -> ubuntuFiles.move(paths(), body.getString("destination"), if (body.has("name")) body.getString("name") else null)
+                                else -> ubuntuFiles.delete(paths())
+                            }
+                            runOnUiThread { if (!isDestroyed) respond(result) }
+                        } catch (failure: Exception) {
+                            runOnUiThread { if (!isDestroyed) reply.postMessage(error(id, "FILE_ERROR", dev.agentm.app.files.UbuntuFiles.describeFailure(failure).take(300))) }
                         }
                     }
                     "readClaudeConfig", "previewClaudeConfig", "previewClaudeRestore", "applyClaudeConfig",
@@ -217,8 +264,8 @@ class MainActivity : ComponentActivity() {
                             "notifications" -> if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
                                 requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
                             } else startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
-                            "battery" -> startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
-                            "storage" -> startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
+                            "battery" -> startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName")))
+                            "storage" -> { /* Private files need no blanket permission; SAF grants each selected import/export. */ }
                             else -> { reply.postMessage(error(id, "INVALID_PERMISSION", "未知权限")); return@addWebMessageListener }
                         }
                         respond(JSONObject().put("opened", true))
@@ -252,6 +299,7 @@ class MainActivity : ComponentActivity() {
         if (::web.isInitialized) web.evaluateJavascript("window.dispatchEvent(new Event('agentm:resume'))", null)
     }
     override fun onDestroy() {
+        updateWorker.shutdownNow()
         modelWorker.shutdownNow()
         storageWorker.shutdownNow()
         worker.shutdownNow()

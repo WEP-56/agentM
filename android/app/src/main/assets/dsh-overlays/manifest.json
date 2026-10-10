@@ -36,7 +36,7 @@
       "path": "node_modules/@deepseek-ai/dsh-llm-deepseek/lib/index.js",
       "asset": "dsh-overlays/5.js",
       "beforeSha256": "226e2047b843f954d8478207613f3e44448671c6f98f8edee77008d0fe005484",
-      "sha256": "2024e8788a274b3f5d4e1cf76d0943611ef7a56351296c0a067c51ed546a9635"
+      "sha256": "528aa98dc1ea3dea30262af90fbb9b220f50528083abc058ade08ec763f79120"
     },
     {
       "path": "node_modules/@deepseek-ai/dsh-session-format-v2-to-v3/lib/index.js",

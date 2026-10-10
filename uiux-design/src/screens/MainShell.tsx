@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   MdDeveloperBoard,
+  MdFolder,
+  MdOutlineFolder,
   MdHome,
   MdOutlineDeveloperBoard,
   MdOutlineHome,
@@ -23,12 +25,14 @@ import { Onboarding } from "./Onboarding";
 import { isNative, nativeRequest, type NativeSnapshot } from "@/platform/native";
 import { NativeEnvironment } from "./NativeEnvironment";
 import { NativeOnboarding } from "./NativeOnboarding";
+import { NativeFiles } from './NativeFiles';
 import { ProviderEditor } from './ProviderEditor';
 
 const NAV: NavItem<Tab>[] = [
   { key: "home", label: "首页", icon: <MdOutlineHome />, activeIcon: <MdHome /> },
   { key: "config", label: "配置", icon: <MdOutlineTune />, activeIcon: <MdTune /> },
   { key: "env", label: "环境", icon: <MdOutlineDeveloperBoard />, activeIcon: <MdDeveloperBoard /> },
+  { key: "files", label: "文件", icon: <MdOutlineFolder />, activeIcon: <MdFolder /> },
   { key: "settings", label: "设置", icon: <MdOutlineSettings />, activeIcon: <MdSettings /> },
 ];
 
@@ -54,6 +58,7 @@ export function MainShell() {
     window.agentMBack = () => {
       const state = useApp.getState();
       if (state.stack.length) { state.pop(); return true; }
+      if (state.tab === 'files' && !window.dispatchEvent(new Event('agentm:files-back', { cancelable: true }))) return true;
       if (state.tab !== 'home') { state.setTab('home'); return true; }
       return false;
     };
@@ -106,6 +111,7 @@ function MainShellContent({ tab, setTab, stack }: { tab: Tab; setTab: (tab: Tab)
             {tab === "home" && <HomeScreen />}
             {tab === "config" && <ConfigScreen />}
             {tab === "env" && (isNative ? <NativeEnvironment /> : <EnvScreen />)}
+            {tab === "files" && <NativeFiles />}
             {tab === "settings" && <SettingsScreen />}
           </motion.div>
         </AnimatePresence>

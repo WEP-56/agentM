@@ -45,24 +45,4 @@ class StorageInspector(private val app: AgentMApplication) {
         }
         return JSONObject().put("roots", result).put("checkedAt", System.currentTimeMillis())
     }
-    fun list(id: String, relative: String, offset: Int): JSONObject {
-        val root = roots[id]?.second ?: error("未知浏览目录")
-        val dir = StoragePaths.resolve(root, relative)
-        require(offset in 0..50000) { "分页范围无效" }
-        val entries = JSONArray()
-        var skipped = 0; var more = false
-        if (dir.exists()) {
-            require(dir.isDirectory) { "只能浏览目录" }
-            Files.newDirectoryStream(dir.toPath()).use { stream ->
-                for (path in stream) {
-                    if (skipped++ < offset) continue
-                    if (entries.length() >= 100) { more = true; break }
-                    val attrs = Files.readAttributes(path, BasicFileAttributes::class.java, NOFOLLOW_LINKS)
-                    entries.put(JSONObject().put("name", path.fileName.toString()).put("directory", attrs.isDirectory)
-                        .put("link", attrs.isSymbolicLink).put("bytes", if (attrs.isRegularFile) attrs.size() else 0))
-                }
-            }
-        }
-        return JSONObject().put("root", id).put("path", relative).put("entries", entries).put("offset", offset).put("more", more)
-    }
 }

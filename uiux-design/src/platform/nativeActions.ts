@@ -33,7 +33,7 @@ export function nativeActions(set: StoreApi<AppState>['setState'], get: StoreApi
       if (get().settings.autoStartRuntime && get().native?.environment.linuxReady) await inspect('checkLinux');
     })(); },
     completeOnboarding: () => { set({ onboarded: true, tab: 'home', stack: [] }); },
-    resetPreview: () => { get().showSnack('开发版不会通过重置预览清除原生数据'); },
+    resetPreview: () => { set({ onboarded: false, onboardingStep: 0, stack: [] }); },
     startRuntime: async () => { await inspect('checkLinux'); get().setTab('env'); },
     ensureRuntime: async () => { unavailable(); },
     stopRuntime: async () => {

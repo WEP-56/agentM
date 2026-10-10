@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Permissions } from '@/components/Permissions';
 import { AppLogo } from '@/components/Brand';
 import { Button } from '@/components/md/Button';
 import { useApp } from '@/store/useApp';
@@ -7,7 +8,7 @@ import { NativeLinuxSetup } from './NativeEnvironment';
 import { NativeTools, NativeAgentPackage } from './NativePackages';
 import { AgentTabs } from './NativeConfig';
 
-const steps = ['欢迎', '设备检查', '准备环境', '选择 Agent', '准备结果'];
+const steps = ['权限准备', '设备检查', '准备环境', '选择 Agent', '准备结果'];
 
 export function NativeOnboarding() {
   const native = useApp(s => s.native);
@@ -31,7 +32,7 @@ export function NativeOnboarding() {
   return <div className="absolute inset-0 flex flex-col bg-surface pb-[var(--sab)] pt-[var(--sat)]">
     <header className="shrink-0 px-6 py-5"><p className="type-label-large text-primary">{step + 1} / {steps.length} · {steps[step]}</p></header>
     <main className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 pb-5">
-      {step === 0 && <><AppLogo size={88} /><h1 className="type-display-small">你的移动开发工作台</h1><p className="type-body-large text-on-surface-variant">准备 Ubuntu 与开发工具，选择 Claude Code、Codex、OpenCode、Pi 或 DSH，在手机上进入终端和 WebUI。</p><p className="type-body-medium">已有的环境和 Agent 会直接复用。准备进度会保留，退出后可以继续。</p></>}
+      {step === 0 && <><AppLogo size={88} /><h1 className="type-display-small">你的移动开发工作台</h1><p className="type-body-large text-on-surface-variant">准备 Ubuntu 与开发工具，选择 Claude Code、Codex、OpenCode、Pi 或 DSH，在手机上进入终端和 WebUI。</p><p className="type-body-medium">已有的环境和 Agent 会直接复用。准备进度会保留，退出后可以继续。</p><Permissions /><p className="type-body-small text-on-surface-variant">可按需授权，也可以稍后到设置页调整。导入和另存为时，系统会让你选择可读写的文件；分享只授予所选文件的临时读取权限。</p></>}
       {step === 1 && <><h1 className="type-headline-medium">检查设备与依赖</h1>
         <div className="space-y-3 rounded-[24px] bg-surface-container-low p-5">
           <p>{native ? `${native.device.model} · Android ${native.device.androidVersion}` : '设备信息未能读取，请重试。'}</p>

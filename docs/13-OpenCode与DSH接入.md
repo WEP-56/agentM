@@ -22,6 +22,8 @@ DSH 的原始 npm 包与依赖图来自 `examples/DSHA/tools/dsh-runtime/package
 
 源码来自精简参考快照；快照缺失的 recipe 支持文件从上述精确提交补齐到忽略提交的缓存，未修改 `examples/DSHA`。来源、输入摘要和产物摘要见 [适配来源记录](research/agent-packages/dsh-adaptations.json)。MIT 声明随 APK 保存，npm 原包保留各自许可证。
 
+覆盖文件在生成后、写入及计算 SHA-256 前统一使用 LF；清单以 UTF-8 / LF 写入，Git 对整个 `dsh-overlays` 目录固定 `eol=lf`。上游 recipe 和 npm 原文字节保持不变，`beforeSha256` 仍校验未改动的 npm 原文。此规则修复 [issue #1](https://github.com/WEP-56/agentM/issues/1)：DSHA Messages recipe 插入的 CRLF 曾导致本地生成文件与 Git / Release APK 中的 `5.js` 字节不同，而清单仍记录生成时的摘要。`DshAssetsTest` 在现有 Release CI 的 `testDebugUnitTest` 阶段逐项校验原始资产摘要及 LF 换行（含安装记录使用的清单），安装器继续严格校验，并在失败时显示补丁文件名。
+
 相关文件：
 
 - [OpenCode 来源](research/agent-packages/opencode.json)

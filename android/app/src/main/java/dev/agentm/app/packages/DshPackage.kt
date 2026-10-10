@@ -49,7 +49,7 @@ class DshPackage(private val assets: AssetManager, private val abi: String) {
             if (patch.has("beforeSha256")) require(file.isFile && digest(file.readBytes()) == patch.getString("beforeSha256")) { "DSH 补丁源文件不匹配" }
             else require(!file.exists())
             val content = assets.open(patch.getString("asset")).use { it.readBytes() }
-            require(digest(content) == patch.getString("sha256"))
+            require(digest(content) == patch.getString("sha256")) { "DSH 内置补丁校验失败：${patch.getString("asset")}，请更新或重新安装 agentM" }
             file.parentFile!!.mkdirs(); file.writeBytes(content)
         }
         // Recreate npm's per-level .bin links using the locked bin map and a checked target.

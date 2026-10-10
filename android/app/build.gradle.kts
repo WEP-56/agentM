@@ -14,8 +14,8 @@ android {
         applicationId = "dev.agentm.app"
         minSdk = 30
         targetSdk = 36
-        versionCode = 19
-        versionName = "0.14.1"
+        versionCode = 22
+        versionName = "0.15.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { buildConfig = true }
@@ -73,6 +73,11 @@ val verifyWebCompatibility by tasks.registering(Exec::class) {
     commandLine("node", rootProject.file("../tools/opencode-web-compat/verify.mjs").absolutePath)
 }
 tasks.named("preBuild") { dependsOn(syncWorkbench, verifyRuntimeAssets, verifyWebCompatibility) }
+
+// Asset-only changes must invalidate JVM tests that read the installer manifest.
+tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
+    inputs.dir("src/main/assets/dsh-overlays")
+}
 
 dependencies {
     implementation("androidx.activity:activity-ktx:1.10.1")

@@ -62,7 +62,7 @@ export function NativeEnvironment() {
   const native = useApp(s => s.native);
   const push = useApp(s => s.push);
   const environment = native?.environment;
-  return <TabPage title="环境" actions={<Button variant="text" onClick={() => useApp.setState({ onboarded: false, onboardingStep: 1, stack: [] })}>设置向导</Button>}>
+  return <TabPage title="环境" actions={<Button variant="text" onClick={() => useApp.setState({ onboarded: false, onboardingStep: 0, stack: [] })}>设置向导</Button>}>
     <NativeLinuxSetup />
     <NativeTools />
     <NativeStorage />

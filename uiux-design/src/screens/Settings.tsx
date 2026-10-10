@@ -1,22 +1,18 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   MdBrightnessAuto,
   MdCheck,
-  MdCheckCircle,
   MdOpenInNew,
-  MdOutlineBatteryChargingFull,
   MdOutlineDarkMode,
-  MdOutlineFolder,
   MdOutlineHistory,
   MdOutlineLightMode,
-  MdOutlineNotifications,
   MdOutlineRocketLaunch,
   MdOutlineSystemUpdate,
   MdRestartAlt,
 } from "react-icons/md";
 import { SiGithub } from "react-icons/si";
-import { APP_NAME, APP_VERSION, GITHUB_URL } from "@/data/agents";
-import { useApp, type Perm } from "@/store/useApp";
+import { APP_NAME, APP_VERSION } from "@/data/agents";
+import { useApp } from "@/store/useApp";
 import { SEEDS, swatch } from "@/theme/theme";
 import { Button } from "@/components/md/Button";
 import { Segmented, Switch } from "@/components/md/Controls";
@@ -25,61 +21,39 @@ import { Dialog } from "@/components/md/Overlay";
 import { CircularProgress } from "@/components/md/Progress";
 import { AppLogo, useIsDark } from "@/components/Brand";
 import { cn } from "@/utils/cn";
-import { isNative } from "@/platform/native";
-
-const PERMS: { key: Perm; title: string; desc: string; icon: ReactNode; ask: string; note?: string }[] = [
-  {
-    key: "notifications",
-    title: "通知",
-    desc: "显示运行状态，保持后台服务",
-    icon: <MdOutlineNotifications />,
-    ask: `允许“${APP_NAME}”向你发送通知吗？`,
-  },
-  {
-    key: "storage",
-    title: "文件访问",
-    desc: isNative ? "私有工作区，无需额外存储权限" : "在共享存储中读写项目",
-    icon: <MdOutlineFolder />,
-    ask: `允许“${APP_NAME}”管理所有文件吗？`,
-    note: "用于将 /sdcard 挂载到 Ubuntu 子系统。",
-  },
-  {
-    key: "battery",
-    title: "后台运行",
-    desc: "忽略电池优化，避免被系统回收",
-    icon: <MdOutlineBatteryChargingFull />,
-    ask: `要允许“${APP_NAME}”始终在后台运行吗？`,
-    note: "这可能会增加电池消耗。",
-  },
-];
+import { Permissions } from '@/components/Permissions';
+import { isNative, nativeRequest } from "@/platform/native";
+import { openProjectPage, type AppUpdate } from "@/platform/appUpdates";
 
 export function SettingsScreen() {
   const settings = useApp((s) => s.settings);
-  const perms = useApp((s) => s.permissions);
+  const version = useApp(s => s.native?.appVersion) ?? APP_VERSION;
   const setThemeMode = useApp((s) => s.setThemeMode);
   const setSeed = useApp((s) => s.setSeed);
   const setAutoStart = useApp((s) => s.setAutoStart);
   const restartRuntime = useApp((s) => s.restartRuntime);
-  const setPermission = useApp((s) => s.setPermission);
   const resetPreview = useApp((s) => s.resetPreview);
   const showSnack = useApp((s) => s.showSnack);
   const dark = useIsDark();
 
   const [confirmRestart, setConfirmRestart] = useState(false);
   const [restarting, setRestarting] = useState(false);
-  const [ask, setAsk] = useState<Perm | null>(null);
   const [updating, setUpdating] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
-  const askDef = PERMS.find((p) => p.key === ask);
 
-  const checkUpdate = () => {
-    if (isNative) { showSnack('尚未配置应用更新源'); return; }
-    if (updating) return;
-    setUpdating(true);
-    setTimeout(() => {
-      setUpdating(false);
-      showSnack(`已是最新版本 ${APP_VERSION}`);
-    }, 1500);
+  const checking = useRef(false);
+  const [update, setUpdate] = useState<AppUpdate | null>(null);
+  const [updateError, setUpdateError] = useState('');
+  const [updateDialog, setUpdateDialog] = useState(false);
+  const openPage = (page: 'repository' | 'releases' | 'release', tag = '') => {
+    void openProjectPage(page, tag).catch((error: Error) => showSnack(error.message));
+  };
+  const checkUpdate = async () => {
+    if (checking.current) return;
+    checking.current = true; setUpdating(true); setUpdate(null); setUpdateError('');
+    try { setUpdate(await nativeRequest<AppUpdate>('checkAppUpdate')); }
+    catch (error) { setUpdateError(error instanceof Error ? error.message : '更新检查失败'); }
+    finally { checking.current = false; setUpdating(false); setUpdateDialog(true); }
   };
 
   return (
@@ -131,56 +105,28 @@ export function SettingsScreen() {
         />
       </ListGroup>
 
-      <ListGroup title="权限">
-        {PERMS.map((p) => (
-          <ListItem
-            key={p.key}
-            icon={p.icon}
-            headline={p.title}
-            supporting={p.desc}
-            onClick={perms[p.key] ? undefined : () => setAsk(p.key)}
-            trailing={
-              perms[p.key] ? (
-                <span className="flex items-center gap-1 pr-1 type-label-large text-success">
-                  <MdCheckCircle className="text-[18px]" />
-                  已授权
-                </span>
-              ) : (
-                <Button
-                  variant="tonal"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setAsk(p.key);
-                  }}
-                >
-                  授权
-                </Button>
-              )
-            }
-          />
-        ))}
-      </ListGroup>
+      <Permissions />
 
       <ListGroup title="关于">
         <ListItem
           icon={<MdOutlineSystemUpdate />}
           headline="检查更新"
-          supporting={`当前版本 ${APP_VERSION}`}
-          onClick={checkUpdate}
+          supporting={`当前版本 ${version} · GitHub Release`}
+          onClick={() => void checkUpdate()}
+          disabled={updating}
           trailing={updating ? <CircularProgress size={22} stroke={2.5} className="mr-2" /> : null}
         />
         <ListItem
           icon={<SiGithub className="text-[22px]" />}
           headline="GitHub"
           supporting="源代码、问题反馈"
-          onClick={() => GITHUB_URL ? window.open(GITHUB_URL, "_blank", "noopener,noreferrer") : showSnack('项目仓库地址尚未配置')}
+          onClick={() => openPage('repository')}
           trailing={<MdOpenInNew className="mr-2 text-[20px] text-on-surface-variant" />}
         />
         <ListItem
           icon={<MdOutlineHistory />}
           headline="重新引导"
-          supporting="清除预览数据并重新开始"
+          supporting={isNative ? "重新查看权限和环境准备，保留已有数据" : "清除预览数据并重新开始"}
           onClick={() => setConfirmReset(true)}
         />
       </ListGroup>
@@ -188,11 +134,23 @@ export function SettingsScreen() {
       <div className="mt-10 flex flex-col items-center gap-3 pb-2">
         <AppLogo size={40} />
         <div className="type-label-medium text-on-surface-variant">
-          {APP_NAME} {APP_VERSION}
+          {APP_NAME} {version}
         </div>
       </div>
 
       {/* Dialogs */}
+      <Dialog open={updateDialog} onClose={() => setUpdateDialog(false)}
+        icon={<MdOutlineSystemUpdate />}
+        title={updateError ? '检查更新失败' : !update?.found ? '暂无正式发布' : update.updateAvailable ? `发现新版本 ${update.tag}` : '当前无需更新'}
+        actions={<><Button variant="text" onClick={() => setUpdateDialog(false)}>关闭</Button>
+          {updateError && <Button variant="text" disabled={updating} onClick={() => { setUpdateDialog(false); void checkUpdate(); }}>重试</Button>}
+          <Button onClick={() => openPage(update?.tag ? 'release' : 'releases', update?.tag)}>{update?.updateAvailable ? '前往下载' : '查看发布页'}</Button></>}>
+        {updateError ? <p role="alert">{updateError}</p> : !update?.found ? <p>仓库尚未提供公开的正式 Release，可稍后再检查。</p> : <>
+          <p>当前版本：{update.currentVersion}</p><p className="mt-2">最新正式版本：{update.tag}</p>
+          {!update.updateAvailable && <p className="mt-3">当前安装版本不低于最新正式发布版本。</p>}
+          {update.updateAvailable && update.notes && <div className="mt-4 max-h-64 overflow-y-auto whitespace-pre-wrap break-words type-body-small">{update.notes}</div>}
+        </>}
+      </Dialog>
       <Dialog
         open={confirmRestart}
         onClose={() => setConfirmRestart(false)}
@@ -221,39 +179,6 @@ export function SettingsScreen() {
       </Dialog>
 
       <Dialog
-        open={!!askDef}
-        onClose={() => setAsk(null)}
-        icon={<span className="text-primary">{askDef?.icon}</span>}
-        title={<span className="block text-center type-title-large">{askDef?.ask}</span>}
-        actions={
-          <div className="flex w-full flex-col gap-2">
-            <Button
-              variant="tonal"
-              className="w-full"
-              onClick={() => {
-                if (ask) setPermission(ask, true);
-                setAsk(null);
-              }}
-            >
-              允许
-            </Button>
-            <Button
-              variant="tonal"
-              className="w-full"
-              onClick={() => {
-                if (ask) setPermission(ask, false);
-                setAsk(null);
-              }}
-            >
-              不允许
-            </Button>
-          </div>
-        }
-      >
-        {askDef?.note && <p className="text-center">{askDef.note}</p>}
-      </Dialog>
-
-      <Dialog
         open={confirmReset}
         onClose={() => setConfirmReset(false)}
         icon={<MdOutlineHistory />}
@@ -275,7 +200,7 @@ export function SettingsScreen() {
           </>
         }
       >
-        将清除已安装的 Agent 与配置（仅限预览数据），并回到初次使用引导。
+        {isNative ? "返回初次使用引导，已安装的 Ubuntu、Agent、项目和配置会保留。" : "将清除预览数据并回到初次使用引导。"}
       </Dialog>
     </TabPage>
   );
